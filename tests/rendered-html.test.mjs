@@ -4,8 +4,16 @@ import test from "node:test";
 
 const root = new URL("../", import.meta.url);
 
-test("Codex book page includes commerce and verified buyer reviews", async () => {
+test("collection home connects all three ebook pages", async () => {
   const source = await readFile(new URL("app/page.tsx", root), "utf8");
+  assert.match(source, /href: "\/codex"/);
+  assert.match(source, /href: "\/career"/);
+  assert.match(source, /href: "\/seonara"/);
+  assert.match(source, /PHILIP BOOKS/);
+});
+
+test("Codex book page includes commerce and verified buyer reviews", async () => {
+  const source = await readFile(new URL("app/codex/page.tsx", root), "utf8");
   assert.match(source, /PurchaseButton product="codex"/);
   assert.match(source, /ReviewSection product="codex"/);
   assert.match(source, /PHILIP BOOKS/);

@@ -10,6 +10,12 @@ export function GET(request: Request) {
     <priority>1.0</priority>
   </url>
   <url>
+    <loc>${origin}/codex</loc>
+    <lastmod>${lastModified}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
     <loc>${origin}/career</loc>
     <lastmod>${lastModified}</lastmod>
     <changefreq>weekly</changefreq>

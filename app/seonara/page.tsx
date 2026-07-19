@@ -86,6 +86,7 @@ export default function SeoNaraBookPage() {
           <a href="#inside">책 소개</a>
           <a href="#reviews">구매 후기</a>
           <Link href="/career">디자이너 커리어북</Link>
+          <Link href="/codex">Codex 책</Link>
         </nav>
         <PurchaseButton product="seonara" label="19,000원 구매" className="nav-cta seonara-nav-cta" />
       </header>
@@ -198,7 +199,7 @@ export default function SeoNaraBookPage() {
         </div>
       </section>
 
-      <footer className="seonara-footer"><div className="page-width footer-grid"><div className="brand"><span className="brand-dot" /> PHILIP BOOKS</div><p>© 2026 서나라. All rights reserved.</p><div><Link href="/">Codex 책</Link><Link href="/career">디자이너 커리어북</Link><a href="#purchase">구매하기</a></div></div></footer>
+      <footer className="seonara-footer"><div className="page-width footer-grid"><Link className="brand" href="/"><span className="brand-dot" /> PHILIP BOOKS</Link><p>© 2026 서나라. All rights reserved.</p><div><Link href="/">전체 전자책</Link><Link href="/codex">Codex 책</Link><Link href="/career">디자이너 커리어북</Link><a href="#purchase">구매하기</a></div></div></footer>
     </main>
   );
 }

@@ -9,10 +9,10 @@ const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: "실전 전자책 | AI 서비스 제작과 커리어 전환",
+    default: "PHILIP BOOKS | 경험을 다음 기회로 바꾸는 실전 전자책",
     template: "%s | 필립의 실전 전자책",
   },
-  description: "Codex 서비스 제작, UI/UX 디자이너 커리어와 승무원에서 IT로 이동한 실제 경험을 다루는 실전 전자책.",
+  description: "AI 서비스 제작, UI/UX 디자이너 커리어와 승무원에서 IT로 이동한 실제 경험을 실행 가능한 방법으로 정리한 실전 전자책 컬렉션.",
   keywords: ["Codex 사용법", "비개발자 코딩", "UI UX 디자이너", "승무원 이직", "서비스 운영", "커리어 전환", "전자책"],
   authors: [{ name: "필립" }],
   creator: "필립",
@@ -22,17 +22,17 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "ko_KR",
-    title: "아이디어를 서비스로 바꾸는 Codex 사용법",
-    description: "개발자 없이 아이디어에서 배포·결제·홍보·운영까지. 258쪽 Codex 실전 워크북.",
+    title: "경험을 다음 기회로 바꾸는 실전 전자책",
+    description: "AI 서비스 제작 · UI/UX 커리어 · 승무원에서 IT로. 실제로 해본 사람의 실행 가능한 플레이북.",
     siteName: "Philip Books",
     url: "/",
-    images: [{ url: "/og.png", width: 1731, height: 909, alt: "아이디어를 서비스로 바꾸는 Codex 사용법" }],
+    images: [{ url: "/og-collection.png", width: 1733, height: 908, alt: "PHILIP BOOKS 실전 전자책 세 권" }],
   },
   twitter: {
     card: "summary_large_image",
-    title: "아이디어를 서비스로 바꾸는 Codex 사용법",
-    description: "50개 장을 따라 서비스의 처음부터 끝까지 완성하는 초보자용 Codex 실전서.",
-    images: ["/og.png"],
+    title: "경험을 다음 기회로 바꾸는 실전 전자책",
+    description: "AI 서비스 제작, UI/UX 커리어, 승무원에서 IT로 이어지는 실제 경험의 플레이북.",
+    images: ["/og-collection.png"],
   },
   icons: { icon: "/favicon.svg", shortcut: "/favicon.svg" },
 };

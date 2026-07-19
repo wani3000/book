@@ -69,7 +69,7 @@ export default function CareerBookPage() {
           <a href="#portfolio">이직 포트폴리오</a>
           <a href="#reviews">구매 후기</a>
           <Link href="/seonara">승무원→IT 책</Link>
-          <Link href="/">Codex 책</Link>
+          <Link href="/codex">Codex 책</Link>
         </nav>
         <PurchaseButton product="career" label="19,000원 구매" className="nav-cta career-nav-cta" />
       </header>
@@ -174,7 +174,7 @@ export default function CareerBookPage() {
         </div>
       </section>
 
-      <footer className="career-footer"><div className="page-width footer-grid"><div className="brand"><span className="brand-dot" /> PHILIP BOOKS</div><p>© 2026 필립. All rights reserved.</p><div><Link href="/">Codex 책</Link><Link href="/seonara">승무원→IT 책</Link><a href="#purchase">구매하기</a></div></div></footer>
+      <footer className="career-footer"><div className="page-width footer-grid"><Link className="brand" href="/"><span className="brand-dot" /> PHILIP BOOKS</Link><p>© 2026 필립. All rights reserved.</p><div><Link href="/">전체 전자책</Link><Link href="/codex">Codex 책</Link><Link href="/seonara">승무원→IT 책</Link><a href="#purchase">구매하기</a></div></div></footer>
     </main>
   );
 }
