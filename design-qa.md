@@ -1,5 +1,7 @@
 # Design QA
 
+> 범위 안내(2026-07-20): 아래 검증 기록은 마켓 메인(`/`) 기준이다. 최신 공통 상세페이지(`/codex`, `/career`, `/seonara`)는 빌드와 구조 테스트를 통과했지만 별도의 데스크톱·모바일 스크린샷 QA 기록은 아직 없다. 상세페이지 공개 전 후속 시각 검증 항목은 상위 `HANDOFF.md`를 따른다.
+
 - Source visual truth: `/Users/chulwan/Documents/Codex/2026-07-18/pc/reference/class101-ref-3.png`
 - Implementation screenshots: `/Users/chulwan/Documents/Codex/2026-07-18/pc/website/qa-home-desktop.png`, `/Users/chulwan/Documents/Codex/2026-07-18/pc/website/qa-home-mobile.png`
 - Combined comparison: `/Users/chulwan/Documents/Codex/2026-07-18/pc/website/qa-side-by-side.png`
