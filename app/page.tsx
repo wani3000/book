@@ -36,7 +36,7 @@ const faqs = [
 const schema = {
   "@context": "https://schema.org",
   "@type": "Product",
-  name: "비개발자도 Codex로 서비스를 만들 수 있다",
+  name: "아이디어를 서비스로 바꾸는 Codex 사용법",
   description: "IT 초보자가 Codex로 기획, 개발, 배포, 결제, SEO와 자동화까지 완성하는 253쪽 실전 전자책",
   brand: { "@type": "Brand", name: "필립" },
   offers: {
@@ -98,7 +98,7 @@ export default function Home() {
             <div className="orbit orbit-two" />
             <div className="book-shadow" />
             <div className="book-cover">
-              <Image src="/ebook-cover.png" alt="비개발자도 Codex로 서비스를 만들 수 있다 전자책 표지" width={991} height={1406} priority />
+              <Image src="/ebook-cover.png" alt="아이디어를 서비스로 바꾸는 Codex 사용법 전자책 표지" width={991} height={1406} priority />
             </div>
             <div className="floating-note note-a"><b>Goal</b><span>무엇을 만들까?</span></div>
             <div className="floating-note note-b"><b>Done</b><span>어떻게 확인할까?</span></div>
