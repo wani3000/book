@@ -3,7 +3,7 @@
 import { initializePaddle, type Paddle } from "@paddle/paddle-js";
 import { useEffect, useMemo, useState } from "react";
 
-type ProductSlug = "codex" | "career";
+type ProductSlug = "codex" | "career" | "seonara";
 
 type Props = {
   product: ProductSlug;
@@ -19,6 +19,10 @@ const productConfig = {
   career: {
     priceId: process.env.NEXT_PUBLIC_CAREER_PRICE_ID,
     purchaseUrl: process.env.NEXT_PUBLIC_CAREER_PURCHASE_URL,
+  },
+  seonara: {
+    priceId: process.env.NEXT_PUBLIC_SEONARA_PRICE_ID,
+    purchaseUrl: process.env.NEXT_PUBLIC_SEONARA_PURCHASE_URL,
   },
 };
 

@@ -15,6 +15,12 @@ export function GET(request: Request) {
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
+  <url>
+    <loc>${origin}/seonara</loc>
+    <lastmod>${lastModified}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
 </urlset>`;
   return new Response(xml, { headers: { "content-type": "application/xml; charset=utf-8" } });
 }

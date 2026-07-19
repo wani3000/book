@@ -19,6 +19,15 @@ test("career book page includes its sales content and reviews", async () => {
   assert.match(source, /ReviewSection product="career"/);
 });
 
+test("Seo Nara book page includes career transition, commerce, and reviews", async () => {
+  const source = await readFile(new URL("app/seonara/page.tsx", root), "utf8");
+  assert.match(source, /승무원 다음은 IT였습니다/);
+  assert.match(source, /프로젝트 운영 매니저/);
+  assert.match(source, /Codex로 직접 만들었습니다/);
+  assert.match(source, /PurchaseButton product="seonara"/);
+  assert.match(source, /ReviewSection product="seonara"/);
+});
+
 test("review API only exposes approved verified reviews", async () => {
   const source = await readFile(new URL("app/api/reviews/route.ts", root), "utf8");
   assert.match(source, /eq\(reviews\.status, "approved"\)/);

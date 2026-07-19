@@ -2,7 +2,7 @@
 
 import { FormEvent, useEffect, useState } from "react";
 
-type ProductSlug = "codex" | "career";
+type ProductSlug = "codex" | "career" | "seonara";
 
 type Review = {
   id: number;
@@ -22,6 +22,11 @@ const sampleReviews: Record<ProductSlug, Array<{ id: number; displayName: string
     { id: -11, displayName: "3년차 프로덕트 디자이너", rating: 5, content: "스타트업에서 이것저것 했다는 경력을 대기업이 이해하는 상황·책임·행동·결과의 언어로 바꾸는 부분이 특히 실용적이었어요." },
     { id: -12, displayName: "이직을 준비하는 UI 디자이너", rating: 5, content: "회사 작업만 넣어야 한다고 생각했는데, 직접 만든 서비스를 기획·마케팅·운영한 경험도 강한 포트폴리오가 될 수 있다는 관점이 좋았습니다." },
     { id: -13, displayName: "AI를 공부하는 UX 디자이너", rating: 4, content: "AI 도구 이름을 나열하는 대신 직접 구현하고 검수하고 배포한 결과로 설명하라는 기준이 지금 이직 준비에 잘 맞는다고 느꼈어요." },
+  ],
+  seonara: [
+    { id: -21, displayName: "이직을 고민하는 객실승무원", rating: 5, content: "객실에서 해온 일을 친절이나 서비스 정신으로만 쓰지 않고 이슈 대응, 협업, 운영 개선으로 바꾸는 표가 특히 구체적이었어요." },
+    { id: -22, displayName: "비전공 승무원 지원자", rating: 5, content: "연기와 쇼핑몰, 방송처럼 흩어진 경험도 행동을 정확히 찾으면 승무원 지원의 근거가 될 수 있다는 흐름이 이해하기 쉬웠습니다." },
+    { id: -23, displayName: "서비스 운영 직무 준비생", rating: 4, content: "위시켓 프로젝트 운영과 Codex 대시보드 사례 덕분에 작은 업무 개선도 포트폴리오 증거로 만드는 방법을 알 수 있었어요." },
   ],
 };
 

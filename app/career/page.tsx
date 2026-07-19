@@ -68,6 +68,7 @@ export default function CareerBookPage() {
           <a href="#inside">책 소개</a>
           <a href="#portfolio">이직 포트폴리오</a>
           <a href="#reviews">구매 후기</a>
+          <Link href="/seonara">승무원→IT 책</Link>
           <Link href="/">Codex 책</Link>
         </nav>
         <PurchaseButton product="career" label="19,000원 구매" className="nav-cta career-nav-cta" />
@@ -163,7 +164,7 @@ export default function CareerBookPage() {
 
       <section className="career-purchase" id="purchase">
         <div className="page-width career-purchase-grid">
-          <div><p className="career-kicker">DESIGN YOUR NEXT MOVE</p><h2>다음 회사를 기다리지 말고,<br />다음 <em>증거</em>를 만드세요.</h2><p>PDF 61쪽 · 20장 · 30일 워크북 · 필립 지음</p></div>
+          <div><p className="career-kicker">DESIGN YOUR NEXT MOVE</p><h2>다음 회사를 기다리지 말고,<br />다음 <em>증거</em>를 만드세요.</h2><p>PDF 63쪽 · 20장 · 30일 워크북 · 필립 지음</p></div>
           <div className="career-price-card">
             <span>UI/UX 디자이너 커리어북</span><strong><small>₩</small>19,000</strong>
             <ul><li>✓ 전체 전자책 PDF</li><li>✓ 포트폴리오 편집 체크리스트</li><li>✓ 해외 협업·면접 답변 구조</li><li>✓ 30일 커리어 리디자인 워크북</li></ul>
@@ -173,7 +174,7 @@ export default function CareerBookPage() {
         </div>
       </section>
 
-      <footer className="career-footer"><div className="page-width footer-grid"><div className="brand"><span className="brand-dot" /> PHILIP BOOKS</div><p>© 2026 필립. All rights reserved.</p><div><Link href="/">Codex 책</Link><a href="#reviews">구매 후기</a><a href="#purchase">구매하기</a></div></div></footer>
+      <footer className="career-footer"><div className="page-width footer-grid"><div className="brand"><span className="brand-dot" /> PHILIP BOOKS</div><p>© 2026 필립. All rights reserved.</p><div><Link href="/">Codex 책</Link><Link href="/seonara">승무원→IT 책</Link><a href="#purchase">구매하기</a></div></div></footer>
     </main>
   );
 }

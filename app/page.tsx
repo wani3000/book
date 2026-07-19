@@ -75,6 +75,7 @@ export default function Home() {
           <a href="#inside">책 소개</a>
           <a href="#reviews">구매 후기</a>
           <Link href="/career">커리어북</Link>
+          <Link href="/seonara">승무원→IT</Link>
           <a href="#faq">FAQ</a>
         </nav>
         <PurchaseButton product="codex" label="19,000원 구매" className="nav-cta" />
@@ -242,12 +243,12 @@ export default function Home() {
           <div>
             <p className="eyebrow light"><span /> 지금 시작하세요</p>
             <h2>개발자를 기다리는 대신,<br /><em>오늘 첫 폴더</em>를 만드세요.</h2>
-            <p>253쪽 PDF 전자책 · 구매 후 바로 읽기</p>
+            <p>258쪽 PDF 전자책 · 구매 후 바로 읽기</p>
           </div>
           <div className="price-card">
             <span>전자책 단품</span>
             <strong><small>₩</small>19,000</strong>
-            <ul><li>✓ PDF 전자책 253쪽</li><li>✓ 실전 워크북 블록 245개</li><li>✓ 출시 전 체크리스트·용어집</li></ul>
+            <ul><li>✓ PDF 전자책 258쪽</li><li>✓ 실전 워크북 블록 250개</li><li>✓ 출시 전 체크리스트·용어집</li></ul>
             <PurchaseButton product="codex" label="19,000원으로 구매하기" className="button primary full" />
             <p>디지털 콘텐츠 특성상 다운로드 후 환불 기준을 구매 페이지에서 확인해 주세요.</p>
           </div>
@@ -258,7 +259,7 @@ export default function Home() {
         <div className="page-width footer-grid">
           <div className="brand"><span className="brand-dot" /> PHILIP BOOKS</div>
           <p>© 2026 필립. All rights reserved.</p>
-          <div><Link href="/career">커리어북</Link><a href="#reviews">구매 후기</a><a href="#purchase">구매하기</a></div>
+          <div><Link href="/career">디자이너 커리어북</Link><Link href="/seonara">승무원→IT 커리어북</Link><a href="#purchase">구매하기</a></div>
         </div>
       </footer>
     </main>
