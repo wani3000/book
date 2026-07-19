@@ -126,7 +126,7 @@ em { color: #7ca713; font-style: normal; }
 .chart i { flex: 1; display: block; background: linear-gradient(#c4e859,#718a2a); border-radius: 5px 5px 0 0; opacity: .9; }
 
 .author-section { display: grid; grid-template-columns: 230px 1fr 210px; gap: 60px; align-items: center; }
-.author-mark { width: 210px; height: 270px; position: relative; display: grid; place-items: center; color: var(--lime); background: var(--navy); border-radius: 120px 120px 18px 18px; font-size: 50px; font-weight: 800; letter-spacing: -.08em; }
+.author-mark { width: 210px; height: 270px; position: relative; display: grid; place-items: center; color: var(--lime); background: var(--navy); border-radius: 120px 120px 18px 18px; font-size: 39px; font-weight: 800; letter-spacing: -.06em; }
 .author-mark span { position: absolute; bottom: 28px; font: 700 11px var(--font-geist-mono), monospace; color: #98a4b8; letter-spacing: .12em; }
 .author-copy p:not(.eyebrow) { max-width: 650px; color: var(--muted); line-height: 1.8; word-break: keep-all; }
 .author-copy blockquote { margin: 30px 0 0; padding-left: 20px; border-left: 4px solid var(--lime); color: var(--navy); font-size: 19px; font-weight: 700; }

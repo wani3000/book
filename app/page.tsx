@@ -38,7 +38,7 @@ const schema = {
   "@type": "Product",
   name: "비개발자도 Codex로 서비스를 만들 수 있다",
   description: "IT 초보자가 Codex로 기획, 개발, 배포, 결제, SEO와 자동화까지 완성하는 253쪽 실전 전자책",
-  brand: { "@type": "Brand", name: "박철완" },
+  brand: { "@type": "Brand", name: "필립" },
   offers: {
     "@type": "Offer",
     priceCurrency: "KRW",
@@ -198,9 +198,9 @@ export default function Home() {
       </section>
 
       <section className="section page-width author-section" id="author">
-        <div className="author-mark">PCW<span>17</span></div>
+        <div className="author-mark">PHILIP<span>17</span></div>
         <div className="author-copy">
-          <p className="eyebrow"><span /> 저자 박철완</p>
+          <p className="eyebrow"><span /> 저자 필립</p>
           <h2>아이디어를 제품으로,<br />제품을 <em>결제</em>로 바꿔왔습니다.</h2>
           <p>시각디자인과 UX에서 출발해 스마트워치, 피트니스, 블록체인 스타트업을 거쳤습니다. 개발자와 유료 웹서비스를 만들고 운영해 매각했으며, 지금은 Codex로 마리에카드와 아파트구구를 직접 만들고 개선합니다.</p>
           <blockquote>“개발자가 아니어도 서비스의 책임자가 될 수 있습니다.”</blockquote>
@@ -251,7 +251,7 @@ export default function Home() {
       <footer>
         <div className="page-width footer-grid">
           <div className="brand"><span className="brand-dot" /> CODEX SOLO BUILDER</div>
-          <p>© 2026 박철완. All rights reserved.</p>
+          <p>© 2026 필립. All rights reserved.</p>
           <div><a href="#faq">FAQ</a><a href="#purchase">구매하기</a></div>
         </div>
       </footer>

@@ -9,14 +9,14 @@ const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: "비개발자도 Codex로 서비스를 만들 수 있다 | 박철완",
+    default: "비개발자도 Codex로 서비스를 만들 수 있다 | 필립",
     template: "%s | Codex Solo Builder",
   },
   description: "IT 초보자가 Codex로 폴더 생성부터 GitHub, Vercel 배포, Supabase, 결제, SEO와 Threads 자동화까지 완성하는 253쪽 실전 전자책.",
   keywords: ["Codex 사용법", "비개발자 코딩", "AI 서비스 만들기", "바이브 코딩", "1인 개발", "전자책"],
-  authors: [{ name: "박철완" }],
-  creator: "박철완",
-  publisher: "박철완",
+  authors: [{ name: "필립" }],
+  creator: "필립",
+  publisher: "필립",
   robots: { index: true, follow: true },
   alternates: { canonical: "/" },
   openGraph: {
