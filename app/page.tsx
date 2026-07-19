@@ -1,7 +1,10 @@
 import Image from "next/image";
+import Link from "next/link";
+import PurchaseButton from "./components/PurchaseButton";
+import ReviewSection from "./components/ReviewSection";
 
-const purchaseUrl = process.env.NEXT_PUBLIC_PURCHASE_URL || "#purchase";
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+const purchaseUrl = process.env.NEXT_PUBLIC_CODEX_PURCHASE_URL || siteUrl;
 
 const features = [
   ["01", "완전 초보자의 언어", "서버, DB, API, 배포, 커밋부터 일상어로 설명합니다."],
@@ -66,14 +69,15 @@ export default function Home() {
 
       <header className="nav-shell">
         <a className="brand" href="#top" aria-label="처음으로">
-          <span className="brand-dot" /> CODEX SOLO BUILDER
+          <span className="brand-dot" /> PHILIP BOOKS
         </a>
         <nav aria-label="주요 메뉴">
           <a href="#inside">책 소개</a>
-          <a href="#author">저자</a>
+          <a href="#reviews">구매 후기</a>
+          <Link href="/career">커리어북</Link>
           <a href="#faq">FAQ</a>
         </nav>
-        <a className="nav-cta" href={purchaseUrl}>19,000원 구매</a>
+        <PurchaseButton product="codex" label="19,000원 구매" className="nav-cta" />
       </header>
 
       <section className="hero" id="top">
@@ -83,7 +87,7 @@ export default function Home() {
             <h1>아이디어를<br /><em>작동하는 서비스</em>로.</h1>
             <p className="hero-lead">개발자를 기다리지 마세요. 폴더 하나에서 시작해 GitHub, 배포, 회원, 결제, SEO와 자동화까지 Codex와 혼자 완성하는 순서를 담았습니다.</p>
             <div className="hero-actions">
-              <a className="button primary" href={purchaseUrl}>전자책 구매하기 <span>→</span></a>
+              <PurchaseButton product="codex" label="전자책 구매하기" />
               <a className="button text-button" href="#preview">내용 미리보기</a>
             </div>
             <div className="hero-proof">
@@ -213,6 +217,8 @@ export default function Home() {
         </div>
       </section>
 
+      <ReviewSection product="codex" />
+
       <section className="section faq-section" id="faq">
         <div className="page-width faq-grid">
           <div className="section-heading compact">
@@ -242,7 +248,7 @@ export default function Home() {
             <span>전자책 단품</span>
             <strong><small>₩</small>19,000</strong>
             <ul><li>✓ PDF 전자책 253쪽</li><li>✓ 실전 워크북 블록 245개</li><li>✓ 출시 전 체크리스트·용어집</li></ul>
-            <a className="button primary full" href={purchaseUrl}>19,000원으로 구매하기 <span>→</span></a>
+            <PurchaseButton product="codex" label="19,000원으로 구매하기" className="button primary full" />
             <p>디지털 콘텐츠 특성상 다운로드 후 환불 기준을 구매 페이지에서 확인해 주세요.</p>
           </div>
         </div>
@@ -250,9 +256,9 @@ export default function Home() {
 
       <footer>
         <div className="page-width footer-grid">
-          <div className="brand"><span className="brand-dot" /> CODEX SOLO BUILDER</div>
+          <div className="brand"><span className="brand-dot" /> PHILIP BOOKS</div>
           <p>© 2026 필립. All rights reserved.</p>
-          <div><a href="#faq">FAQ</a><a href="#purchase">구매하기</a></div>
+          <div><Link href="/career">커리어북</Link><a href="#reviews">구매 후기</a><a href="#purchase">구매하기</a></div>
         </div>
       </footer>
     </main>
