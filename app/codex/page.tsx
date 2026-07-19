@@ -1,56 +1,17 @@
 import type { Metadata } from "next";
-import Image from "next/image";
-import Link from "next/link";
-import PurchaseButton from "../components/PurchaseButton";
-import ReviewSection from "../components/ReviewSection";
+import ClassDetailPage, { type DetailBook } from "../components/ClassDetailPage";
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+export const metadata: Metadata = { title: "아이디어를 서비스로 바꾸는 Codex 사용법", description: "IT 초보자가 Codex로 기획, 개발, 배포, 결제, SEO와 자동화까지 완성하는 258쪽 실전 전자책.", alternates: { canonical: "/codex" }, openGraph: { title: "아이디어를 서비스로 바꾸는 Codex 사용법", images: ["/og.png"] } };
 
-export const metadata: Metadata = {
-  title: "아이디어를 서비스로 바꾸는 Codex 사용법",
-  description: "IT 초보자가 Codex로 기획, 개발, 배포, 결제, SEO와 자동화까지 완성하는 258쪽 실전 전자책.",
-  alternates: { canonical: "/codex" },
-  openGraph: { title: "아이디어를 서비스로 바꾸는 Codex 사용법", description: "개발자 없이 아이디어에서 배포·결제·운영까지.", url: "/codex", images: [{ url: "/og.png", width: 1731, height: 909 }] },
+const book: DetailBook = {
+  product: "codex", category: "AI · 개발 · 생산성", title: "아이디어를 서비스로 바꾸는 Codex 사용법", subtitle: "코딩을 몰라도 폴더 생성부터 배포·결제·SEO까지 혼자 완성하는 실전 가이드", creator: "필립", cover: "/ebook-cover.png", coverWidth: 991, coverHeight: 1406, pages: "258쪽", chapters: "49개 장", level: "완전 입문", theme: "orange",
+  headline: "개발자를 기다리지 않고 내 서비스를 직접 출시하는 법", intro: "AI가 코드를 만들어주는 시대에도 폴더, GitHub, 서버, 배포, 결제 같은 단어 앞에서 멈추는 사람이 많습니다. 이 책은 완전한 IT 초보자가 Codex에 무엇을 부탁하고, 결과를 어떻게 확인하며, 실제 서비스로 연결하는지 처음부터 끝까지 안내합니다.", quote: "좋은 프롬프트 한 줄보다 중요한 것은 목표를 나누고, 결과를 확인하고, 다음 명령을 이어가는 힘입니다.",
+  targets: [["아이디어는 있지만 개발을 모르는 분", "코드가 아니라 서비스 출시의 전체 순서부터 알고 싶은 분"], ["AI로 만들다 중간에 멈춘 분", "커밋·푸시·배포·서버 같은 용어에서 막혔던 분"], ["혼자 첫 서비스를 운영할 분", "로그인, 데이터, 결제, SEO와 홍보까지 직접 연결할 분"]],
+  outcomes: [["Codex에 제대로 명령하는 법", "목표·맥락·제약·완료 조건을 담은 요청과 후속 명령을 익힙니다."], ["서비스를 출시하는 전체 흐름", "폴더에서 시작해 GitHub와 Vercel을 거쳐 실제 주소로 공개합니다."], ["운영에 필요한 기능 연결", "Supabase, 결제, 지도, 검색 등록, 광고와 자동화를 이해합니다."], ["실수를 줄이는 검증 습관", "코드를 몰라도 테스트 결과와 화면을 확인하고 수정시키는 방법을 배웁니다."]],
+  curriculum: [["PART 01", "시작하기", "웹서비스 구조, 폴더, 터미널, Git과 GitHub를 초보자의 언어로 설명합니다."], ["PART 02", "Codex로 제작하기", "좋은 프롬프트, 화면 제작, 모바일 대응, 오류 수정과 접근성을 다룹니다."], ["PART 03", "서비스 기능 붙이기", "Supabase, 회원가입, 로그인, 데이터, 이미지와 관리자 기능을 연결합니다."], ["PART 04", "세상에 출시하기", "Vercel, GitHub Pages, 도메인, 결제, 지도와 카카오톡 연동을 진행합니다."], ["PART 05", "검색되고 성장하기", "SEO, 구글·네이버 검색 등록, AdSense와 Threads 자동화를 다룹니다."], ["PART 06", "서비스를 사업으로 만들기", "첫 고객, 반복 운영, B2B, 자동화와 매각까지 실제 경험을 정리합니다."]],
+  included: ["258쪽 전체 PDF 전자책", "Codex에 그대로 입력하는 실전 명령문", "단계별 검증·오류 수정 체크리스트", "GitHub·배포·서버·SEO 초보자 용어집", "마리에카드·아파트구구 실제 운영 사례"],
+  creatorTitle: "비개발자 AI 서비스 빌더", creatorBio: "필립은 모바일 청첩장과 부동산 정보 서비스 등 여러 제품을 직접 기획·디자인·운영해 왔습니다. 개발자가 아닌 사람이 AI와 함께 실제 서비스를 끝까지 완성할 때 필요한 판단과 시행착오를 이 책에 담았습니다.", creatorProof: ["모바일 청첩장 서비스 기획·디자인·마케팅·운영", "아파트 정보 서비스 직접 제작·운영", "AI 코딩 도구로 여러 웹서비스 출시"],
+  faqs: [["코딩을 전혀 몰라도 읽을 수 있나요?", "네. 폴더와 파일이 무엇인지부터 설명하고, 각 단계에서 Codex에 입력할 문장을 제공합니다."], ["프롬프트만 모아둔 책인가요?", "아닙니다. 제작, 데이터, 배포, 결제, SEO와 운영을 하나의 실제 출시 흐름으로 연결합니다."], ["어떤 준비물이 필요한가요?", "인터넷이 연결된 컴퓨터와 Codex를 사용할 계정이면 시작할 수 있습니다."], ["전자책은 어떻게 받나요?", "결제 완료 후 PDF 형태로 바로 이용할 수 있도록 제공할 예정입니다."]]
 };
 
-const curriculum = [
-  ["01", "시작", "웹서비스 구조 · 폴더 · 터미널 · Git · GitHub"],
-  ["02", "제작", "Codex 프롬프트 · Next.js · 화면 · 모바일 · 접근성"],
-  ["03", "기능", "Supabase · 로그인 · 데이터 · 이미지 · 관리자"],
-  ["04", "출시", "Vercel · 도메인 · 결제 · 지도 · 카카오톡"],
-  ["05", "성장", "SEO · 검색 등록 · AdSense · Threads 자동화"],
-  ["06", "사업", "첫 고객 · 자동화 · B2B · 매각까지의 실제 경험"],
-];
-
-const faqs = [
-  ["코딩을 전혀 몰라도 읽을 수 있나요?", "그 독자를 기준으로 썼습니다. 용어부터 설명하고 Codex에 무엇을 어떻게 요청할지 순서대로 안내합니다."],
-  ["프롬프트만 모아둔 책인가요?", "아닙니다. 폴더 생성부터 GitHub, 배포, 회원, 결제, SEO, 자동화와 운영까지 하나의 흐름으로 연결합니다."],
-  ["어떤 서비스를 사례로 사용하나요?", "모바일 청첩장 마리에카드와 부동산 정보 서비스 아파트구구의 실제 제작·운영 경험을 사용합니다."],
-  ["파일 형식과 분량은 어떻게 되나요?", "A5 기준 258쪽 PDF 전자책이며 실전 명령, 검증법, 체크리스트와 용어집을 포함합니다."],
-];
-
-const schema = { "@context": "https://schema.org", "@type": "Product", name: "아이디어를 서비스로 바꾸는 Codex 사용법", image: `${siteUrl}/ebook-cover.png`, offers: { "@type": "Offer", priceCurrency: "KRW", price: "19000", availability: "https://schema.org/InStock", url: `${siteUrl}/codex` } };
-
-export default function CodexBookPage() {
-  return (
-    <main>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }} />
-      <header className="nav-shell">
-        <Link className="brand" href="/" aria-label="전자책 전체 목록"><span className="brand-dot" /> PHILIP BOOKS</Link>
-        <nav aria-label="주요 메뉴"><a href="#inside">책 소개</a><a href="#preview">명령문 미리보기</a><a href="#reviews">구매 후기</a><Link href="/career">UI/UX 커리어</Link><Link href="/seonara">승무원→IT</Link></nav>
-        <PurchaseButton product="codex" label="19,000원 구매" className="nav-cta" />
-      </header>
-      <section className="hero" id="top"><div className="hero-grid page-width">
-        <div className="hero-copy"><p className="eyebrow"><span /> 비개발자를 위한 Codex 서비스 제작 실전서</p><h1>아이디어를<br /><em>작동하는 서비스</em>로.</h1><p className="hero-lead">개발자를 기다리지 마세요. 폴더 하나에서 시작해 GitHub, 배포, 회원, 결제, SEO와 자동화까지 Codex와 혼자 완성하는 순서를 담았습니다.</p><div className="hero-actions"><PurchaseButton product="codex" label="전자책 구매하기" /><a className="button text-button" href="#inside">목차 먼저 보기</a></div><div className="hero-proof"><div><strong>258</strong><span>페이지</span></div><div><strong>49</strong><span>실전 장</span></div><div><strong>250</strong><span>워크북 블록</span></div><div><strong>19,000</strong><span>원 · PDF</span></div></div></div>
-        <div className="book-stage"><div className="orbit orbit-one"/><div className="orbit orbit-two"/><div className="book-shadow"/><div className="book-cover"><Image src="/ebook-cover.png" alt="아이디어를 서비스로 바꾸는 Codex 사용법 표지" width={991} height={1406} priority/></div><div className="floating-note note-a"><b>GOAL</b><span>무엇을 만들까?</span></div><div className="floating-note note-b"><b>DONE</b><span>어떻게 확인할까?</span></div></div>
-      </div></section>
-      <section className="problem-strip"><div className="page-width problem-grid"><p>“AI가 코드는 만들어줬는데<br/><b>그다음은 뭘 해야 하지?</b>”</p><ul><li>코드를 어디에 넣는지 모르겠다</li><li>커밋·푸시·배포에서 멈춘다</li><li>회원·결제·검색까지 연결하지 못한다</li></ul><div className="answer">이 책은 바로 그<br/><strong>‘그다음’</strong>을 설명합니다.</div></div></section>
-      <section className="section curriculum-section" id="inside"><div className="page-width split-heading"><div><p className="eyebrow light"><span/> 처음부터 운영까지</p><h2>한 권으로 연결하는<br/>서비스의 <em>전체 여정</em></h2></div><p>각 단계에서 Codex에 무엇을 요청하고 어떤 결과를 확인해야 하는지 따라갑니다.</p></div><div className="page-width curriculum-list">{curriculum.map(([number,title,detail])=><div className="curriculum-row" key={number}><span>{number}</span><h3>{title}</h3><p>{detail}</p><i>↗</i></div>)}</div></section>
-      <section className="section page-width" id="preview"><div className="preview-grid"><div className="prompt-panel"><div className="window-bar"><i/><i/><i/><span>codex-prompt.md</span></div><p className="prompt-label">CODEX에 그대로 입력하세요</p><p>“나는 IT 용어를 거의 모르는 비개발자야. 먼저 현재 폴더와 파일을 확인하고, 바로 코드를 만들지 말고 문제와 가설을 정리해줘.”</p><div className="prompt-tags"><span>목표</span><span>맥락</span><span>제약</span><span>완료 조건</span></div></div><div className="preview-copy"><p className="eyebrow"><span/> 따라 쓰는 워크북</p><h2>좋은 요청부터<br/>안전한 검증까지.</h2><ul className="check-list"><li><span>✓</span>Codex에 그대로 입력하는 첫 명령</li><li><span>✓</span>Codex가 되물었을 때 답하는 방법</li><li><span>✓</span>테스트와 검증을 요청하는 후속 명령</li><li><span>✓</span>실수와 비용을 막는 위험 명령</li></ul></div></div></section>
-      <ReviewSection product="codex" />
-      <section className="section faq-section"><div className="page-width faq-grid"><div className="section-heading compact"><p className="eyebrow"><span/> FAQ</p><h2>구매 전<br/>확인하세요.</h2></div><div className="faq-list">{faqs.map(([q,a],i)=><details key={q} open={i===0}><summary>{q}<span>＋</span></summary><p>{a}</p></details>)}</div></div></section>
-      <section className="purchase-section"><div className="page-width purchase-grid"><div><p className="eyebrow light"><span/> 지금 시작하세요</p><h2>오늘 첫 폴더를<br/><em>만드세요.</em></h2><p>258쪽 PDF 전자책 · 구매 후 바로 읽기</p></div><div className="price-card"><span>전자책 단품</span><strong><small>₩</small>19,000</strong><ul><li>✓ PDF 전자책 258쪽</li><li>✓ 실전 워크북 250개</li><li>✓ 출시 전 체크리스트·용어집</li></ul><PurchaseButton product="codex" label="19,000원으로 구매하기" className="button primary full"/></div></div></section>
-      <footer><div className="page-width footer-grid"><Link className="brand" href="/"><span className="brand-dot"/> PHILIP BOOKS</Link><p>© 2026 필립.</p><div><Link href="/">전체 전자책</Link><Link href="/career">UI/UX 커리어</Link><Link href="/seonara">승무원→IT</Link></div></div></footer>
-    </main>
-  );
-}
+export default function Page() { return <ClassDetailPage book={book} />; }
