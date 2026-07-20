@@ -27,6 +27,59 @@ const productConfig = {
 };
 
 let paddlePromise: Promise<Paddle | undefined> | null = null;
+let naverPaySdkPromise: Promise<void> | null = null;
+
+type DirectProvider = "kakaopay" | "naverpay";
+
+type NaverPayCheckout = {
+  clientId: string;
+  chainId?: string;
+  mode: "development" | "production";
+  merchantUserKey: string;
+  merchantPayKey: string;
+  productName: string;
+  productCount: number;
+  totalPayAmount: number;
+  taxScopeAmount: number;
+  taxExScopeAmount: number;
+  returnUrl: string;
+  productItems: Array<{ categoryType: string; categoryId: string; uid: string; name: string; payReferrer: string; count: number }>;
+  error?: string;
+};
+
+declare global {
+  interface Window {
+    Naver?: {
+      Pay: {
+        create(config: { mode: string; clientId: string; chainId?: string; payType: "normal"; openType: "page" }): {
+          open(context: Omit<NaverPayCheckout, "clientId" | "chainId" | "mode" | "error">): void;
+        };
+      };
+    };
+  }
+}
+
+function loadNaverPaySdk() {
+  if (window.Naver?.Pay) return Promise.resolve();
+  if (!naverPaySdkPromise) {
+    naverPaySdkPromise = new Promise<void>((resolve, reject) => {
+      const existing = document.querySelector<HTMLScriptElement>('script[data-naverpay-sdk="true"]');
+      if (existing) {
+        existing.addEventListener("load", () => resolve(), { once: true });
+        existing.addEventListener("error", () => reject(new Error("NaverPay SDK failed to load")), { once: true });
+        return;
+      }
+      const script = document.createElement("script");
+      script.src = "https://nsp.pay.naver.com/sdk/js/naverpay.min.js";
+      script.async = true;
+      script.dataset.naverpaySdk = "true";
+      script.addEventListener("load", () => resolve(), { once: true });
+      script.addEventListener("error", () => reject(new Error("NaverPay SDK failed to load")), { once: true });
+      document.head.appendChild(script);
+    });
+  }
+  return naverPaySdkPromise;
+}
 
 function getPaddle() {
   const token = process.env.NEXT_PUBLIC_PADDLE_CLIENT_TOKEN;
@@ -51,18 +104,19 @@ export default function PurchaseButton({ product, label, className = "button pri
   }, [config.priceId]);
 
   const kakaoPayReady = process.env.NEXT_PUBLIC_KAKAOPAY_ENABLED === "true";
-  const ready = Boolean(kakaoPayReady || externalUrl || (paddle && config.priceId));
+  const naverPayReady = process.env.NEXT_PUBLIC_NAVERPAY_ENABLED === "true";
+  const ready = Boolean(kakaoPayReady || naverPayReady || externalUrl || (paddle && config.priceId));
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  async function beginPurchase() {
+  async function beginPurchase(provider?: DirectProvider) {
     if (!ready) return;
     setError("");
     setLoading(true);
-    if (kakaoPayReady) {
+    if (provider) {
       const consented = window.confirm("결제 완료 즉시 PDF 열람이 시작되며, 열람 또는 다운로드 후에는 단순 변심 청약철회가 제한될 수 있습니다. 결제를 계속할까요?");
       if (!consented) { setLoading(false); return; }
-      const response = await fetch("/api/kakaopay/ready", {
+      const response = await fetch(`/api/${provider}/ready`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ product, contentProvisionConsent: true }),
@@ -75,6 +129,33 @@ export default function PurchaseButton({ product, label, className = "button pri
       if (response.status === 401) {
         window.location.href = `/mypage?next=${encodeURIComponent(window.location.pathname)}`;
         return;
+      }
+      if (provider === "naverpay") {
+        const data = await response.json().catch(() => ({})) as NaverPayCheckout;
+        if (!response.ok || !data.clientId) {
+          setError(data.error || "네이버페이 결제를 시작하지 못했습니다.");
+          setLoading(false);
+          return;
+        }
+        try {
+          await loadNaverPaySdk();
+          if (!window.Naver?.Pay) throw new Error("NaverPay SDK is unavailable");
+          const pay = window.Naver.Pay.create({
+            mode: data.mode,
+            clientId: data.clientId,
+            ...(data.chainId ? { chainId: data.chainId } : {}),
+            payType: "normal",
+            openType: "page",
+          });
+          const { clientId: _clientId, chainId: _chainId, mode: _mode, error: _error, ...checkout } = data;
+          void _clientId; void _chainId; void _mode; void _error;
+          pay.open(checkout);
+          return;
+        } catch {
+          setError("네이버페이 결제창을 불러오지 못했습니다.");
+          setLoading(false);
+          return;
+        }
       }
       const data = await response.json().catch(() => ({})) as { redirectUrl?: string; mobileRedirectUrl?: string; error?: string };
       const mobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
@@ -112,15 +193,25 @@ export default function PurchaseButton({ product, label, className = "button pri
     setLoading(false);
   }
 
+  if (kakaoPayReady || naverPayReady) {
+    return <div className={`purchase-provider-wrap ${kakaoPayReady && naverPayReady ? "is-dual" : ""}`}>
+      <div className="purchase-provider-grid">
+        {kakaoPayReady && <button type="button" className={`${className} provider-kakao`} disabled={loading} onClick={() => beginPurchase("kakaopay")}>{loading ? "연결 중" : "카카오페이"}<span>→</span></button>}
+        {naverPayReady && <button type="button" className={`${className} provider-naver`} disabled={loading} onClick={() => beginPurchase("naverpay")}>{loading ? "연결 중" : "네이버페이"}<span>→</span></button>}
+      </div>
+      {error && <span className="purchase-error" role="alert">{error}</span>}
+    </div>;
+  }
+
   return (
     <><button
       type="button"
       className={className}
       disabled={!ready || loading}
       aria-label={ready ? label : `${label} - 결제 설정 준비 중`}
-      onClick={beginPurchase}
+      onClick={() => beginPurchase()}
     >
-      {loading ? "결제창 여는 중" : ready ? label : "카카오페이 심사 준비 중"}<span>→</span>
+      {loading ? "결제창 여는 중" : ready ? label : "간편결제 심사 준비 중"}<span>→</span>
     </button>{error && <span className="purchase-error" role="alert">{error}</span>}</>
   );
 }

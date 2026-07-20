@@ -114,7 +114,8 @@ test("KakaoPay direct checkout verifies the signed-in buyer and approved amount"
   const button = await readFile(new URL("app/components/PurchaseButton.tsx", root), "utf8");
   const ready = await readFile(new URL("app/api/kakaopay/ready/route.ts", root), "utf8");
   const approve = await readFile(new URL("app/api/kakaopay/approve/route.ts", root), "utf8");
-  assert.match(button, /fetch\("\/api\/kakaopay\/ready"/);
+  assert.match(button, /fetch\(`\/api\/\$\{provider\}\/ready`/);
+  assert.match(button, /beginPurchase\("kakaopay"\)/);
   assert.match(ready, /getAuthenticatedMember/);
   assert.match(ready, /paymentAttempts/);
   assert.match(approve, /approved\.amount\?\.total !== book\.amount/);
@@ -132,4 +133,30 @@ test("merchant review pages disclose seller, privacy, and refund rules", async (
   assert.match(terms, /이용약관/);
   assert.match(privacy, /개인정보처리방침/);
   assert.match(refund, /구매일로부터 7일/);
+});
+
+test("NaverPay checkout creates a member order and verifies approval details", async () => {
+  const button = await readFile(new URL("app/components/PurchaseButton.tsx", root), "utf8");
+  const ready = await readFile(new URL("app/api/naverpay/ready/route.ts", root), "utf8");
+  const callback = await readFile(new URL("app/api/naverpay/return/route.ts", root), "utf8");
+  const server = await readFile(new URL("app/naverpay/server.ts", root), "utf8");
+  assert.match(button, /\/api\/\$\{provider\}\/ready/);
+  assert.match(button, /Naver\.Pay\.create/);
+  assert.match(ready, /getAuthenticatedMember/);
+  assert.match(ready, /provider: "naverpay"/);
+  assert.match(callback, /detail\?\.totalPayAmount !== book\.amount/);
+  assert.match(callback, /detail\.merchantPayKey !== orderId/);
+  assert.match(callback, /provider: "naverpay"/);
+  assert.match(server, /payments\/v2\.2\/apply\/payment/);
+  assert.match(server, /application\/x-www-form-urlencoded/);
+});
+
+test("direct payment refunds require an admin and revoke paid access", async () => {
+  const refund = await readFile(new URL("app/api/admin/orders/refund/route.ts", root), "utf8");
+  assert.match(refund, /admin\?\.isAdmin/);
+  assert.match(refund, /cancelKakaoPay/);
+  assert.match(refund, /cancelNaverPay/);
+  assert.match(refund, /status: "refund_processing"/);
+  assert.match(refund, /"refund_pending"/);
+  assert.match(refund, /"refund_review"/);
 });

@@ -14,6 +14,12 @@ type ApproveResponse = {
   amount?: { total?: number };
 };
 
+type CancelResponse = {
+  tid: string;
+  status?: string;
+  canceled_amount?: { total?: number };
+};
+
 function credentials() {
   const cid = process.env.KAKAOPAY_CID;
   const secretKey = process.env.KAKAOPAY_SECRET_KEY;
@@ -80,6 +86,16 @@ export async function approveKakaoPay(args: {
     partner_order_id: args.orderId,
     partner_user_id: args.memberId,
     pg_token: args.pgToken,
+  });
+}
+
+export async function cancelKakaoPay(args: { tid: string; amount: number }) {
+  const { cid } = credentials();
+  return requestKakaoPay<CancelResponse>("cancel", {
+    cid,
+    tid: args.tid,
+    cancel_amount: args.amount,
+    cancel_tax_free_amount: 0,
   });
 }
 
