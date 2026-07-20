@@ -17,7 +17,7 @@ export const ebookCatalog = {
     product: "jane",
     title: "승무원 다음은 IT였습니다",
     amount: 19000,
-    assetPath: "/library-assets/jane-9a6d5c20.pdf",
+    assetPath: "/library-assets/jane-23fded4f.pdf",
     filename: "flight-attendant-to-it-seonara.pdf",
   },
 } as const;

@@ -29,7 +29,7 @@ BOOKS = (
     {
         "source": WORKSPACE_ROOT / "output/pdf/flight-attendant-to-it-seonara.pdf",
         "cover": WEBSITE_ROOT / "public/jane-cover.png",
-        "deployed": WEBSITE_ROOT / "public/library-assets/jane-9a6d5c20.pdf",
+        "deployed": WEBSITE_ROOT / "public/library-assets/jane-23fded4f.pdf",
         "background": "#f5efe8",
     },
 )
@@ -59,6 +59,21 @@ def make_cover_page(image_path: Path, background: str, output_path: Path) -> Non
     pdf.save()
 
 
+def copy_outline(reader: PdfReader, writer: PdfWriter) -> None:
+    def add_items(items: list, parent=None) -> None:
+        previous = None
+        for item in items:
+            if isinstance(item, list):
+                add_items(item, previous or parent)
+                continue
+            page_number = reader.get_destination_page_number(item)
+            if page_number < 0:
+                continue
+            previous = writer.add_outline_item(item.title, page_number, parent=parent)
+
+    add_items(reader.outline)
+
+
 def replace_first_page(pdf_path: Path, cover_path: Path, background: str) -> None:
     with NamedTemporaryFile(suffix="-cover.pdf", delete=False) as cover_file:
         temporary_cover = Path(cover_file.name)
@@ -70,9 +85,10 @@ def replace_first_page(pdf_path: Path, cover_path: Path, background: str) -> Non
         source_reader = PdfReader(str(pdf_path))
         cover_reader = PdfReader(str(temporary_cover))
         writer = PdfWriter()
-        writer.clone_document_from_reader(source_reader)
-        del writer.pages[0]
-        writer.insert_page(cover_reader.pages[0], 0)
+        writer.add_page(cover_reader.pages[0])
+        for page in source_reader.pages[1:]:
+            writer.add_page(page)
+        copy_outline(source_reader, writer)
         if source_reader.metadata:
             writer.add_metadata(dict(source_reader.metadata))
         with temporary_book.open("wb") as destination:
