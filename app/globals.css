@@ -345,7 +345,7 @@ footer { padding-block: 36px; background: #0b1429; color: #8894a8; }
 .detail-tabs { position:sticky; top:0; z-index:20; border-top:1px solid #ededf0; border-bottom:1px solid #dedee2; background:rgba(255,255,255,.96); backdrop-filter:blur(12px); }
 .detail-tabs>div { width:min(1200px,calc(100% - 40px)); display:flex; gap:38px; margin:auto; }
 .detail-tabs a { position:relative; min-height:57px; display:grid; place-items:center; color:#68686f; font-size:13px; font-weight:700; }
-.detail-tabs a:first-child { color:#171719; }.detail-tabs a:first-child::after { content:""; position:absolute; left:0; right:0; bottom:-1px; height:3px; background:#171719; }
+.detail-tabs a:hover,.detail-tabs a:focus-visible { color:var(--detail-accent); }
 .detail-body-layout { width:min(1060px,calc(100% - 40px)); display:grid; grid-template-columns:minmax(0,700px) 300px; gap:60px; margin:0 auto; }
 .detail-content { min-width:0; }
 .detail-side-sticky { align-self:start; position:sticky; top:76px; margin-top:78px; }
