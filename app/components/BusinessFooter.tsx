@@ -1,0 +1,20 @@
+import { BookOpen } from "@phosphor-icons/react";
+import Link from "next/link";
+
+const phone = process.env.NEXT_PUBLIC_BUSINESS_PHONE?.trim();
+
+export default function BusinessFooter() {
+  return (
+    <footer className="class-footer business-footer">
+      <Link className="class-logo" href="/"><BookOpen weight="fill" size={25} /><strong>PHILIP BOOKS</strong></Link>
+      <p>실제 경험을 실행 가능한 지식으로 만듭니다.</p>
+      <div className="business-footer-links"><Link href="/terms">이용약관</Link><Link href="/privacy">개인정보처리방침</Link><Link href="/refund">교환·환불정책</Link></div>
+      <address>
+        <span>상호 플로렌스랩(Florence Lab)</span><span>대표자 박철완</span><span>사업자등록번호 217-26-12405</span>
+        <span>통신판매업신고 제 2020-서울구로-0138호</span><span>서울특별시 구로구 고척로 49, 204동 703호</span>
+        {phone && <span>고객센터 {phone}</span>}<a href="mailto:florencelab@naver.com">florencelab@naver.com</a>
+      </address>
+      <small>© 2026 PHILIP BOOKS · 플로렌스랩</small>
+    </footer>
+  );
+}

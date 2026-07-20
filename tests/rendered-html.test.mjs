@@ -109,3 +109,27 @@ test("Paddle webhook creates paid orders and revokes access after full refunds",
   assert.match(webhook, /EventName\.AdjustmentUpdated/);
   assert.match(webhook, /status: event\.data\.action === "chargeback" \? "chargeback" : "refunded"/);
 });
+
+test("KakaoPay direct checkout verifies the signed-in buyer and approved amount", async () => {
+  const button = await readFile(new URL("app/components/PurchaseButton.tsx", root), "utf8");
+  const ready = await readFile(new URL("app/api/kakaopay/ready/route.ts", root), "utf8");
+  const approve = await readFile(new URL("app/api/kakaopay/approve/route.ts", root), "utf8");
+  assert.match(button, /fetch\("\/api\/kakaopay\/ready"/);
+  assert.match(ready, /getAuthenticatedMember/);
+  assert.match(ready, /paymentAttempts/);
+  assert.match(approve, /approved\.amount\?\.total !== book\.amount/);
+  assert.match(approve, /provider: "kakaopay"/);
+  assert.match(approve, /status: "paid"/);
+});
+
+test("merchant review pages disclose seller, privacy, and refund rules", async () => {
+  const footer = await readFile(new URL("app/components/BusinessFooter.tsx", root), "utf8");
+  const terms = await readFile(new URL("app/terms/page.tsx", root), "utf8");
+  const privacy = await readFile(new URL("app/privacy/page.tsx", root), "utf8");
+  const refund = await readFile(new URL("app/refund/page.tsx", root), "utf8");
+  assert.match(footer, /217-26-12405/);
+  assert.match(footer, /제 2020-서울구로-0138호/);
+  assert.match(terms, /이용약관/);
+  assert.match(privacy, /개인정보처리방침/);
+  assert.match(refund, /구매일로부터 7일/);
+});

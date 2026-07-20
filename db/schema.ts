@@ -30,6 +30,20 @@ export const orders = sqliteTable("orders", {
   updatedAt: text("updated_at").notNull().default(sql`CURRENT_TIMESTAMP`),
 }, (table) => [uniqueIndex("orders_provider_reference_unique").on(table.providerReference)]);
 
+export const paymentAttempts = sqliteTable("payment_attempts", {
+  id: text("id").primaryKey(),
+  memberId: text("member_id").notNull().references(() => members.id),
+  product: text("product").notNull(),
+  amount: integer("amount").notNull(),
+  provider: text("provider").notNull().default("kakaopay"),
+  providerReference: text("provider_reference").notNull(),
+  status: text("status").notNull().default("ready"),
+  errorCode: text("error_code"),
+  contentProvisionConsentAt: text("content_provision_consent_at").notNull(),
+  createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+  updatedAt: text("updated_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+}, (table) => [uniqueIndex("payment_attempts_provider_reference_unique").on(table.providerReference)]);
+
 export const reviews = sqliteTable("reviews", {
   id: integer("id").primaryKey({ autoIncrement: true }),
   product: text("product").notNull(),

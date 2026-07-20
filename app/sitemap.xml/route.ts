@@ -27,6 +27,24 @@ export function GET(request: Request) {
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
+  <url>
+    <loc>${origin}/terms</loc>
+    <lastmod>${lastModified}</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+  </url>
+  <url>
+    <loc>${origin}/privacy</loc>
+    <lastmod>${lastModified}</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+  </url>
+  <url>
+    <loc>${origin}/refund</loc>
+    <lastmod>${lastModified}</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+  </url>
 </urlset>`;
   return new Response(xml, { headers: { "content-type": "application/xml; charset=utf-8" } });
 }

@@ -16,6 +16,7 @@ import {
 import PurchaseButton from "./PurchaseButton";
 import ReviewSection from "./ReviewSection";
 import GoogleAccount from "./GoogleAccount";
+import BusinessFooter from "./BusinessFooter";
 
 type ProductSlug = "codex" | "career" | "jane";
 
@@ -67,7 +68,7 @@ function BuyCard({ book, compact = false }: { book: DetailBook; compact?: boolea
       <div className="detail-price"><span>판매가</span><strong>19,000<small>원</small></strong></div>
       {!compact && <ul><li><DownloadSimple size={18} /> 결제 후 PDF 바로 이용</li><li><BookOpen size={18} /> {book.pages} · {book.chapters}</li><li><ShieldCheck size={18} /> 안전한 결제와 구매 확인</li></ul>}
       <PurchaseButton product={book.product} label="19,000원에 구매하기" className="detail-buy-button" />
-      {!compact && <p className="detail-buy-note">디지털 콘텐츠 특성상 다운로드 후에는 단순 변심 환불이 제한될 수 있습니다.</p>}
+      {!compact && <p className="detail-buy-note">결제 후 즉시 PDF가 제공되며, 열람·다운로드 후에는 단순 변심 환불이 제한될 수 있습니다. <Link href="/refund">환불정책 보기</Link></p>}
     </aside>
   );
 }
@@ -143,7 +144,7 @@ export default function ClassDetailPage({ book }: { book: DetailBook }) {
 
       <section className="detail-final"><div><span>{book.category}</span><h2>{book.title}</h2><p>{book.pages} PDF · 구매 후 바로 읽기</p></div><strong>19,000<small>원</small></strong><PurchaseButton product={book.product} label="전자책 구매하기" className="detail-buy-button" /></section>
 
-      <footer className="class-footer"><Link className="class-logo" href="/"><BookOpen weight="fill" size={25} /><strong>PHILIP BOOKS</strong></Link><p>실제 경험을 실행 가능한 지식으로 만듭니다.</p><div><Link href="/codex">AI 서비스 제작</Link><Link href="/career">UI/UX 커리어</Link><Link href="/jane">승무원에서 IT로</Link></div><small>© 2026 PHILIP BOOKS</small></footer>
+      <BusinessFooter />
       <div className="detail-mobile-buy"><span><small>전자책</small><b>19,000원</b></span><PurchaseButton product={book.product} label="구매하기" className="detail-buy-button" /></div>
     </main>
   );

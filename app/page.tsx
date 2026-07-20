@@ -17,6 +17,7 @@ import {
   SquaresFour,
 } from "@phosphor-icons/react";
 import GoogleAccount from "./components/GoogleAccount";
+import BusinessFooter from "./components/BusinessFooter";
 
 const books = [
   {
@@ -144,7 +145,7 @@ export default function BookstoreHome() {
         <a href="#books">나에게 맞는 전자책 찾기 <ArrowRight size={18} weight="bold" /></a>
       </section>
 
-      <footer className="class-footer"><Link className="class-logo" href="/"><BookOpen weight="fill" size={25} /><strong>PHILIP BOOKS</strong></Link><p>실제 경험을 실행 가능한 지식으로 만듭니다.</p><div><Link href="/codex">AI 서비스 제작</Link><Link href="/career">UI/UX 커리어</Link><Link href="/jane">승무원에서 IT로</Link></div><small>© 2026 PHILIP BOOKS</small></footer>
+      <BusinessFooter />
     </main>
   );
 }
