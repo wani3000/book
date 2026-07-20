@@ -687,6 +687,7 @@ button:disabled { cursor: not-allowed; opacity: .58; transform: none !important;
 
 /* Member account, my page, and admin */
 .google-account-login-link { padding:9px 13px; border:1px solid #dedee2; border-radius:7px; background:#fff; font-size:12px; font-weight:750; }
+.class-logo-mark { width:28px; height:28px; display:inline-grid; place-items:center; border-radius:8px; color:#fff; background:#19191c; font-size:13px; font-weight:900; }
 .google-account-user>a { display:flex; align-items:center; gap:8px; }
 .google-account-user>a>span:first-child { width:31px; height:31px; display:grid; place-items:center; border-radius:50%; color:#fff; background:#202023; font-size:12px; font-weight:800; }
 .google-account-user>a>span:nth-child(2) { min-width:0; max-width:135px; }
