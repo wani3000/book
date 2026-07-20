@@ -75,7 +75,7 @@ function BuyCard({ book, compact = false }: { book: DetailBook; compact?: boolea
 
 export default function ClassDetailPage({ book }: { book: DetailBook }) {
   return (
-    <main className={`class-detail theme-${book.theme}`}>
+    <main className={`class-detail theme-${book.theme} product-${book.product}`}>
       <StoreHeader />
 
       <div className="detail-breadcrumb"><Link href="/">홈</Link><span>›</span><Link href="/">전자책</Link><span>›</span><b>{book.category}</b></div>
