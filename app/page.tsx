@@ -1,7 +1,8 @@
 "use client";
+/* eslint-disable @next/next/no-img-element */
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   ArrowRight,
   BookOpen,
@@ -9,7 +10,6 @@ import {
   ChartLineUp,
   Code,
   DotsThree,
-  Heart,
   MagnifyingGlass,
   Palette,
   RocketLaunch,
@@ -78,10 +78,19 @@ export default function BookstoreHome() {
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState("전체");
 
+  useEffect(() => {
+    const searchQuery = new URLSearchParams(window.location.search).get("q")?.trim();
+    if (!searchQuery) return;
+    const applySearch = window.setTimeout(() => setQuery(searchQuery), 0);
+    return () => window.clearTimeout(applySearch);
+  }, []);
+
   const visible = useMemo(() => {
     const normalized = query.trim().toLowerCase();
     return books.filter((book) => {
-      const categoryMatch = category === "전체" || category === "전체 카테고리" || book.category === category || book.tags.some((tag) => tag.includes(category.split(" ")[0]));
+      const categoryMatch = category === "전체" || category === "전체 카테고리" || book.category === category ||
+        (category === "서비스 운영" && book.id === "jane") ||
+        (category === "개발 · 생산성" && book.id === "codex");
       const queryMatch = !normalized || [book.title, book.creator, book.category, book.subtitle, ...book.tags].join(" ").toLowerCase().includes(normalized);
       return categoryMatch && queryMatch;
     });
@@ -108,12 +117,12 @@ export default function BookstoreHome() {
       </header>
 
       <section className="class-discovery" aria-label="추천과 카테고리">
-        <Link className="class-promo" href="/codex">
+        <a className="class-promo" href="#books">
           <div><small>이번 주 추천</small><h1>실무에 바로 쓰는<br />세 권의 실전 전자책</h1><p>읽은 다음 날 바로 시작할 수 있는 경험과 워크북</p><span>자세히 보기 <ArrowRight size={15} weight="bold" /></span></div>
           <div className="class-promo-covers" aria-hidden="true">
             {books.map((book) => <img key={book.id} src={book.image} width={book.width} height={book.height} alt="" />)}
           </div>
-        </Link>
+        </a>
         <div className="class-category-grid">
           {categories.map(({ label, icon: Icon }) => (
             <button className={category === label ? "active" : ""} type="button" key={label} onClick={() => setCategory(label)} aria-pressed={category === label}>
@@ -131,7 +140,6 @@ export default function BookstoreHome() {
               <article className="class-product" key={book.id}>
                 <Link className={`class-cover-wrap ${book.accent}`} href={book.href}>
                   <span>{book.badge}</span><img src={book.image} width={book.width} height={book.height} alt={`${book.title} 표지`} />
-                  <Heart className="class-heart" size={25} weight="bold" aria-label="관심 전자책" />
                 </Link>
                 <div className="class-product-copy"><h3><Link href={book.href}>{book.title}</Link></h3><p>{book.subtitle}</p><small>{book.category} · {book.creator}</small><strong>19,000원</strong></div>
               </article>

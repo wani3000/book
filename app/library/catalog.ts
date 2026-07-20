@@ -1,7 +1,7 @@
 export const ebookCatalog = {
   codex: {
     product: "codex",
-    title: "ChatGPT Codex로 혼자 서비스 만들기",
+    title: "아이디어를 서비스로 바꾸는 Codex 사용법",
     amount: 19000,
     assetPath: "/library-assets/codex-7461d974.pdf",
     filename: "chatgpt-codex-solo-service.pdf",
@@ -17,8 +17,8 @@ export const ebookCatalog = {
     product: "jane",
     title: "승무원 다음은 IT였습니다",
     amount: 19000,
-    assetPath: "/library-assets/jane-23fded4f.pdf",
-    filename: "flight-attendant-to-it-seonara.pdf",
+    assetPath: "/library-assets/jane-fc5efcfd.pdf",
+    filename: "flight-attendant-to-it-jane.pdf",
   },
 } as const;
 

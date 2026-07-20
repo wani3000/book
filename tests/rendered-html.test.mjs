@@ -55,6 +55,23 @@ test("review API only exposes approved verified reviews", async () => {
   assert.match(source, /getAuthenticatedMember/);
 });
 
+test("review moderation is protected and only approves purchase-verified reviews", async () => {
+  const source = await readFile(new URL("app/api/admin/reviews/route.ts", root), "utf8");
+  const page = await readFile(new URL("app/components/ReviewAdmin.tsx", root), "utf8");
+  assert.match(source, /member\?\.isAdmin/);
+  assert.match(source, /purchaseVerified: action === "approve" \? 1 : 0/);
+  assert.match(source, /status: action === "approve" \? "approved" : "rejected"/);
+  assert.match(page, /구매 확인 후 공개/);
+});
+
+test("storefront does not publish fabricated ratings or sample reviews", async () => {
+  const detail = await readFile(new URL("app/components/ClassDetailPage.tsx", root), "utf8");
+  const reviews = await readFile(new URL("app/components/ReviewSection.tsx", root), "utf8");
+  assert.doesNotMatch(detail, /후기 3개|4\.8/);
+  assert.doesNotMatch(reviews, /sampleReviews|가상 독자/);
+  assert.match(reviews, /아직 공개된 구매 후기가 없습니다/);
+});
+
 test("Google login persists a verified member and creates a secure session", async () => {
   const source = await readFile(new URL("app/api/auth/google/route.ts", root), "utf8");
   assert.match(source, /email_verified !== true/);

@@ -29,8 +29,9 @@ BOOKS = (
     {
         "source": WORKSPACE_ROOT / "output/pdf/flight-attendant-to-it-seonara.pdf",
         "cover": WEBSITE_ROOT / "public/jane-cover.png",
-        "deployed": WEBSITE_ROOT / "public/library-assets/jane-23fded4f.pdf",
+        "deployed": WEBSITE_ROOT / "public/library-assets/jane-fc5efcfd.pdf",
         "background": "#f5efe8",
+        "author": "제인",
     },
 )
 
@@ -74,7 +75,7 @@ def copy_outline(reader: PdfReader, writer: PdfWriter) -> None:
     add_items(reader.outline)
 
 
-def replace_first_page(pdf_path: Path, cover_path: Path, background: str) -> None:
+def replace_first_page(pdf_path: Path, cover_path: Path, background: str, author: str | None = None) -> None:
     with NamedTemporaryFile(suffix="-cover.pdf", delete=False) as cover_file:
         temporary_cover = Path(cover_file.name)
     with NamedTemporaryFile(suffix="-book.pdf", delete=False) as book_file:
@@ -89,8 +90,11 @@ def replace_first_page(pdf_path: Path, cover_path: Path, background: str) -> Non
         for page in source_reader.pages[1:]:
             writer.add_page(page)
         copy_outline(source_reader, writer)
-        if source_reader.metadata:
-            writer.add_metadata(dict(source_reader.metadata))
+        metadata = dict(source_reader.metadata or {})
+        if author:
+            metadata["/Author"] = author
+        if metadata:
+            writer.add_metadata(metadata)
         with temporary_book.open("wb") as destination:
             writer.write(destination)
         temporary_book.replace(pdf_path)
@@ -101,7 +105,7 @@ def replace_first_page(pdf_path: Path, cover_path: Path, background: str) -> Non
 
 def main() -> None:
     for book in BOOKS:
-        replace_first_page(book["source"], book["cover"], book["background"])
+        replace_first_page(book["source"], book["cover"], book["background"], book.get("author"))
         book["deployed"].write_bytes(book["source"].read_bytes())
         print(f"updated: {book['source'].name} -> {book['deployed'].name}")
 

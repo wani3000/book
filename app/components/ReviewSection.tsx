@@ -12,24 +12,6 @@ type Review = {
   createdAt: string;
 };
 
-const sampleReviews: Record<ProductSlug, Array<{ id: number; displayName: string; rating: number; content: string }>> = {
-  codex: [
-    { id: -1, displayName: "비개발자 예비 창업자", rating: 5, content: "AI가 코드를 만든 뒤 무엇을 해야 할지 막막했는데, 커밋·푸시·배포를 일상어로 이어서 이해할 수 있었어요." },
-    { id: -2, displayName: "혼자 서비스를 준비하는 직장인", rating: 5, content: "프롬프트만 모은 책이 아니라 로그인, 데이터, 결제, SEO까지 하나의 출시 순서로 연결해준 점이 좋았습니다." },
-    { id: -3, displayName: "바이브 코딩 입문자", rating: 4, content: "Codex에 무엇을 요청하고 결과를 어떻게 검증해야 하는지 예문이 있어 첫 프로젝트의 시행착오를 줄이는 데 도움이 될 것 같아요." },
-  ],
-  career: [
-    { id: -11, displayName: "3년차 프로덕트 디자이너", rating: 5, content: "스타트업에서 이것저것 했다는 경력을 대기업이 이해하는 상황·책임·행동·결과의 언어로 바꾸는 부분이 특히 실용적이었어요." },
-    { id: -12, displayName: "이직을 준비하는 UI 디자이너", rating: 5, content: "회사 작업만 넣어야 한다고 생각했는데, 직접 만든 서비스를 기획·마케팅·운영한 경험도 강한 포트폴리오가 될 수 있다는 관점이 좋았습니다." },
-    { id: -13, displayName: "AI를 공부하는 UX 디자이너", rating: 4, content: "AI 도구 이름을 나열하는 대신 직접 구현하고 검수하고 배포한 결과로 설명하라는 기준이 지금 이직 준비에 잘 맞는다고 느꼈어요." },
-  ],
-  jane: [
-    { id: -21, displayName: "이직을 고민하는 객실승무원", rating: 5, content: "객실에서 해온 일을 친절이나 서비스 정신으로만 쓰지 않고 이슈 대응, 협업, 운영 개선으로 바꾸는 표가 특히 구체적이었어요." },
-    { id: -22, displayName: "비전공 승무원 지원자", rating: 5, content: "연기와 쇼핑몰, 방송처럼 흩어진 경험도 행동을 정확히 찾으면 승무원 지원의 근거가 될 수 있다는 흐름이 이해하기 쉬웠습니다." },
-    { id: -23, displayName: "서비스 운영 직무 준비생", rating: 4, content: "위시켓 프로젝트 운영과 Codex 대시보드 사례 덕분에 작은 업무 개선도 포트폴리오 증거로 만드는 방법을 알 수 있었어요." },
-  ],
-};
-
 export default function ReviewSection({ product, tone = "light" }: { product: ProductSlug; tone?: "light" | "navy" }) {
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
@@ -66,11 +48,6 @@ export default function ReviewSection({ product, tone = "light" }: { product: Pr
     setMessage("후기가 접수되었습니다. 구매 확인 후 공개됩니다. 감사합니다.");
   }
 
-  const displayedReviews = [
-    ...reviews.map((review) => ({ ...review, sample: false })),
-    ...sampleReviews[product].map((review) => ({ ...review, createdAt: "", sample: true })),
-  ];
-
   return (
     <section className={`reviews-section ${tone === "navy" ? "reviews-navy" : ""}`} id="reviews">
       <div className="page-width">
@@ -82,20 +59,20 @@ export default function ReviewSection({ product, tone = "light" }: { product: Pr
           <p>실제 구매 후기는 구매 내역 확인 후 공개합니다. 좋은 평가뿐 아니라 아쉬운 점도 제품 개선에 반영합니다.</p>
         </div>
 
-        <p className="sample-review-notice"><b>안내</b> 현재 표시된 예시 후기는 페이지 구성을 위한 가상 독자 반응이며 실제 구매자가 작성한 후기가 아닙니다.</p>
-
         {loading ? (
           <div className="reviews-empty">구매자 후기를 불러오고 있습니다.</div>
-        ) : (
+        ) : reviews.length ? (
           <div className="review-grid">
-            {displayedReviews.map((review) => (
+            {reviews.map((review) => (
               <article className="review-card" key={review.id}>
                 <div className="review-stars" aria-label={`별점 ${review.rating}점`}>{"★".repeat(review.rating)}{"☆".repeat(5 - review.rating)}</div>
                 <blockquote>“{review.content}”</blockquote>
-                <p><b>{review.displayName}</b><span className={review.sample ? "sample-badge" : ""}>{review.sample ? "예시 후기 · 실제 구매자 아님" : "구매 인증"}</span></p>
+                <p><b>{review.displayName}</b><span>구매 인증</span></p>
               </article>
             ))}
           </div>
+        ) : (
+          <div className="reviews-empty honest-empty"><b>아직 공개된 구매 후기가 없습니다.</b><p>첫 구매 인증 후기가 등록되면 이곳에 공개됩니다.</p></div>
         )}
 
         <section className="review-form-shell" aria-labelledby={`${product}-review-form-title`}>

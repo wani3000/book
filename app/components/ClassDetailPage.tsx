@@ -1,17 +1,14 @@
 "use client";
+/* eslint-disable @next/next/no-img-element */
 
-import Image from "next/image";
 import Link from "next/link";
 import {
   BookOpen,
   Check,
   Clock,
   DownloadSimple,
-  Heart,
   MagnifyingGlass,
-  ShareNetwork,
   ShieldCheck,
-  Star,
 } from "@phosphor-icons/react";
 import PurchaseButton from "./PurchaseButton";
 import ReviewSection from "./ReviewSection";
@@ -54,7 +51,11 @@ function StoreHeader() {
           <BookOpen weight="fill" size={28} /><strong>PHILIP BOOKS</strong>
         </Link>
         <nav aria-label="주요 메뉴"><Link href="/">전자책</Link><a href="#curriculum">목차</a><a href="#reviews">후기</a><a href="#creator">저자</a></nav>
-        <label className="detail-search"><span className="sr-only">전자책 검색</span><input placeholder="관심 주제, 전자책, 경험을 검색해보세요" /><MagnifyingGlass size={20} weight="bold" /></label>
+        <form className="detail-search" action="/" method="get" role="search">
+          <label className="sr-only" htmlFor="detail-store-search">전자책 검색</label>
+          <input id="detail-store-search" name="q" placeholder="관심 주제, 전자책, 경험을 검색해보세요" />
+          <button type="submit" aria-label="검색"><MagnifyingGlass size={20} weight="bold" /></button>
+        </form>
         <div className="detail-account"><GoogleAccount /></div>
       </div>
     </header>
@@ -82,7 +83,7 @@ export default function ClassDetailPage({ book }: { book: DetailBook }) {
 
       <section className="detail-product-top">
         <div className="detail-gallery">
-          <div className="detail-gallery-main"><Image src={book.cover} width={book.coverWidth} height={book.coverHeight} alt={`${book.title} 표지`} priority /></div>
+          <div className="detail-gallery-main"><img src={book.cover} width={book.coverWidth} height={book.coverHeight} alt={`${book.title} 표지`} fetchPriority="high" decoding="async" /></div>
           <div className="detail-gallery-card detail-card-copy"><span>이 책을 읽고 나면</span><strong>{book.headline}</strong><small>실제 경험과 바로 쓰는 워크북</small></div>
           <div className="detail-gallery-card detail-card-stats"><b>{book.pages}</b><span>PDF 전자책</span><b>{book.chapters}</b><span>경험 기반 구성</span></div>
         </div>
@@ -92,7 +93,7 @@ export default function ClassDetailPage({ book }: { book: DetailBook }) {
           <h1>{book.title}</h1>
           <p className="detail-subtitle">{book.subtitle}</p>
           <Link className="detail-creator-link" href="#creator">{book.creator}<span>저자 정보 ›</span></Link>
-          <div className="detail-rating"><b><Star weight="fill" /> 4.8</b><a href="#reviews">후기 3개</a><span>·</span><button aria-label="관심 상품"><Heart size={21} /></button><button aria-label="공유"><ShareNetwork size={21} /></button></div>
+          <div className="detail-rating"><a href="#reviews">구매 인증 후기 확인하기</a><span>검증된 후기만 공개합니다</span></div>
           <div className="detail-facts"><div><BookOpen size={21} /><span>분량<strong>{book.pages}</strong></span></div><div><Clock size={21} /><span>난이도<strong>{book.level}</strong></span></div><div><DownloadSimple size={21} /><span>형식<strong>PDF</strong></span></div></div>
           <BuyCard book={book} />
         </div>

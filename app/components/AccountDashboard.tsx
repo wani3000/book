@@ -91,7 +91,7 @@ export default function AccountDashboard() {
         <div className="mypage-avatar">{member.displayName.slice(0, 1).toUpperCase()}</div>
         <h2>{member.displayName}</h2><p>{member.email}</p>
         <nav><a href="#overview"><UserCircle />계정 홈</a><a href="#orders"><Receipt />구매 내역</a><a href="#profile"><Gear />회원 정보</a></nav>
-        {member.role === "admin" && <Link className="mypage-admin-link" href="/admin/members"><ShieldCheck />회원 관리</Link>}
+        {member.role === "admin" && <><Link className="mypage-admin-link" href="/admin/members"><ShieldCheck />회원 관리</Link><Link className="mypage-admin-link" href="/admin/reviews"><Star />후기 관리</Link></>}
         <GoogleAccount mode="panel" />
       </aside>
 
