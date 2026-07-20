@@ -3,7 +3,7 @@ export const ebookCatalog = {
     product: "codex",
     title: "ChatGPT Codex로 혼자 서비스 만들기",
     amount: 19000,
-    assetPath: "/library-assets/codex-7f3c2a91.pdf",
+    assetPath: "/library-assets/codex-7461d974.pdf",
     filename: "chatgpt-codex-solo-service.pdf",
   },
   career: {

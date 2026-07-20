@@ -17,7 +17,7 @@ BOOKS = (
     {
         "source": WORKSPACE_ROOT / "output/pdf/codex-solo-service-playbook.pdf",
         "cover": WEBSITE_ROOT / "public/ebook-cover.png",
-        "deployed": WEBSITE_ROOT / "public/library-assets/codex-7f3c2a91.pdf",
+        "deployed": WEBSITE_ROOT / "public/library-assets/codex-7461d974.pdf",
         "background": "#070d3e",
     },
     {
