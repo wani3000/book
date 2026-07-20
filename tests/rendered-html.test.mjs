@@ -8,8 +8,10 @@ test("collection home connects all three ebook pages", async () => {
   const source = await readFile(new URL("app/page.tsx", root), "utf8");
   assert.match(source, /href: "\/codex"/);
   assert.match(source, /href: "\/career"/);
-  assert.match(source, /href: "\/seonara"/);
+  assert.match(source, /href: "\/jane"/);
   assert.match(source, /PHILIP BOOKS/);
+  assert.match(source, /return books\.filter/);
+  assert.doesNotMatch(source, /const curated|id="stories"|id="popular"/);
 });
 
 test("shared detail page includes commerce and verified buyer reviews", async () => {
@@ -35,12 +37,12 @@ test("career book page includes its sales content and reviews", async () => {
   assert.match(source, /product: "career"/);
 });
 
-test("Seo Nara book page includes career transition, commerce, and reviews", async () => {
-  const source = await readFile(new URL("app/seonara/page.tsx", root), "utf8");
+test("Jane book page includes career transition, commerce, and reviews", async () => {
+  const source = await readFile(new URL("app/jane/page.tsx", root), "utf8");
   assert.match(source, /승무원 다음은 IT였습니다/);
   assert.match(source, /프로젝트 운영 매니저/);
   assert.match(source, /Codex로 만든 HTML 대시보드/);
-  assert.match(source, /product: "seonara"/);
+  assert.match(source, /product: "jane"/);
 });
 
 test("review API only exposes approved verified reviews", async () => {

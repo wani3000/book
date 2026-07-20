@@ -10,7 +10,7 @@
 
 - `/codex` — 아이디어를 서비스로 바꾸는 Codex 사용법
 - `/career` — 커리어도 디자인할 수 있습니다
-- `/seonara` — 승무원 다음은 IT였습니다
+- `/jane` — 승무원 다음은 IT였습니다
 
 ## 로컬 실행
 
@@ -32,7 +32,7 @@ node --test tests/rendered-html.test.mjs
 
 - `app/page.tsx`: 전자책 마켓 메인
 - `app/components/ClassDetailPage.tsx`: 세 권이 공유하는 상품 상세 UI
-- `app/{codex,career,seonara}/page.tsx`: 상품별 콘텐츠와 메타데이터
+- `app/{codex,career,jane}/page.tsx`: 상품별 콘텐츠와 메타데이터
 - `app/components/PurchaseButton.tsx`: Paddle 또는 외부 판매 링크 연결
 - `app/components/ReviewSection.tsx`: 후기 목록과 접수 폼
 - `app/api/reviews/route.ts`: 검증 후기 조회와 후기 접수

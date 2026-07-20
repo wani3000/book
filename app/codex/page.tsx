@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
 import ClassDetailPage, { type DetailBook } from "../components/ClassDetailPage";
 
-export const metadata: Metadata = { title: "아이디어를 서비스로 바꾸는 Codex 사용법", description: "IT 초보자가 Codex로 기획, 개발, 배포, 결제, SEO와 자동화까지 완성하는 258쪽 실전 전자책.", alternates: { canonical: "/codex" }, openGraph: { title: "아이디어를 서비스로 바꾸는 Codex 사용법", images: ["/og.png"] } };
+export const metadata: Metadata = { title: "아이디어를 서비스로 바꾸는 Codex 사용법", description: "IT 초보자가 Codex로 기획, 개발, 배포, 결제, SEO와 자동화까지 완성하는 258쪽 실전 전자책.", alternates: { canonical: "/codex" }, openGraph: { title: "아이디어를 서비스로 바꾸는 Codex 사용법", images: ["/ebook-cover.png"] }, twitter: { card: "summary_large_image", images: ["/ebook-cover.png"] } };
 
 const book: DetailBook = {
-  product: "codex", category: "AI · 개발 · 생산성", title: "아이디어를 서비스로 바꾸는 Codex 사용법", subtitle: "코딩을 몰라도 폴더 생성부터 배포·결제·SEO까지 혼자 완성하는 실전 가이드", creator: "필립", cover: "/ebook-cover.png", coverWidth: 991, coverHeight: 1406, pages: "258쪽", chapters: "49개 장", level: "완전 입문", theme: "orange",
+  product: "codex", category: "AI · 개발 · 생산성", title: "아이디어를 서비스로 바꾸는 Codex 사용법", subtitle: "코딩을 몰라도 폴더 생성부터 배포·결제·SEO까지 혼자 완성하는 실전 가이드", creator: "필립", cover: "/ebook-cover.png", coverWidth: 1054, coverHeight: 1492, pages: "258쪽", chapters: "49개 장", level: "완전 입문", theme: "orange",
   headline: "개발자를 기다리지 않고 내 서비스를 직접 출시하는 법", intro: "AI가 코드를 만들어주는 시대에도 폴더, GitHub, 서버, 배포, 결제 같은 단어 앞에서 멈추는 사람이 많습니다. 이 책은 완전한 IT 초보자가 Codex에 무엇을 부탁하고, 결과를 어떻게 확인하며, 실제 서비스로 연결하는지 처음부터 끝까지 안내합니다.", quote: "좋은 프롬프트 한 줄보다 중요한 것은 목표를 나누고, 결과를 확인하고, 다음 명령을 이어가는 힘입니다.",
   targets: [["아이디어는 있지만 개발을 모르는 분", "코드가 아니라 서비스 출시의 전체 순서부터 알고 싶은 분"], ["AI로 만들다 중간에 멈춘 분", "커밋·푸시·배포·서버 같은 용어에서 막혔던 분"], ["혼자 첫 서비스를 운영할 분", "로그인, 데이터, 결제, SEO와 홍보까지 직접 연결할 분"]],
   outcomes: [["Codex에 제대로 명령하는 법", "목표·맥락·제약·완료 조건을 담은 요청과 후속 명령을 익힙니다."], ["서비스를 출시하는 전체 흐름", "폴더에서 시작해 GitHub와 Vercel을 거쳐 실제 주소로 공개합니다."], ["운영에 필요한 기능 연결", "Supabase, 결제, 지도, 검색 등록, 광고와 자동화를 이해합니다."], ["실수를 줄이는 검증 습관", "코드를 몰라도 테스트 결과와 화면을 확인하고 수정시키는 방법을 배웁니다."]],

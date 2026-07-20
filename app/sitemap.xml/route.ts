@@ -22,7 +22,7 @@ export function GET(request: Request) {
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>${origin}/seonara</loc>
+    <loc>${origin}/jane</loc>
     <lastmod>${lastModified}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>

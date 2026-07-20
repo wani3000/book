@@ -2,7 +2,7 @@ import { and, desc, eq } from "drizzle-orm";
 import { getDb } from "../../../db";
 import { reviews } from "../../../db/schema";
 
-const products = new Set(["codex", "career", "seonara"]);
+const products = new Set(["codex", "career", "jane"]);
 
 export async function GET(request: Request) {
   const product = new URL(request.url).searchParams.get("product") ?? "";

@@ -19,7 +19,7 @@ import {
 import PurchaseButton from "./PurchaseButton";
 import ReviewSection from "./ReviewSection";
 
-type ProductSlug = "codex" | "career" | "seonara";
+type ProductSlug = "codex" | "career" | "jane";
 
 export type DetailBook = {
   product: ProductSlug;
@@ -145,7 +145,7 @@ export default function ClassDetailPage({ book }: { book: DetailBook }) {
 
       <section className="detail-final"><div><span>{book.category}</span><h2>{book.title}</h2><p>{book.pages} PDF · 구매 후 바로 읽기</p></div><strong>19,000<small>원</small></strong><PurchaseButton product={book.product} label="전자책 구매하기" className="detail-buy-button" /></section>
 
-      <footer className="class-footer"><Link className="class-logo" href="/"><BookOpen weight="fill" size={25} /><strong>PHILIP BOOKS</strong></Link><p>실제 경험을 실행 가능한 지식으로 만듭니다.</p><div><Link href="/codex">AI 서비스 제작</Link><Link href="/career">UI/UX 커리어</Link><Link href="/seonara">승무원에서 IT로</Link></div><small>© 2026 PHILIP BOOKS</small></footer>
+      <footer className="class-footer"><Link className="class-logo" href="/"><BookOpen weight="fill" size={25} /><strong>PHILIP BOOKS</strong></Link><p>실제 경험을 실행 가능한 지식으로 만듭니다.</p><div><Link href="/codex">AI 서비스 제작</Link><Link href="/career">UI/UX 커리어</Link><Link href="/jane">승무원에서 IT로</Link></div><small>© 2026 PHILIP BOOKS</small></footer>
       <div className="detail-mobile-buy"><span><small>전자책</small><b>19,000원</b></span><PurchaseButton product={book.product} label="구매하기" className="detail-buy-button" /></div>
     </main>
   );

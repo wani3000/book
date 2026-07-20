@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
 import ClassDetailPage, { type DetailBook } from "../components/ClassDetailPage";
 
-export const metadata: Metadata = { title: "커리어도 디자인할 수 있습니다", description: "스타트업, 해외 프로젝트, 개인 서비스와 대기업 이직을 경험한 UI/UX 디자이너 필립의 커리어 가이드.", alternates: { canonical: "/career" }, openGraph: { title: "커리어도 디자인할 수 있습니다", images: ["/career-cover.png"] } };
+export const metadata: Metadata = { title: "커리어도 디자인할 수 있습니다", description: "스타트업, 해외 프로젝트, 개인 서비스와 대기업 이직을 경험한 UI/UX 디자이너 필립의 커리어 가이드.", alternates: { canonical: "/career" }, openGraph: { title: "커리어도 디자인할 수 있습니다", images: ["/career-cover.png"] }, twitter: { card: "summary_large_image", images: ["/career-cover.png"] } };
 
 const book: DetailBook = {
-  product: "career", category: "UI/UX 디자인 · 커리어", title: "커리어도 디자인할 수 있습니다", subtitle: "작은 팀의 경험을 해외 협업과 대기업 이직의 증거로 바꾼 10년차 디자이너의 방법", creator: "필립", cover: "/career-cover.png", coverWidth: 933, coverHeight: 1323, pages: "64쪽", chapters: "20개 장", level: "입문·경력", theme: "violet",
+  product: "career", category: "UI/UX 디자인 · 커리어", title: "커리어도 디자인할 수 있습니다", subtitle: "작은 팀의 경험을 해외 협업과 대기업 이직의 증거로 바꾼 10년차 디자이너의 방법", creator: "필립", cover: "/career-cover.png", coverWidth: 1024, coverHeight: 1536, pages: "64쪽", chapters: "20개 장", level: "입문·경력", theme: "violet",
   headline: "좋은 화면을 넘어 좋은 커리어를 설계하는 법", intro: "디자인 툴을 잘 다루는 것만으로 다음 기회가 생기지는 않습니다. 어떤 프로젝트를 고르고, 무엇을 기록하고, 작은 조직에서 한 일을 큰 회사가 이해하는 언어로 어떻게 바꿀지가 중요합니다. 필립이 작은 팀, 창업, 미국 현장 조사, 개인 서비스와 대기업 이직을 거치며 배운 방법을 담았습니다.", quote: "커리어는 회사 이름의 목록이 아니라 문제를 발견하고 끝까지 해결한 증거의 축적입니다.",
   targets: [["첫 포트폴리오가 막막한 디자이너", "학교 과제와 작은 프로젝트를 실제 출시 경험으로 확장하고 싶은 분"], ["이직을 준비하는 경력 디자이너", "스타트업의 넓은 경험을 대기업이 이해하는 언어로 바꿀 분"], ["AI 시대의 경쟁력을 만들 디자이너", "직접 서비스를 구현·검수·배포해 제품 실행력을 증명하고 싶은 분"]],
   outcomes: [["경험을 커리어 증거로 바꾸기", "실패와 작은 프로젝트에서도 문제·책임·행동·결과를 뽑아냅니다."], ["이직 포트폴리오 설계", "지원 회사에 맞춰 프로젝트 순서와 성과의 표현을 다시 구성합니다."], ["해외와 대기업 이동 준비", "현장 조사, 글로벌 협업, 과제 전형과 면접에서 보여줄 기준을 익힙니다."], ["AI로 실행력을 증명하기", "AI로 만든 서비스를 도구 자랑이 아닌 출시와 운영의 결과로 설명합니다."]],

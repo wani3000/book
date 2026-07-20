@@ -14,9 +14,9 @@
 | --- | --- | --- | ---: | ---: | --- |
 | `codex` | 아이디어를 서비스로 바꾸는 Codex 사용법 | 필립 | 258쪽 | 19,000원 | `/codex` |
 | `career` | 커리어도 디자인할 수 있습니다 | 필립 | 64쪽 | 19,000원 | `/career` |
-| `seonara` | 승무원 다음은 IT였습니다 | 서나라 | 56쪽 | 19,000원 | `/seonara` |
+| `jane` | 승무원 다음은 IT였습니다 | 제인 | 56쪽 | 19,000원 | `/jane` |
 
-박철완은 공개 콘텐츠에서 가명 `필립`으로 표기한다. 서나라 책은 `서나라` 실명을 사용한다.
+박철완은 공개 콘텐츠에서 가명 `필립`으로 표기한다. 3권 저자는 공개 콘텐츠에서 닉네임 `제인`으로만 표기한다.
 
 ## 2. 현재 완료 상태
 
@@ -36,7 +36,7 @@
 - 메인: <https://codex-solo-builder-book.wani3000.chatgpt.site>
 - 1권: <https://codex-solo-builder-book.wani3000.chatgpt.site/codex>
 - 2권: <https://codex-solo-builder-book.wani3000.chatgpt.site/career>
-- 3권: <https://codex-solo-builder-book.wani3000.chatgpt.site/seonara>
+- 3권: <https://codex-solo-builder-book.wani3000.chatgpt.site/jane>
 
 최신 배포 기준 커밋은 `fc940bc7ff3f894e18a6bf84a2115844b4d7b8fe`이며 메시지는 `feat: redesign ebook detail pages`다.
 
@@ -53,11 +53,11 @@
    - `NEXT_PUBLIC_PADDLE_CLIENT_TOKEN`
    - `NEXT_PUBLIC_CODEX_PRICE_ID`
    - `NEXT_PUBLIC_CAREER_PRICE_ID`
-   - `NEXT_PUBLIC_SEONARA_PRICE_ID`
+   - `NEXT_PUBLIC_JANE_PRICE_ID`
 2. 외부 판매 페이지 사용
    - `NEXT_PUBLIC_CODEX_PURCHASE_URL`
    - `NEXT_PUBLIC_CAREER_PURCHASE_URL`
-   - `NEXT_PUBLIC_SEONARA_PURCHASE_URL`
+   - `NEXT_PUBLIC_JANE_PURCHASE_URL`
 
 환경변수의 실제 값은 저장소나 인계 문서에 쓰지 말고 Sites 런타임 설정에만 저장한다. 결제 설정 뒤에는 새 빌드·버전 저장·공개 배포가 필요하다.
 
@@ -100,7 +100,7 @@
 - 1권 원문: `codex-practical-manuscript.md`
 - 1권 워크북: `codex-practical-workbook.md`
 - 2권 원문: `career-book/manuscript.md`
-- 3권 원문: `seonara-book/manuscript.md`
+- 3권 원문: `jane-book/manuscript.md`
 - 전체 Mac 자료 보강 기록: `research/full-mac-augmentation-2026-07-19.md`
 - PDF 생성 스크립트: `scripts/build_*.py`
 - 최종 PDF: `output/pdf/`
@@ -109,13 +109,13 @@
 
 - `output/pdf/codex-solo-service-playbook.pdf`
 - `output/pdf/career-design-philip.pdf`
-- `output/pdf/flight-attendant-to-it-seonara.pdf`
+- `output/pdf/flight-attendant-to-it-jane.pdf`
 
 ### 웹사이트
 
 - 메인 마켓: `website/app/page.tsx`
 - 공통 상세페이지 UI: `website/app/components/ClassDetailPage.tsx`
-- 상품별 데이터: `website/app/codex/page.tsx`, `website/app/career/page.tsx`, `website/app/seonara/page.tsx`
+- 상품별 데이터: `website/app/codex/page.tsx`, `website/app/career/page.tsx`, `website/app/jane/page.tsx`
 - 전역 스타일: `website/app/globals.css`
 - 구매 처리: `website/app/components/PurchaseButton.tsx`
 - 후기 UI: `website/app/components/ReviewSection.tsx`
@@ -191,7 +191,7 @@ Sites 프로젝트 ID는 `website/.openai/hosting.json`에 저장돼 있다. 현
 
 - 박철완 실명은 공개 원문과 판매페이지에서 `필립`으로 바꾼다.
 - 확인하지 못한 경력, 수치, 회사 기여를 새로 만들어 쓰지 않는다.
-- 서나라의 위시켓 시스템 화면은 본인이 만든 시스템이 아니다. 기존 시스템을 활용한 운영 경험과 Codex로 직접 만든 HTML 대시보드를 명확히 구분한다.
+- 제인의 위시켓 시스템 화면은 본인이 만든 시스템이 아니다. 기존 시스템을 활용한 운영 경험과 Codex로 직접 만든 HTML 대시보드를 명확히 구분한다.
 - 취업, 합격, 수익을 보장하는 표현을 사용하지 않는다.
 - 실제 구매자가 아닌 후기나 추천사를 실제 후기처럼 표시하지 않는다.
 - 2권과 3권 PDF 본문은 나눔명조를 유지한다. 표지와 큰 제목은 기존 고딕체를 유지한다.
