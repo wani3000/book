@@ -24,17 +24,8 @@ export async function GET(request: Request, { params }: { params: Promise<{ prod
   if (!canRead) return NextResponse.json({ error: "구매한 회원만 읽을 수 있습니다." }, { status: 403 });
 
   const book = ebookCatalog[product];
-  const assetResponse = await fetch(new URL(book.assetPath, request.url));
-  if (!assetResponse.ok || !assetResponse.body) {
-    return NextResponse.json({ error: "전자책 파일을 불러오지 못했습니다." }, { status: 502 });
-  }
-
-  return new Response(assetResponse.body, {
-    headers: {
-      "Content-Type": "application/pdf",
-      "Content-Disposition": `inline; filename="${book.filename}"`,
-      "Cache-Control": "private, no-store, max-age=0",
-      "X-Robots-Tag": "noindex, nofollow, noarchive",
-    },
-  });
+  const response = NextResponse.redirect(new URL(book.assetPath, request.url), 307);
+  response.headers.set("Cache-Control", "private, no-store, max-age=0");
+  response.headers.set("X-Robots-Tag", "noindex, nofollow, noarchive");
+  return response;
 }

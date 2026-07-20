@@ -79,6 +79,7 @@ test("test purchaser receives all three protected PDF entitlements", async () =>
   assert.match(libraryApi, /getAuthenticatedMember/);
   assert.match(libraryApi, /isTestPurchaser\(member\.email\)/);
   assert.match(libraryApi, /eq\(orders\.status, "paid"\)/);
+  assert.match(libraryApi, /NextResponse\.redirect/);
   assert.match(dashboard, /PDF 읽기/);
 });
 
