@@ -79,7 +79,7 @@ export default function ReviewSection({ product, tone = "light" }: { product: Pr
             <p className={`eyebrow ${tone === "navy" ? "light" : ""}`}><span /> 구매자 후기</p>
             <h2>광고 문구보다<br /><em>먼저 읽은 사람의 말.</em></h2>
           </div>
-          <p>구매 내역이 확인된 후기만 공개합니다. 좋은 평가뿐 아니라 아쉬운 점도 제품 개선에 반영합니다.</p>
+          <p>실제 구매 후기는 구매 내역 확인 후 공개합니다. 좋은 평가뿐 아니라 아쉬운 점도 제품 개선에 반영합니다.</p>
         </div>
 
         <p className="sample-review-notice"><b>안내</b> 현재 표시된 예시 후기는 페이지 구성을 위한 가상 독자 반응이며 실제 구매자가 작성한 후기가 아닙니다.</p>
@@ -98,8 +98,8 @@ export default function ReviewSection({ product, tone = "light" }: { product: Pr
           </div>
         )}
 
-        <details className="review-form-shell">
-          <summary>책을 구매하셨나요? 후기 남기기 <span>＋</span></summary>
+        <section className="review-form-shell" aria-labelledby={`${product}-review-form-title`}>
+          <h3 id={`${product}-review-form-title`}>책을 구매하셨나요? 후기 남기기</h3>
           <form className="review-form" onSubmit={submitReview}>
             <label>표시 이름<input name="displayName" maxLength={30} placeholder="예: 3년차 프로덕트 디자이너" required /></label>
             <label>별점<select name="rating" defaultValue="5" required><option value="5">5점</option><option value="4">4점</option><option value="3">3점</option><option value="2">2점</option><option value="1">1점</option></select></label>
@@ -109,7 +109,7 @@ export default function ReviewSection({ product, tone = "light" }: { product: Pr
             <button className="button primary" type="submit">후기 제출하기 <span>→</span></button>
             <p className="form-message" role="status">{message}</p>
           </form>
-        </details>
+        </section>
       </div>
     </section>
   );

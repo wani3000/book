@@ -4,7 +4,6 @@ import Image from "next/image";
 import Link from "next/link";
 import {
   BookOpen,
-  CaretDown,
   Check,
   Clock,
   DownloadSimple,
@@ -92,7 +91,7 @@ export default function ClassDetailPage({ book }: { book: DetailBook }) {
           <h1>{book.title}</h1>
           <p className="detail-subtitle">{book.subtitle}</p>
           <Link className="detail-creator-link" href="#creator">{book.creator}<span>저자 정보 ›</span></Link>
-          <div className="detail-rating"><b><Star weight="fill" /> 4.8</b><a href="#reviews">구매 후기 3개</a><span>·</span><button aria-label="관심 상품"><Heart size={21} /></button><button aria-label="공유"><ShareNetwork size={21} /></button></div>
+          <div className="detail-rating"><b><Star weight="fill" /> 4.8</b><a href="#reviews">후기 3개</a><span>·</span><button aria-label="관심 상품"><Heart size={21} /></button><button aria-label="공유"><ShareNetwork size={21} /></button></div>
           <div className="detail-facts"><div><BookOpen size={21} /><span>분량<strong>{book.pages}</strong></span></div><div><Clock size={21} /><span>난이도<strong>{book.level}</strong></span></div><div><DownloadSimple size={21} /><span>형식<strong>PDF</strong></span></div></div>
           <BuyCard book={book} />
         </div>
@@ -125,8 +124,8 @@ export default function ClassDetailPage({ book }: { book: DetailBook }) {
           </section>
 
           <section className="detail-section" id="curriculum">
-            <p className="detail-section-label">CURRICULUM</p><h2>목차를 확인해 보세요</h2><p className="detail-section-copy">처음부터 순서대로 읽어도 좋고, 지금 막힌 지점부터 펼쳐도 좋습니다.</p>
-            <div className="detail-curriculum">{book.curriculum.map(([part, title, copy], index) => <details key={part} open={index === 0}><summary><span>{part}</span><strong>{title}</strong><CaretDown size={20} /></summary><p>{copy}</p></details>)}</div>
+            <p className="detail-section-label">CURRICULUM</p><h2>목차를 확인해 보세요</h2><p className="detail-section-copy">처음부터 순서대로 읽어도 좋고, 지금 필요한 부분부터 바로 찾아 읽어도 좋습니다.</p>
+            <div className="detail-curriculum">{book.curriculum.map(([part, title, copy]) => <article key={part}><div><span>{part}</span><strong>{title}</strong></div><p>{copy}</p></article>)}</div>
           </section>
 
           <section className="detail-section detail-creator" id="creator">
@@ -140,7 +139,7 @@ export default function ClassDetailPage({ book }: { book: DetailBook }) {
 
       <ReviewSection product={book.product} tone="light" />
 
-      <section className="detail-faq" id="faq"><div><p className="detail-section-label">FAQ</p><h2>구매 전 확인하세요</h2></div><div>{book.faqs.map(([q, a], index) => <details key={q} open={index === 0}><summary>{q}<span>＋</span></summary><p>{a}</p></details>)}</div></section>
+      <section className="detail-faq" id="faq"><div><p className="detail-section-label">FAQ</p><h2>구매 전 확인하세요</h2></div><div>{book.faqs.map(([q, a]) => <article key={q}><h3>{q}</h3><p>{a}</p></article>)}</div></section>
 
       <section className="detail-final"><div><span>{book.category}</span><h2>{book.title}</h2><p>{book.pages} PDF · 구매 후 바로 읽기</p></div><strong>19,000<small>원</small></strong><PurchaseButton product={book.product} label="전자책 구매하기" className="detail-buy-button" /></section>
 

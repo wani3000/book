@@ -16,10 +16,13 @@ test("collection home connects all three ebook pages", async () => {
 
 test("shared detail page includes commerce and verified buyer reviews", async () => {
   const source = await readFile(new URL("app/components/ClassDetailPage.tsx", root), "utf8");
+  const reviewSource = await readFile(new URL("app/components/ReviewSection.tsx", root), "utf8");
   assert.match(source, /PurchaseButton product=\{book\.product\}/);
   assert.match(source, /ReviewSection product=\{book\.product\}/);
   assert.match(source, /detail-side-sticky/);
   assert.match(source, /detail-mobile-buy/);
+  assert.doesNotMatch(source, /<details|<summary/);
+  assert.doesNotMatch(reviewSource, /<details|<summary/);
 });
 
 test("Codex book page supplies its detail sales content", async () => {
