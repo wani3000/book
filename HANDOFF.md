@@ -32,6 +32,8 @@
 - 마이페이지(`/mypage`)의 프로필 수정, 구매 내역, 후기 수, 로그아웃, 회원 탈퇴 구현 완료
 - 관리자 회원관리(`/admin/members`)의 회원 검색, 이용 정지, 관리자 권한 관리 구현 완료
 - 구매와 후기 작성 전에 로그인 계정을 확인하도록 연결 완료
+- `oxaz1234@gmail.com`을 테스트 구매자로 지정해 3권 모두 구매 완료 상태와 PDF 읽기 권한 제공
+- 실제 유료 주문도 구매한 상품의 PDF를 마이페이지에서 다시 열 수 있는 서버 권한 경로 구현
 - 최신 빌드와 자동검사 통과
 - 최신 사이트 버전 9 공개 배포 완료
 
@@ -65,11 +67,11 @@
 
 환경변수의 실제 값은 저장소나 인계 문서에 쓰지 말고 Sites 런타임 설정에만 저장한다. 결제 설정 뒤에는 새 빌드·버전 저장·공개 배포가 필요하다.
 
-### P1 — 디지털 파일 전달 자동화가 없음
+### P1 — 실결제 주문 적재 자동화가 없음
 
-현재 구매 버튼은 결제창 또는 외부 링크까지만 담당한다. 결제 성공 후 구매자에게 PDF를 안전하게 전달하는 이메일·다운로드 권한·만료 링크 흐름은 구현되지 않았다. Paddle을 쓸 경우 웹훅, 주문 확인, 파일 전달, 재다운로드 정책을 별도 설계해야 한다.
+로그인 회원의 구매 여부를 서버에서 확인한 뒤 PDF를 열어주는 `/api/library/[product]` 경로와 마이페이지 재열람 버튼은 구현됐다. 다만 결제 성공 정보를 `orders`에 자동으로 저장하는 Paddle 웹훅은 아직 없다.
 
-마이페이지 구매 내역 UI와 `orders` 테이블은 준비돼 있지만 Paddle 웹훅이 아직 없으므로 실제 결제 기록은 자동으로 쌓이지 않는다.
+`TEST_PURCHASER_EMAILS`에 등록된 계정은 데이터베이스 주문 없이 세 권 모두 구매 완료로 간주한다. 기본 테스트 계정은 `oxaz1234@gmail.com`이다.
 
 ### P1 — 후기 운영자 승인 화면이 없음
 
@@ -128,6 +130,9 @@
 - 후기 API: `website/app/api/reviews/route.ts`
 - 후기 DB 스키마: `website/db/schema.ts`
 - 회원·세션 공통 로직: `website/app/auth/member.ts`, `website/app/auth/session.ts`
+- 전자책 권한 카탈로그: `website/app/library/catalog.ts`
+- 로그인·구매 검증 PDF 응답: `website/app/api/library/[product]/route.ts`
+- 배포용 PDF: `website/public/library-assets/`
 - 마이페이지: `website/app/mypage/page.tsx`, `website/app/components/AccountDashboard.tsx`
 - 회원 API: `website/app/api/account/profile/route.ts`, `website/app/api/account/orders/route.ts`
 - 관리자 회원관리: `website/app/admin/members/page.tsx`, `website/app/api/admin/members/route.ts`
@@ -208,12 +213,12 @@ Sites 프로젝트 ID는 `website/.openai/hosting.json`에 저장돼 있다. 현
 
 ## 9. 다음 에이전트 권장 작업 순서
 
-1. 사용자에게 Google OAuth 웹 클라이언트 ID를 받아 `GOOGLE_CLIENT_ID`, `GOOGLE_SESSION_SECRET`, `ADMIN_EMAILS`를 연결하고 실제 로그인을 검증한다.
+1. Google Cloud에서 OAuth 웹 클라이언트를 생성해 `GOOGLE_CLIENT_ID`, `GOOGLE_SESSION_SECRET`, `ADMIN_EMAILS`, `TEST_PURCHASER_EMAILS`를 연결하고 실제 로그인을 검증한다.
 2. Google 로그인, 새로고침 세션 유지, 프로필 수정, 회원 탈퇴, 관리자 이용 정지를 실제 계정으로 검증한다.
 3. 사용자에게 Paddle과 외부 판매 페이지 중 결제 방식을 확정받는다.
-4. 상품 3개의 실제 결제 정보와 PDF 전달 정책을 준비한다.
+4. 상품 3개의 실제 결제 정보를 준비하고 PDF 재열람 정책을 확정한다.
 5. Paddle 웹훅에서 결제 성공 주문을 `orders` 테이블에 저장한다.
-6. 결제 완료 후 안전한 PDF 전달과 재다운로드를 구현한다.
+6. 결제 완료 주문의 PDF 재열람과 환불 시 권한 회수를 검증한다.
 7. 상세페이지와 마이페이지의 데스크톱·모바일 시각 QA를 수행한다.
 8. 샘플 후기 처리 방식을 확정하고 실제 후기 승인 운영 방식을 만든다.
 9. 프로덕션 설정 후 새 버전을 배포한다.
@@ -223,8 +228,7 @@ Sites 프로젝트 ID는 `website/.openai/hosting.json`에 저장돼 있다. 현
 
 - 검색과 카테고리 필터는 메인 화면 안에서만 동작한다.
 - Google 로그인, 회원 저장, 마이페이지와 관리자 회원관리는 구현됐지만 Google OAuth 클라이언트 ID가 없어 실제 계정 검증은 아직 하지 못했다.
-- `orders` 테이블과 마이페이지 구매 내역은 준비됐지만 결제 웹훅이 없어 자동 주문 적재는 되지 않는다.
-- 구매 후 라이브러리와 재다운로드 페이지가 없다.
+- `orders` 테이블, 마이페이지 구매 내역, 구매자 PDF 재열람은 준비됐지만 결제 웹훅이 없어 자동 주문 적재는 되지 않는다.
 - 환불 정책 전문과 판매자 법적 고지는 체크아웃 또는 별도 정책 페이지로 아직 분리돼 있지 않다.
 - 후기 작성자는 구매 번호를 입력하지만 자동 결제 검증은 하지 않는다.
 - 사이트 분석·광고 전환 태그는 아직 연결되지 않았다.
@@ -236,6 +240,7 @@ Sites 프로젝트 ID는 `website/.openai/hosting.json`에 저장돼 있다. 현
 - 검증 후 `HttpOnly`, `Secure`, `SameSite=Lax` 쿠키에 7일 세션을 저장하며 헤더에 이름·이메일·로그아웃을 표시한다.
 - 필요한 Sites 런타임 환경 변수는 `GOOGLE_CLIENT_ID`와 `GOOGLE_SESSION_SECRET`이다. `GOOGLE_SESSION_SECRET`은 충분히 긴 무작위 값으로 생성해 비밀 환경 변수로 저장한다.
 - 최초 관리자로 사용할 이메일을 `ADMIN_EMAILS`에 쉼표로 구분해 설정한다. 관리자 API는 세션과 서버 환경변수를 함께 확인한다.
+- 테스트 구매 계정은 `TEST_PURCHASER_EMAILS`에 쉼표로 구분해 설정한다. 현재 기본값은 `oxaz1234@gmail.com`이며 이 계정에는 세 권 전체가 표시된다.
 - 사용자가 제공해야 하는 값은 `.apps.googleusercontent.com`으로 끝나는 Google OAuth 웹 클라이언트 ID뿐이다. 클라이언트 보안 비밀번호는 필요하지 않다.
 - Google Cloud OAuth 클라이언트의 승인된 JavaScript 원본에 `https://codex-solo-builder-book.wani3000.chatgpt.site`를 등록해야 한다.
 - 클라이언트 ID를 받은 뒤 두 환경 변수를 Sites에 설정하고 새 버전을 배포한 다음 로그인, 새로고침 후 세션 유지, 로그아웃, 모바일 헤더를 검증한다.

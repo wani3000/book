@@ -16,7 +16,7 @@ type Member = {
   createdAt: string;
 };
 
-type Order = { id: string; product: string; productTitle: string; amount: number; currency: string; status: string; createdAt: string };
+type Order = { id: string; product: string; productTitle: string; amount: number; currency: string; status: string; createdAt: string; downloadUrl?: string; testEntitlement?: boolean };
 
 const bookLinks: Record<string, string> = { codex: "/codex", career: "/career", jane: "/jane" };
 
@@ -100,7 +100,7 @@ export default function AccountDashboard() {
         <section className="mypage-stats"><article><BookOpen /><span>구매한 전자책</span><strong>{stats.orders}<small>권</small></strong></article><article><Star /><span>작성한 후기</span><strong>{stats.reviews}<small>개</small></strong></article></section>
 
         <section id="orders" className="mypage-panel"><div className="mypage-panel-title"><div><p>LIBRARY</p><h2>구매 내역</h2></div><Receipt size={28} /></div>
-          {orders.length ? <div className="order-list">{orders.map((order) => <article key={order.id}><div><span>{order.status === "paid" ? "구매 완료" : order.status}</span><h3>{order.productTitle}</h3><p>{new Date(order.createdAt).toLocaleDateString("ko-KR")} · {order.amount.toLocaleString("ko-KR")}원</p></div><Link href={bookLinks[order.product] ?? "/"}>책 정보 보기 →</Link></article>)}</div>
+          {orders.length ? <div className="order-list">{orders.map((order) => <article key={order.id}><div><span>{order.testEntitlement ? "테스트 구매 승인" : order.status === "paid" ? "구매 완료" : order.status}</span><h3>{order.productTitle}</h3><p>{new Date(order.createdAt).toLocaleDateString("ko-KR")} · {order.amount.toLocaleString("ko-KR")}원</p></div><div className="order-actions">{order.downloadUrl && <a className="order-read" href={order.downloadUrl} target="_blank" rel="noreferrer">PDF 읽기</a>}<Link href={bookLinks[order.product] ?? "/"}>책 정보</Link></div></article>)}</div>
             : <div className="mypage-empty"><BookOpen size={34} /><h3>아직 구매한 전자책이 없습니다.</h3><p>지금 필요한 경험에서 첫 책을 골라보세요.</p><Link href="/#books">전자책 둘러보기</Link></div>}
         </section>
 

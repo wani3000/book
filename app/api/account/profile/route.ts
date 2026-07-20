@@ -1,6 +1,7 @@
 import { and, count, eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { getAuthenticatedMember, publicMember } from "@/app/auth/member";
+import { isTestPurchaser } from "@/app/library/catalog";
 import { SESSION_COOKIE } from "@/app/auth/session";
 import { getDb } from "@/db";
 import { members, orders, reviews } from "@/db/schema";
@@ -17,7 +18,7 @@ export async function GET(request: Request) {
     ]);
     return NextResponse.json({
       member: publicMember(member),
-      stats: { orders: orderCount?.value ?? 0, reviews: reviewCount?.value ?? 0 },
+      stats: { orders: isTestPurchaser(member.email) ? 3 : orderCount?.value ?? 0, reviews: reviewCount?.value ?? 0 },
     }, { headers: { "Cache-Control": "no-store" } });
   } catch {
     return NextResponse.json({ error: "회원 정보를 불러오지 못했습니다." }, { status: 500 });

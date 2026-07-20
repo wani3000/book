@@ -70,6 +70,18 @@ test("my page provides profile, order, logout, and account deletion flows", asyn
   assert.match(profileApi, /status: "deleted"/);
 });
 
+test("test purchaser receives all three protected PDF entitlements", async () => {
+  const catalog = await readFile(new URL("app/library/catalog.ts", root), "utf8");
+  const libraryApi = await readFile(new URL("app/api/library/[product]/route.ts", root), "utf8");
+  const dashboard = await readFile(new URL("app/components/AccountDashboard.tsx", root), "utf8");
+  assert.match(catalog, /oxaz1234@gmail\.com/);
+  assert.match(catalog, /Object\.values\(ebookCatalog\)/);
+  assert.match(libraryApi, /getAuthenticatedMember/);
+  assert.match(libraryApi, /isTestPurchaser\(member\.email\)/);
+  assert.match(libraryApi, /eq\(orders\.status, "paid"\)/);
+  assert.match(dashboard, /PDF 읽기/);
+});
+
 test("admin member management is protected server-side", async () => {
   const source = await readFile(new URL("app/api/admin/members/route.ts", root), "utf8");
   assert.match(source, /requireAdmin/);
