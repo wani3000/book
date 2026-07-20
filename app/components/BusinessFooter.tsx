@@ -1,4 +1,3 @@
-import { BookOpen } from "@phosphor-icons/react";
 import Link from "next/link";
 
 const phone = process.env.NEXT_PUBLIC_BUSINESS_PHONE?.trim();
@@ -6,7 +5,7 @@ const phone = process.env.NEXT_PUBLIC_BUSINESS_PHONE?.trim();
 export default function BusinessFooter() {
   return (
     <footer className="class-footer business-footer">
-      <Link className="class-logo" href="/"><BookOpen weight="fill" size={25} /><strong>PHILIP BOOKS</strong></Link>
+      <Link className="class-logo" href="/"><span className="class-logo-mark" aria-hidden="true">P</span><strong>PHILIP BOOKS</strong></Link>
       <p>실제 경험을 실행 가능한 지식으로 만듭니다.</p>
       <div className="business-footer-links"><Link href="/terms">이용약관</Link><Link href="/privacy">개인정보처리방침</Link><Link href="/refund">교환·환불정책</Link></div>
       <address>
