@@ -271,7 +271,10 @@ footer { padding-block: 36px; background: #0b1429; color: #8894a8; }
 .class-header-main { width:min(1380px,calc(100% - 48px)); height:72px; display:grid; grid-template-columns:auto minmax(280px,560px) 1fr; align-items:center; gap:35px; margin:auto; }
 .class-logo { display:flex; align-items:center; gap:9px; white-space:nowrap; }.class-logo strong { font-size:17px; letter-spacing:-.04em; }.class-logo svg { color:var(--cm-ink); }
 .class-search { height:44px; display:flex; align-items:center; gap:12px; padding:0 15px; border-radius:8px; background:#f4f4f5; }.class-search input { min-width:0; flex:1; border:0; outline:0; color:#29292c; background:transparent; font-size:13px; }.class-search input::placeholder { color:#9999a0; }.class-search svg { flex:0 0 auto; }
-.class-account { justify-self:end; display:flex; align-items:center; gap:20px; white-space:nowrap; font-size:13px; font-weight:650; }.class-account button { display:none; padding:0; border:0; background:none; }
+.class-account { justify-self:end; display:flex; align-items:center; gap:20px; white-space:nowrap; font-size:13px; font-weight:650; }
+.google-account { min-width:150px; min-height:32px; display:grid; align-items:center; }.google-account>p { position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); }
+.google-account-loading { color:#7a7a82; font-size:11px; font-weight:650; }
+.google-account-user { display:flex; align-items:center; gap:9px; }.google-account-user>span:first-child { width:31px; height:31px; display:grid; place-items:center; border-radius:50%; color:#fff; background:#000; font-size:12px; font-weight:800; }.google-account-user>span:nth-child(2) { min-width:0; max-width:135px; }.google-account-user b,.google-account-user small { display:block; overflow:hidden; text-overflow:ellipsis; }.google-account-user b { font-size:11px; }.google-account-user small { margin-top:2px; color:#8c8c93; font-size:8px; font-weight:500; }.google-account-user button { padding:6px 8px; border:1px solid #dedee2; border-radius:5px; color:#444; background:#fff; cursor:pointer; font-size:9px; font-weight:700; }
 .class-discovery,.class-content-section,.class-start-banner,.class-footer { width:min(1380px,calc(100% - 48px)); margin-inline:auto; }
 .class-discovery { display:grid; grid-template-columns:520px 1fr; gap:14px; padding-top:24px; }
 .class-promo { min-height:116px; display:grid; grid-template-columns:1fr 185px; overflow:hidden; border-radius:5px; background:#f3f4f6; }.class-promo>div:first-child { padding:20px 22px; }.class-promo small { color:#6b6b72; font-size:10px; font-weight:700; }.class-promo h1 { margin:7px 0 0; font-size:20px; line-height:1.28; letter-spacing:-.045em; }.class-promo p { margin:7px 0 0; color:#66666d; font-size:11px; }.class-promo>div:first-child>span { display:flex; align-items:center; gap:5px; margin-top:10px; color:#4a4a50; font-size:10px; font-weight:700; }
@@ -297,7 +300,7 @@ footer { padding-block: 36px; background: #0b1429; color: #8894a8; }
 .detail-global-header nav { display:flex; gap:22px; color:#55555c; font-size:13px; font-weight:650; white-space:nowrap; }
 .detail-search { height:42px; display:flex; align-items:center; gap:10px; padding:0 14px; border-radius:7px; background:#f5f5f6; }
 .detail-search input { min-width:0; width:100%; border:0; outline:0; background:transparent; font-size:13px; }
-.detail-account { display:flex; align-items:center; gap:6px; color:#55555c; font-size:12px; }
+.detail-account { display:flex; align-items:center; justify-content:flex-end; color:#55555c; font-size:12px; }
 .detail-breadcrumb { width:min(1200px,calc(100% - 40px)); display:flex; align-items:center; gap:10px; margin:18px auto 0; color:#909097; font-size:12px; }
 .detail-breadcrumb b { color:#5c5c62; font-weight:650; }
 .detail-product-top { width:min(1200px,calc(100% - 40px)); display:grid; grid-template-columns:minmax(0,1.55fr) minmax(360px,.75fr); gap:50px; margin:18px auto 58px; }
@@ -673,4 +676,11 @@ button:disabled { cursor: not-allowed; opacity: .58; transform: none !important;
   .ai-window > div { margin-inline: -20px; }
   .career-purchase { padding-block: 80px; }
   .career-price-card { padding: 27px; }
+}
+
+@media (max-width: 680px) {
+  .class-account .google-account-user > span:nth-child(2),
+  .detail-account .google-account-user > span:nth-child(2) { display: none; }
+  .class-account .google-account-user button { display: block; padding: 6px 8px; border: 1px solid #dedee2; background: #fff; }
+  .detail-global-header > div { gap: 10px; }
 }

@@ -198,20 +198,31 @@ Sites 프로젝트 ID는 `website/.openai/hosting.json`에 저장돼 있다. 현
 
 ## 9. 다음 에이전트 권장 작업 순서
 
-1. 사용자에게 Paddle과 외부 판매 페이지 중 결제 방식을 확정받는다.
-2. 상품 3개의 실제 결제 정보와 PDF 전달 정책을 준비한다.
-3. 샌드박스에서 세 상품의 결제 성공·취소·오류 흐름을 검증한다.
-4. 결제 완료 후 안전한 PDF 전달을 구현한다.
-5. 상세페이지 데스크톱·모바일 시각 QA를 수행한다.
-6. 샘플 후기 처리 방식을 확정하고 실제 후기 승인 운영 방식을 만든다.
-7. 프로덕션 결제 설정 후 새 버전을 배포한다.
-8. Google Search Console과 네이버 서치어드바이저 등록 및 전환 추적을 연결한다.
+1. 사용자에게 Google OAuth 웹 클라이언트 ID를 받아 로그인 환경 변수를 연결하고 실제 로그인을 검증한다.
+2. 사용자에게 Paddle과 외부 판매 페이지 중 결제 방식을 확정받는다.
+3. 상품 3개의 실제 결제 정보와 PDF 전달 정책을 준비한다.
+4. 샌드박스에서 세 상품의 결제 성공·취소·오류 흐름을 검증한다.
+5. 결제 완료 후 안전한 PDF 전달을 구현한다.
+6. 상세페이지 데스크톱·모바일 시각 QA를 수행한다.
+7. 샘플 후기 처리 방식을 확정하고 실제 후기 승인 운영 방식을 만든다.
+8. 프로덕션 결제 설정 후 새 버전을 배포한다.
+9. Google Search Console과 네이버 서치어드바이저 등록 및 전환 추적을 연결한다.
 
 ## 10. 현재 사이트의 알려진 제약
 
 - 검색과 카테고리 필터는 메인 화면 안에서만 동작한다.
-- 로그인 표시는 UI 요소이며 실제 구매자 계정 기능은 없다.
+- Google 로그인과 로그아웃, 서버 검증 세션 코드는 구현됐지만 Google OAuth 클라이언트 ID가 없어 아직 배포·활성화하지 않았다.
 - 구매 후 라이브러리와 재다운로드 페이지가 없다.
 - 환불 정책 전문과 판매자 법적 고지는 체크아웃 또는 별도 정책 페이지로 아직 분리돼 있지 않다.
 - 후기 작성자는 구매 번호를 입력하지만 자동 결제 검증은 하지 않는다.
 - 사이트 분석·광고 전환 태그는 아직 연결되지 않았다.
+
+## 11. Google 로그인 구현 및 인계 상태
+
+- 구현 파일: `app/components/GoogleAccount.tsx`, `app/auth/session.ts`, `app/api/auth/config/route.ts`, `app/api/auth/google/route.ts`, `app/api/auth/session/route.ts`, `app/api/auth/logout/route.ts`
+- Google Identity Services 공식 버튼을 사용하고, Google ID 토큰을 서버에서 공개키·발급자·대상 클라이언트 기준으로 검증한다.
+- 검증 후 `HttpOnly`, `Secure`, `SameSite=Lax` 쿠키에 7일 세션을 저장하며 헤더에 이름·이메일·로그아웃을 표시한다.
+- 필요한 Sites 런타임 환경 변수는 `GOOGLE_CLIENT_ID`와 `GOOGLE_SESSION_SECRET`이다. `GOOGLE_SESSION_SECRET`은 충분히 긴 무작위 값으로 생성해 비밀 환경 변수로 저장한다.
+- 사용자가 제공해야 하는 값은 `.apps.googleusercontent.com`으로 끝나는 Google OAuth 웹 클라이언트 ID뿐이다. 클라이언트 보안 비밀번호는 필요하지 않다.
+- Google Cloud OAuth 클라이언트의 승인된 JavaScript 원본에 `https://codex-solo-builder-book.wani3000.chatgpt.site`를 등록해야 한다.
+- 클라이언트 ID를 받은 뒤 두 환경 변수를 Sites에 설정하고 새 버전을 배포한 다음 로그인, 새로고침 후 세션 유지, 로그아웃, 모바일 헤더를 검증한다.

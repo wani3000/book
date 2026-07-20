@@ -15,8 +15,8 @@ import {
   RocketLaunch,
   Sparkle,
   SquaresFour,
-  UserCircle,
 } from "@phosphor-icons/react";
+import GoogleAccount from "./components/GoogleAccount";
 
 const books = [
   {
@@ -101,8 +101,7 @@ export default function BookstoreHome() {
           </label>
           <div className="class-account">
             <a href="#books">전체 전자책</a>
-            <button type="button" aria-label="로그인"><UserCircle size={27} /></button>
-            <span>로그인</span>
+            <GoogleAccount />
           </div>
         </div>
       </header>

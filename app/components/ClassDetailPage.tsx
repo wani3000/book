@@ -14,10 +14,10 @@ import {
   ShareNetwork,
   ShieldCheck,
   Star,
-  UserCircle,
 } from "@phosphor-icons/react";
 import PurchaseButton from "./PurchaseButton";
 import ReviewSection from "./ReviewSection";
+import GoogleAccount from "./GoogleAccount";
 
 type ProductSlug = "codex" | "career" | "jane";
 
@@ -56,7 +56,7 @@ function StoreHeader() {
         </Link>
         <nav aria-label="주요 메뉴"><Link href="/">전자책</Link><a href="#curriculum">목차</a><a href="#reviews">후기</a><a href="#creator">저자</a></nav>
         <label className="detail-search"><span className="sr-only">전자책 검색</span><input placeholder="관심 주제, 전자책, 경험을 검색해보세요" /><MagnifyingGlass size={20} weight="bold" /></label>
-        <div className="detail-account"><UserCircle size={23} /><span>로그인</span></div>
+        <div className="detail-account"><GoogleAccount /></div>
       </div>
     </header>
   );
