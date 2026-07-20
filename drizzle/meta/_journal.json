@@ -8,6 +8,13 @@
       "when": 1784434855622,
       "tag": "0000_brief_speedball",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1784543727487,
+      "tag": "0001_yummy_stick",
+      "breakpoints": true
     }
   ]
 }

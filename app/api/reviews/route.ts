@@ -1,6 +1,7 @@
 import { and, desc, eq } from "drizzle-orm";
 import { getDb } from "../../../db";
 import { reviews } from "../../../db/schema";
+import { getAuthenticatedMember } from "@/app/auth/member";
 
 const products = new Set(["codex", "career", "jane"]);
 
@@ -29,6 +30,8 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   try {
+    const member = await getAuthenticatedMember(request);
+    if (!member) return Response.json({ error: "후기를 작성하려면 먼저 로그인해 주세요." }, { status: 401 });
     const body = await request.json() as Record<string, unknown>;
     const product = String(body.product ?? "");
     const displayName = String(body.displayName ?? "").trim();
@@ -42,7 +45,7 @@ export async function POST(request: Request) {
     if (purchaseReference.length < 4 || purchaseReference.length > 100) return Response.json({ error: "구매 번호를 확인해 주세요." }, { status: 400 });
     if (!Number.isInteger(rating) || rating < 1 || rating > 5) return Response.json({ error: "별점은 1~5점으로 입력해 주세요." }, { status: 400 });
 
-    await getDb().insert(reviews).values({ product, displayName, content, purchaseReference, rating });
+    await getDb().insert(reviews).values({ product, displayName, content, purchaseReference, rating, memberId: member.id });
     return Response.json({ ok: true }, { status: 201 });
   } catch {
     return Response.json({ error: "후기를 저장하지 못했습니다." }, { status: 500 });

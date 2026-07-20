@@ -11,6 +11,8 @@
 - `/codex` — 아이디어를 서비스로 바꾸는 Codex 사용법
 - `/career` — 커리어도 디자인할 수 있습니다
 - `/jane` — 승무원 다음은 IT였습니다
+- `/mypage` — 로그인, 프로필, 구매 내역과 회원 탈퇴
+- `/admin/members` — 관리자용 회원 검색과 상태 관리
 
 ## 로컬 실행
 
@@ -37,11 +39,18 @@ node --test tests/rendered-html.test.mjs
 - `app/components/ReviewSection.tsx`: 후기 목록과 접수 폼
 - `app/api/reviews/route.ts`: 검증 후기 조회와 후기 접수
 - `db/schema.ts`: D1 후기 테이블
+- `app/auth/`: Google 세션과 회원 권한 확인
+- `app/mypage/`, `app/components/AccountDashboard.tsx`: 마이페이지
+- `app/admin/members/`, `app/components/MemberAdmin.tsx`: 회원 관리
 - `.openai/hosting.json`: Sites 프로젝트와 D1 바인딩
 
 ## 결제 상태
 
 코드는 Paddle Checkout과 외부 판매 URL을 모두 지원하지만 프로덕션 결제 값은 아직 설정되지 않았다. 현재 공개 사이트의 구매 버튼은 비활성 상태다. 필요한 키 이름은 `.env.example`을 참고하고 실제 값은 Sites 런타임 환경변수에만 저장한다.
+
+## 회원 기능 상태
+
+Google ID 토큰 서버 검증, D1 회원 등록, 보안 세션, 마이페이지와 관리자 회원관리가 구현돼 있다. 실제 활성화에는 `GOOGLE_CLIENT_ID`, `GOOGLE_SESSION_SECRET`, `ADMIN_EMAILS` 설정과 새 배포가 필요하다. 구매 내역 테이블은 준비됐지만 실제 주문 저장은 결제 웹훅 구현 후 동작한다.
 
 ## 배포 주의사항
 

@@ -1,7 +1,7 @@
 "use client";
 
 import { initializePaddle, type Paddle } from "@paddle/paddle-js";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 
 type ProductSlug = "codex" | "career" | "jane";
 
@@ -43,21 +43,34 @@ function getPaddle() {
 export default function PurchaseButton({ product, label, className = "button primary" }: Props) {
   const config = productConfig[product];
   const [paddle, setPaddle] = useState<Paddle>();
-  const externalUrl = useMemo(
-    () => config.purchaseUrl?.startsWith("http") ? config.purchaseUrl : undefined,
-    [config.purchaseUrl],
-  );
+  const externalUrl = config.purchaseUrl?.startsWith("http") ? config.purchaseUrl : undefined;
 
   useEffect(() => {
     if (!config.priceId) return;
     getPaddle().then(setPaddle).catch(() => setPaddle(undefined));
   }, [config.priceId]);
 
-  if (externalUrl) {
-    return <a className={className} href={externalUrl} rel="noopener noreferrer">{label}<span>→</span></a>;
-  }
+  const ready = Boolean(externalUrl || (paddle && config.priceId));
 
-  const ready = Boolean(paddle && config.priceId);
+  async function beginPurchase() {
+    if (!ready) return;
+    const response = await fetch("/api/auth/session", { cache: "no-store" });
+    const session = await response.json();
+    if (!session.user) {
+      window.location.href = `/mypage?next=${encodeURIComponent(window.location.pathname)}`;
+      return;
+    }
+    if (externalUrl) {
+      window.location.href = externalUrl;
+      return;
+    }
+    if (!paddle || !config.priceId) return;
+    paddle.Checkout.open({
+      items: [{ priceId: config.priceId, quantity: 1 }],
+      customData: { product, memberId: session.user.id },
+      settings: { variant: "one-page" },
+    });
+  }
 
   return (
     <button
@@ -65,14 +78,7 @@ export default function PurchaseButton({ product, label, className = "button pri
       className={className}
       disabled={!ready}
       aria-label={ready ? label : `${label} - 결제 설정 준비 중`}
-      onClick={() => {
-        if (!paddle || !config.priceId) return;
-        paddle.Checkout.open({
-          items: [{ priceId: config.priceId, quantity: 1 }],
-          customData: { product },
-          settings: { variant: "one-page" },
-        });
-      }}
+      onClick={beginPurchase}
     >
       {ready ? label : "결제 오픈 준비 중"}<span>→</span>
     </button>

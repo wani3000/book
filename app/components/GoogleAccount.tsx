@@ -1,8 +1,9 @@
 "use client";
 
+import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 
-type User = { id: string; email: string; name: string; picture?: string };
+type User = { id: string; email: string; name: string; displayName?: string; picture?: string; role?: string };
 type GoogleCredentialResponse = { credential?: string };
 
 declare global {
@@ -20,7 +21,7 @@ declare global {
 
 const GOOGLE_SCRIPT = "https://accounts.google.com/gsi/client";
 
-export default function GoogleAccount() {
+export default function GoogleAccount({ mode = "compact" }: { mode?: "compact" | "panel" }) {
   const slot = useRef<HTMLDivElement>(null);
   const [user, setUser] = useState<User | null>(null);
   const [clientId, setClientId] = useState("");
@@ -55,6 +56,7 @@ export default function GoogleAccount() {
       return;
     }
     setUser(result.user);
+    window.dispatchEvent(new CustomEvent("philip-auth-changed", { detail: result.user }));
   }, []);
 
   useEffect(() => {
@@ -70,7 +72,7 @@ export default function GoogleAccount() {
         text: "signin_with",
         shape: "rectangular",
         logo_alignment: "left",
-        width: 150,
+        width: mode === "panel" ? 280 : 150,
       });
     };
 
@@ -86,21 +88,26 @@ export default function GoogleAccount() {
       document.head.appendChild(script);
     }
     return () => existing?.removeEventListener("load", render);
-  }, [clientId, finishGoogleLogin, ready, user]);
+  }, [clientId, finishGoogleLogin, mode, ready, user]);
 
   const logout = async () => {
     await fetch("/api/auth/logout", { method: "POST" });
     setUser(null);
+    window.dispatchEvent(new CustomEvent("philip-auth-changed", { detail: null }));
   };
 
   if (!ready) return <span className="google-account-loading">로그인 확인 중</span>;
   if (user) return (
-    <div className="google-account-user">
-      <span aria-hidden="true">{user.name.slice(0, 1).toUpperCase()}</span>
-      <span><b>{user.name}</b><small>{user.email}</small></span>
+    <div className={`google-account-user ${mode === "panel" ? "panel" : ""}`}>
+      <Link href="/mypage" aria-label="마이페이지로 이동">
+        <span aria-hidden="true">{(user.displayName ?? user.name).slice(0, 1).toUpperCase()}</span>
+        <span><b>{user.displayName ?? user.name}</b><small>{mode === "panel" ? user.email : "마이페이지"}</small></span>
+      </Link>
       <button type="button" onClick={logout}>로그아웃</button>
     </div>
   );
-  if (!clientId) return <span className="google-account-loading">Google 로그인 설정 필요</span>;
-  return <div className="google-account"><div ref={slot} /><p role="alert">{error}</p></div>;
+  if (!clientId) return mode === "panel"
+    ? <div className="google-login-unavailable"><b>Google 로그인 준비 중</b><p>관리자가 Google 로그인 설정을 완료하면 바로 이용할 수 있습니다.</p></div>
+    : <Link className="google-account-login-link" href="/mypage">로그인</Link>;
+  return <div className={`google-account ${mode === "panel" ? "panel" : ""}`}><div ref={slot} /><p role="alert">{error}</p></div>;
 }

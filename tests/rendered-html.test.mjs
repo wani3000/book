@@ -49,4 +49,37 @@ test("review API only exposes approved verified reviews", async () => {
   const source = await readFile(new URL("app/api/reviews/route.ts", root), "utf8");
   assert.match(source, /eq\(reviews\.status, "approved"\)/);
   assert.match(source, /eq\(reviews\.purchaseVerified, 1\)/);
+  assert.match(source, /getAuthenticatedMember/);
+});
+
+test("Google login persists a verified member and creates a secure session", async () => {
+  const source = await readFile(new URL("app/api/auth/google/route.ts", root), "utf8");
+  assert.match(source, /email_verified !== true/);
+  assert.match(source, /insert\(members\)/);
+  assert.match(source, /httpOnly: true/);
+  assert.match(source, /sameSite: "lax"/);
+});
+
+test("my page provides profile, order, logout, and account deletion flows", async () => {
+  const page = await readFile(new URL("app/components/AccountDashboard.tsx", root), "utf8");
+  const profileApi = await readFile(new URL("app/api/account/profile/route.ts", root), "utf8");
+  assert.match(page, /구매 내역/);
+  assert.match(page, /회원 탈퇴/);
+  assert.match(profileApi, /export async function PATCH/);
+  assert.match(profileApi, /export async function DELETE/);
+  assert.match(profileApi, /status: "deleted"/);
+});
+
+test("admin member management is protected server-side", async () => {
+  const source = await readFile(new URL("app/api/admin/members/route.ts", root), "utf8");
+  assert.match(source, /requireAdmin/);
+  assert.match(source, /member\?\.isAdmin/);
+  assert.match(source, /"active", "suspended"/);
+});
+
+test("purchase flow requires a signed-in member", async () => {
+  const source = await readFile(new URL("app/components/PurchaseButton.tsx", root), "utf8");
+  assert.match(source, /fetch\("\/api\/auth\/session"/);
+  assert.match(source, /window\.location\.href = `\/mypage/);
+  assert.match(source, /memberId: session\.user\.id/);
 });

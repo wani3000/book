@@ -1,9 +1,13 @@
 import { NextResponse } from "next/server";
-import { cookieValue, readSessionToken, SESSION_COOKIE } from "@/app/auth/session";
+import { getAuthenticatedMember, publicMember } from "@/app/auth/member";
 
 export const dynamic = "force-dynamic";
 
 export async function GET(request: Request) {
-  const user = await readSessionToken(cookieValue(request, SESSION_COOKIE));
-  return NextResponse.json({ user }, { headers: { "Cache-Control": "no-store" } });
+  try {
+    const member = await getAuthenticatedMember(request);
+    return NextResponse.json({ user: member ? publicMember(member) : null }, { headers: { "Cache-Control": "no-store" } });
+  } catch {
+    return NextResponse.json({ user: null }, { headers: { "Cache-Control": "no-store" } });
+  }
 }
