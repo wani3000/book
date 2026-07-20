@@ -92,7 +92,17 @@ test("admin member management is protected server-side", async () => {
 
 test("purchase flow requires a signed-in member", async () => {
   const source = await readFile(new URL("app/components/PurchaseButton.tsx", root), "utf8");
-  assert.match(source, /fetch\("\/api\/auth\/session"/);
+  assert.match(source, /fetch\("\/api\/checkout\/context"/);
   assert.match(source, /window\.location\.href = `\/mypage/);
-  assert.match(source, /memberId: session\.user\.id/);
+  assert.match(source, /customData: \{ entitlement: context\.entitlement \}/);
+});
+
+test("Paddle webhook creates paid orders and revokes access after full refunds", async () => {
+  const webhook = await readFile(new URL("app/api/paddle/webhook/route.ts", root), "utf8");
+  assert.match(webhook, /webhooks\.unmarshal\(rawBody, secret, signature\)/);
+  assert.match(webhook, /EventName\.TransactionCompleted/);
+  assert.match(webhook, /verifyPurchaseEntitlement/);
+  assert.match(webhook, /onConflictDoUpdate/);
+  assert.match(webhook, /EventName\.AdjustmentUpdated/);
+  assert.match(webhook, /status: event\.data\.action === "chargeback" \? "chargeback" : "refunded"/);
 });

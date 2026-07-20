@@ -34,6 +34,9 @@
 - 구매와 후기 작성 전에 로그인 계정을 확인하도록 연결 완료
 - `oxaz1234@gmail.com`을 테스트 구매자로 지정해 3권 모두 구매 완료 상태와 PDF 읽기 권한 제공
 - 실제 유료 주문도 구매한 상품의 PDF를 마이페이지에서 다시 열 수 있는 서버 권한 경로 구현
+- Google Cloud `PHILIP BOOKS` 프로젝트와 프로덕션 OAuth 웹 클라이언트 생성 및 공개 사이트 연결 완료
+- 실제 Chrome에서 Google 로그인, 관리자 회원목록, 테스트 구매내역 3권, PDF 3권 열람 검증 완료
+- Paddle 구매권한 토큰, 서명 웹훅 주문 적재, 전액 환불·차지백 권한 회수 코드 구현 완료
 - 최신 빌드와 자동검사 통과
 - 최신 사이트 버전 9 공개 배포 완료
 
@@ -50,7 +53,7 @@
 
 ### P0 — 실제 결제가 아직 열리지 않음
 
-프로덕션 환경변수에는 현재 `NEXT_PUBLIC_SITE_URL`만 설정돼 있다. Paddle 토큰·가격 ID와 외부 판매 URL은 설정되지 않았다. 따라서 공개 사이트의 구매 버튼은 `결제 오픈 준비 중`으로 비활성화된다.
+Google 로그인 환경변수는 연결됐다. Paddle 토큰·가격 ID는 아직 설정되지 않았다. 따라서 공개 사이트의 구매 버튼은 `결제 오픈 준비 중`으로 비활성화된다.
 
 결제 오픈 방법은 둘 중 하나를 선택한다.
 
@@ -67,9 +70,19 @@
 
 환경변수의 실제 값은 저장소나 인계 문서에 쓰지 말고 Sites 런타임 설정에만 저장한다. 결제 설정 뒤에는 새 빌드·버전 저장·공개 배포가 필요하다.
 
-### P1 — 실결제 주문 적재 자동화가 없음
+### P1 — Paddle 외부 계정 설정이 필요함
 
-로그인 회원의 구매 여부를 서버에서 확인한 뒤 PDF를 열어주는 `/api/library/[product]` 경로와 마이페이지 재열람 버튼은 구현됐다. 다만 결제 성공 정보를 `orders`에 자동으로 저장하는 Paddle 웹훅은 아직 없다.
+로그인 회원의 구매 여부를 서버에서 확인한 뒤 PDF를 열어주는 `/api/library/[product]` 경로와 마이페이지 재열람 버튼이 구현됐다. `/api/paddle/webhook`은 Paddle 서명을 확인해 결제 완료 주문을 `orders`에 저장하고 전액 환불·차지백 시 권한을 회수한다.
+
+현재 Paddle 라이브와 샌드박스 대시보드 모두 로그인 화면이므로 상품·가격·클라이언트 토큰·API 키·웹훅 목적지를 아직 만들지 못했다. Paddle 계정 로그인 후 다음 환경변수를 Sites에 연결해야 실제 결제가 열린다.
+
+- `NEXT_PUBLIC_PADDLE_ENV`
+- `NEXT_PUBLIC_PADDLE_CLIENT_TOKEN`
+- `NEXT_PUBLIC_CODEX_PRICE_ID`
+- `NEXT_PUBLIC_CAREER_PRICE_ID`
+- `NEXT_PUBLIC_JANE_PRICE_ID`
+- `PADDLE_API_KEY`
+- `PADDLE_NOTIFICATION_WEBHOOK_SECRET`
 
 `TEST_PURCHASER_EMAILS`에 등록된 계정은 데이터베이스 주문 없이 세 권 모두 구매 완료로 간주한다. 기본 테스트 계정은 `oxaz1234@gmail.com`이다.
 
@@ -133,6 +146,9 @@
 - 전자책 권한 카탈로그: `website/app/library/catalog.ts`
 - 로그인·구매 검증 PDF 응답: `website/app/api/library/[product]/route.ts`
 - 배포용 PDF: `website/public/library-assets/`
+- 결제 구매권한: `website/app/api/checkout/context/route.ts`, `website/app/paddle/entitlement.ts`
+- Paddle 웹훅: `website/app/api/paddle/webhook/route.ts`, `website/app/paddle/server.ts`
+- 결제 완료 페이지: `website/app/checkout/success/page.tsx`
 - 마이페이지: `website/app/mypage/page.tsx`, `website/app/components/AccountDashboard.tsx`
 - 회원 API: `website/app/api/account/profile/route.ts`, `website/app/api/account/orders/route.ts`
 - 관리자 회원관리: `website/app/admin/members/page.tsx`, `website/app/api/admin/members/route.ts`
@@ -213,12 +229,12 @@ Sites 프로젝트 ID는 `website/.openai/hosting.json`에 저장돼 있다. 현
 
 ## 9. 다음 에이전트 권장 작업 순서
 
-1. Google Cloud에서 OAuth 웹 클라이언트를 생성해 `GOOGLE_CLIENT_ID`, `GOOGLE_SESSION_SECRET`, `ADMIN_EMAILS`, `TEST_PURCHASER_EMAILS`를 연결하고 실제 로그인을 검증한다.
-2. Google 로그인, 새로고침 세션 유지, 프로필 수정, 회원 탈퇴, 관리자 이용 정지를 실제 계정으로 검증한다.
-3. 사용자에게 Paddle과 외부 판매 페이지 중 결제 방식을 확정받는다.
-4. 상품 3개의 실제 결제 정보를 준비하고 PDF 재열람 정책을 확정한다.
-5. Paddle 웹훅에서 결제 성공 주문을 `orders` 테이블에 저장한다.
-6. 결제 완료 주문의 PDF 재열람과 환불 시 권한 회수를 검증한다.
+1. 사용자가 Paddle 라이브 또는 샌드박스 대시보드에 로그인한다.
+2. 전자책 3개를 `ebooks`, 1회 결제, KRW 19,000원으로 생성하고 가격 ID를 확보한다.
+3. 클라이언트 토큰·API 키와 `https://codex-solo-builder-book.wani3000.chatgpt.site/api/paddle/webhook` 알림 목적지를 만든다.
+4. Paddle 환경변수를 Sites에 연결하고 새 버전을 배포한다.
+5. 샌드박스 결제 완료·결제 실패·전액 환불을 실행해 주문 적재와 권한 회수를 검증한다.
+6. 라이브 판매 전 사이트 도메인 승인과 기본 결제 링크를 완료한다.
 7. 상세페이지와 마이페이지의 데스크톱·모바일 시각 QA를 수행한다.
 8. 샘플 후기 처리 방식을 확정하고 실제 후기 승인 운영 방식을 만든다.
 9. 프로덕션 설정 후 새 버전을 배포한다.
@@ -227,8 +243,8 @@ Sites 프로젝트 ID는 `website/.openai/hosting.json`에 저장돼 있다. 현
 ## 10. 현재 사이트의 알려진 제약
 
 - 검색과 카테고리 필터는 메인 화면 안에서만 동작한다.
-- Google 로그인, 회원 저장, 마이페이지와 관리자 회원관리는 구현됐지만 Google OAuth 클라이언트 ID가 없어 실제 계정 검증은 아직 하지 못했다.
-- `orders` 테이블, 마이페이지 구매 내역, 구매자 PDF 재열람은 준비됐지만 결제 웹훅이 없어 자동 주문 적재는 되지 않는다.
+- Google 로그인, 회원 저장, 마이페이지와 관리자 회원관리는 실제 계정으로 검증됐다.
+- 주문 적재·환불 권한 회수 웹훅 코드는 준비됐지만 Paddle 외부 계정 설정과 실결제 검증이 남아 있다.
 - 환불 정책 전문과 판매자 법적 고지는 체크아웃 또는 별도 정책 페이지로 아직 분리돼 있지 않다.
 - 후기 작성자는 구매 번호를 입력하지만 자동 결제 검증은 하지 않는다.
 - 사이트 분석·광고 전환 태그는 아직 연결되지 않았다.

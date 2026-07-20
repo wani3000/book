@@ -54,12 +54,17 @@ export default function PurchaseButton({ product, label, className = "button pri
 
   async function beginPurchase() {
     if (!ready) return;
-    const response = await fetch("/api/auth/session", { cache: "no-store" });
-    const session = await response.json();
-    if (!session.user) {
+    const contextResponse = await fetch("/api/checkout/context", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ product }),
+    });
+    if (contextResponse.status === 401) {
       window.location.href = `/mypage?next=${encodeURIComponent(window.location.pathname)}`;
       return;
     }
+    const context = await contextResponse.json();
+    if (!contextResponse.ok || !context.entitlement) return;
     if (externalUrl) {
       window.location.href = externalUrl;
       return;
@@ -67,8 +72,9 @@ export default function PurchaseButton({ product, label, className = "button pri
     if (!paddle || !config.priceId) return;
     paddle.Checkout.open({
       items: [{ priceId: config.priceId, quantity: 1 }],
-      customData: { product, memberId: session.user.id },
-      settings: { variant: "one-page" },
+      customer: { email: context.email },
+      customData: { entitlement: context.entitlement },
+      settings: { variant: "one-page", successUrl: `${window.location.origin}/checkout/success` },
     });
   }
 
