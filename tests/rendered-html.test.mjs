@@ -101,12 +101,18 @@ test("Google login persists a verified member and creates a secure session", asy
 
 test("my page provides profile, order, logout, and account deletion flows", async () => {
   const page = await readFile(new URL("app/components/AccountDashboard.tsx", root), "utf8");
+  const refundForm = await readFile(new URL("app/components/RefundRequestForm.tsx", root), "utf8");
   const profileApi = await readFile(new URL("app/api/account/profile/route.ts", root), "utf8");
   assert.match(page, /구매 내역/);
   assert.match(page, /회원 탈퇴/);
   assert.match(profileApi, /export async function PATCH/);
   assert.match(profileApi, /export async function DELETE/);
   assert.match(profileApi, /status: "deleted"/);
+  assert.match(refundForm, /환불 신청하기/);
+  assert.match(refundForm, /환불 신청 완료/);
+  assert.match(refundForm, /환불 검토 중/);
+  assert.match(refundForm, /환불 완료/);
+  assert.match(refundForm, /환불 불가/);
 });
 
 test("test purchaser receives all three protected PDF entitlements", async () => {
@@ -118,6 +124,8 @@ test("test purchaser receives all three protected PDF entitlements", async () =>
   assert.match(libraryApi, /getAuthenticatedMember/);
   assert.match(libraryApi, /isTestPurchaser\(member\.email\)/);
   assert.match(libraryApi, /eq\(orders\.status, "paid"\)/);
+  assert.match(libraryApi, /isNull\(orders\.firstAccessedAt\)/);
+  assert.match(libraryApi, /firstAccessedAt: new Date\(\)\.toISOString\(\)/);
   assert.match(libraryApi, /NextResponse\.redirect/);
   assert.match(dashboard, /PDF 읽기/);
 });
@@ -193,11 +201,40 @@ test("NaverPay checkout creates a member order and verifies approval details", a
 });
 
 test("direct payment refunds require an admin and revoke paid access", async () => {
-  const refund = await readFile(new URL("app/api/admin/orders/refund/route.ts", root), "utf8");
-  assert.match(refund, /admin\?\.isAdmin/);
-  assert.match(refund, /cancelKakaoPay/);
-  assert.match(refund, /cancelNaverPay/);
-  assert.match(refund, /status: "refund_processing"/);
-  assert.match(refund, /"refund_pending"/);
-  assert.match(refund, /"refund_review"/);
+  const endpoint = await readFile(new URL("app/api/admin/orders/refund/route.ts", root), "utf8");
+  const processor = await readFile(new URL("app/refunds/process.ts", root), "utf8");
+  assert.match(endpoint, /admin\?\.isAdmin/);
+  assert.match(endpoint, /processPaidOrderRefund/);
+  assert.match(processor, /cancelKakaoPay/);
+  assert.match(processor, /cancelNaverPay/);
+  assert.match(processor, /status: "refund_processing"/);
+  assert.match(processor, /"refund_pending"/);
+  assert.match(processor, /"refund_review"/);
+});
+
+test("customer refund requests enforce ownership, policy confirmation, and first-access limits", async () => {
+  const source = await readFile(new URL("app/api/account/refunds/route.ts", root), "utf8");
+  assert.match(source, /getAuthenticatedMember/);
+  assert.match(source, /eq\(orders\.memberId, member\.id\)/);
+  assert.match(source, /body\.policyConfirmed !== true/);
+  assert.match(source, /!order\.firstAccessedAt/);
+  assert.match(source, /reasonCode === "change_of_mind"/);
+  assert.match(source, /status: "requested"/);
+});
+
+test("admin refund workflow supports review, rejection, and payment cancellation approval", async () => {
+  const source = await readFile(new URL("app/api/admin/refunds/route.ts", root), "utf8");
+  const page = await readFile(new URL("app/components/RefundAdmin.tsx", root), "utf8");
+  const schema = await readFile(new URL("db/schema.ts", root), "utf8");
+  const migration = await readFile(new URL("drizzle/0004_wonderful_tenebrous.sql", root), "utf8");
+  assert.match(source, /member\?\.isAdmin/);
+  assert.match(source, /\["review", "approve", "reject"\]/);
+  assert.match(source, /processPaidOrderRefund/);
+  assert.match(source, /status: "rejected"/);
+  assert.match(page, /승인·결제 취소/);
+  assert.match(page, /환불 불가/);
+  assert.match(schema, /refundRequests = sqliteTable/);
+  assert.match(schema, /firstAccessedAt: text/);
+  assert.match(migration, /CREATE TABLE `refund_requests`/);
+  assert.match(migration, /ADD `first_accessed_at`/);
 });

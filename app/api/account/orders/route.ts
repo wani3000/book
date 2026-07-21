@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 import { getAuthenticatedMember } from "@/app/auth/member";
 import { isTestPurchaser, testPurchaserOrders } from "@/app/library/catalog";
 import { getDb } from "@/db";
-import { orders } from "@/db/schema";
+import { orders, refundRequests } from "@/db/schema";
 
 export const dynamic = "force-dynamic";
 
@@ -21,10 +21,28 @@ export async function GET(request: Request) {
       amount: orders.amount,
       currency: orders.currency,
       status: orders.status,
+      firstAccessedAt: orders.firstAccessedAt,
       createdAt: orders.createdAt,
-    }).from(orders).where(eq(orders.memberId, member.id)).orderBy(desc(orders.createdAt)).limit(50);
+      refundId: refundRequests.id,
+      refundStatus: refundRequests.status,
+      refundReasonCode: refundRequests.reasonCode,
+      refundDecisionNote: refundRequests.decisionNote,
+      refundRequestedAt: refundRequests.requestedAt,
+    }).from(orders)
+      .leftJoin(refundRequests, eq(refundRequests.orderId, orders.id))
+      .where(eq(orders.memberId, member.id))
+      .orderBy(desc(orders.createdAt))
+      .limit(50);
+    const now = Date.now();
     return NextResponse.json({
-      orders: rows.map((order) => ({ ...order, downloadUrl: order.status === "paid" ? `/api/library/${order.product}` : undefined })),
+      orders: rows.map((order) => {
+        const purchasedAt = new Date(order.createdAt).getTime();
+        return {
+          ...order,
+          simpleChangeEligible: !order.firstAccessedAt && Number.isFinite(purchasedAt) && now <= purchasedAt + 7 * 24 * 60 * 60 * 1000,
+          downloadUrl: order.status === "paid" ? `/api/library/${order.product}` : undefined,
+        };
+      }),
     }, { headers: { "Cache-Control": "no-store" } });
   } catch {
     return NextResponse.json({ error: "구매 내역을 불러오지 못했습니다." }, { status: 500 });

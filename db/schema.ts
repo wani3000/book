@@ -26,9 +26,24 @@ export const orders = sqliteTable("orders", {
   status: text("status").notNull().default("paid"),
   provider: text("provider").notNull(),
   providerReference: text("provider_reference").notNull(),
+  firstAccessedAt: text("first_accessed_at"),
   createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
   updatedAt: text("updated_at").notNull().default(sql`CURRENT_TIMESTAMP`),
 }, (table) => [uniqueIndex("orders_provider_reference_unique").on(table.providerReference)]);
+
+export const refundRequests = sqliteTable("refund_requests", {
+  id: text("id").primaryKey(),
+  orderId: text("order_id").notNull().references(() => orders.id),
+  memberId: text("member_id").notNull().references(() => members.id),
+  reasonCode: text("reason_code").notNull(),
+  reasonDetail: text("reason_detail").notNull(),
+  status: text("status").notNull().default("requested"),
+  decisionNote: text("decision_note"),
+  reviewedBy: text("reviewed_by").references(() => members.id),
+  requestedAt: text("requested_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+  reviewedAt: text("reviewed_at"),
+  updatedAt: text("updated_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+}, (table) => [uniqueIndex("refund_requests_order_unique").on(table.orderId)]);
 
 export const paymentAttempts = sqliteTable("payment_attempts", {
   id: text("id").primaryKey(),

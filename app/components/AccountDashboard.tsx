@@ -2,8 +2,9 @@
 
 import Link from "next/link";
 import { FormEvent, useCallback, useEffect, useState } from "react";
-import { ArrowRight, BookOpen, Gear, Receipt, ShieldCheck, Star, UserCircle } from "@phosphor-icons/react";
+import { ArrowCounterClockwise, ArrowRight, BookOpen, Gear, Receipt, ShieldCheck, Star, UserCircle } from "@phosphor-icons/react";
 import GoogleAccount from "./GoogleAccount";
+import RefundRequestForm from "./RefundRequestForm";
 
 type Member = {
   id: string;
@@ -16,7 +17,7 @@ type Member = {
   createdAt: string;
 };
 
-type Order = { id: string; product: string; productTitle: string; amount: number; currency: string; status: string; createdAt: string; downloadUrl?: string; testEntitlement?: boolean };
+type Order = { id: string; product: string; productTitle: string; amount: number; currency: string; status: string; createdAt: string; downloadUrl?: string; testEntitlement?: boolean; firstAccessedAt?: string | null; simpleChangeEligible?: boolean; refundId?: string | null; refundStatus?: string | null; refundDecisionNote?: string | null; refundRequestedAt?: string | null };
 
 const bookLinks: Record<string, string> = { codex: "/codex", career: "/career", jane: "/jane" };
 type MyPageSection = "overview" | "orders" | "profile";
@@ -124,7 +125,7 @@ export default function AccountDashboard() {
           <a className={activeSection === "profile" ? "active" : ""} href="#profile" aria-current={activeSection === "profile" ? "page" : undefined} onClick={() => setActiveSection("profile")}><Gear />프로필 관리</a>
           <Link href="/#books"><Star />전자책 둘러보기</Link>
         </nav>
-        {member.role === "admin" && <div className="mypage-admin-links"><Link className="mypage-admin-link" href="/admin/members"><ShieldCheck />회원 관리</Link><Link className="mypage-admin-link" href="/admin/reviews"><Star />후기 관리</Link></div>}
+        {member.role === "admin" && <div className="mypage-admin-links"><Link className="mypage-admin-link" href="/admin/members"><ShieldCheck />회원 관리</Link><Link className="mypage-admin-link" href="/admin/reviews"><Star />후기 관리</Link><Link className="mypage-admin-link" href="/admin/refunds"><ArrowCounterClockwise />환불 관리</Link></div>}
         <GoogleAccount mode="panel" />
       </aside>
 
@@ -132,7 +133,7 @@ export default function AccountDashboard() {
         {activeSection === "overview" && <section id="overview" className="mypage-welcome"><p>MY LIBRARY</p><h1>구매한 전자책을<br />한곳에서 확인하세요.</h1><span>{member.displayName}님의 구매 내역과 PDF를 안전하게 관리합니다.</span><a href="#orders" onClick={() => setActiveSection("orders")}>내 전자책 확인하기</a></section>}
 
         {activeSection === "orders" && <section id="orders" className="mypage-panel"><div className="mypage-panel-title"><div><p>LIBRARY</p><h2>내 전자책 · 주문 내역</h2></div><Receipt size={28} /></div>
-          {orders.length ? <div className="order-list">{orders.map((order) => <article key={order.id}><div><span>{(order.status === "paid" || order.testEntitlement) ? "구매 완료" : order.status}</span><h3>{order.productTitle}</h3><p>{new Date(order.createdAt).toLocaleDateString("ko-KR")} · {order.amount.toLocaleString("ko-KR")}원</p></div><div className="order-actions">{order.downloadUrl && <a className="order-read" href={order.downloadUrl} target="_blank" rel="noreferrer">PDF 읽기</a>}<Link href={bookLinks[order.product] ?? "/"}>책 정보</Link></div></article>)}</div>
+          {orders.length ? <div className="order-list">{orders.map((order) => <article key={order.id}><div className="order-main"><span>{order.refundStatus === "requested" ? "환불 신청 완료" : order.refundStatus === "reviewing" ? "환불 검토 중" : order.refundStatus === "refunded" || order.status === "refunded" ? "환불 완료" : order.refundStatus === "rejected" ? "환불 불가" : (order.status === "paid" || order.testEntitlement) ? "구매 완료" : "처리 중"}</span><h3>{order.productTitle}</h3><p>{new Date(order.createdAt).toLocaleDateString("ko-KR")} · {order.amount.toLocaleString("ko-KR")}원{order.firstAccessedAt ? ` · 최초 열람 ${new Date(order.firstAccessedAt).toLocaleDateString("ko-KR")}` : " · 미열람"}</p><RefundRequestForm order={order} onSubmitted={load} /></div><div className="order-actions">{order.downloadUrl && <a className="order-read" href={order.downloadUrl} target="_blank" rel="noreferrer">PDF 읽기</a>}<Link href={bookLinks[order.product] ?? "/"}>책 정보</Link></div></article>)}</div>
             : <div className="mypage-empty"><BookOpen size={34} /><h3>아직 구매한 전자책이 없습니다.</h3><p>지금 필요한 경험에서 첫 책을 골라보세요.</p><Link href="/#books">전자책 둘러보기</Link></div>}
         </section>}
 

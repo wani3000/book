@@ -1,4 +1,4 @@
-import { and, eq } from "drizzle-orm";
+import { and, desc, eq, isNull } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { getAuthenticatedMember } from "@/app/auth/member";
 import { ebookCatalog, isEbookProduct, isTestPurchaser } from "@/app/library/catalog";
@@ -14,12 +14,19 @@ export async function GET(request: Request, { params }: { params: Promise<{ prod
   const { product } = await params;
   if (!isEbookProduct(product)) return NextResponse.json({ error: "전자책을 찾을 수 없습니다." }, { status: 404 });
 
-  let canRead = isTestPurchaser(member.email);
-  if (!canRead) {
-    const paidOrder = await getDb().query.orders.findFirst({
-      where: and(eq(orders.memberId, member.id), eq(orders.product, product), eq(orders.status, "paid")),
-    });
+  const testPurchaser = isTestPurchaser(member.email);
+  let canRead = testPurchaser;
+  if (!testPurchaser) {
+    const [paidOrder] = await getDb().select({ id: orders.id, firstAccessedAt: orders.firstAccessedAt })
+      .from(orders)
+      .where(and(eq(orders.memberId, member.id), eq(orders.product, product), eq(orders.status, "paid")))
+      .orderBy(desc(orders.createdAt))
+      .limit(1);
     canRead = Boolean(paidOrder);
+    if (paidOrder && !paidOrder.firstAccessedAt) {
+      await getDb().update(orders).set({ firstAccessedAt: new Date().toISOString(), updatedAt: new Date().toISOString() })
+        .where(and(eq(orders.id, paidOrder.id), isNull(orders.firstAccessedAt)));
+    }
   }
   if (!canRead) return NextResponse.json({ error: "구매한 회원만 읽을 수 있습니다." }, { status: 403 });
 
