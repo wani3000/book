@@ -21,6 +21,8 @@ export async function GET(request: Request) {
       amount: orders.amount,
       currency: orders.currency,
       status: orders.status,
+      provider: orders.provider,
+      providerReference: orders.providerReference,
       firstAccessedAt: orders.firstAccessedAt,
       createdAt: orders.createdAt,
       refundId: refundRequests.id,

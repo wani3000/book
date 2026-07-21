@@ -1,7 +1,7 @@
 import { desc, eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { getAuthenticatedMember } from "@/app/auth/member";
-import { processPaidOrderRefund, RefundProcessError } from "@/app/refunds/process";
+import { processPaidOrderRefund, reconcileRefundOrder, RefundProcessError } from "@/app/refunds/process";
 import { getDb } from "@/db";
 import { members, orders, refundRequests } from "@/db/schema";
 
@@ -51,7 +51,7 @@ export async function PATCH(request: Request) {
   const refundId = typeof body.refundId === "string" ? body.refundId.trim() : "";
   const action = typeof body.action === "string" ? body.action : "";
   const decisionNote = typeof body.decisionNote === "string" ? body.decisionNote.trim() : "";
-  if (!refundId || refundId.length > 100 || !["review", "approve", "reject"].includes(action)) {
+  if (!refundId || refundId.length > 100 || !["review", "approve", "reject", "reconcile"].includes(action)) {
     return NextResponse.json({ error: "처리할 환불 신청 정보가 올바르지 않습니다." }, { status: 400 });
   }
 
@@ -68,6 +68,17 @@ export async function PATCH(request: Request) {
     if (decisionNote.length < 5 || decisionNote.length > 500) return NextResponse.json({ error: "환불 불가 사유를 5자 이상 500자 이하로 입력해 주세요." }, { status: 400 });
     await getDb().update(refundRequests).set({ status: "rejected", decisionNote, reviewedBy: admin.id, reviewedAt: now, updatedAt: now }).where(eq(refundRequests.id, refund.id));
     return NextResponse.json({ ok: true, status: "rejected" });
+  }
+  if (action === "reconcile") {
+    try {
+      const result = await reconcileRefundOrder(refund.orderId);
+      const nextStatus = result.status === "refunded" ? "refunded" : "reviewing";
+      await getDb().update(refundRequests).set({ status: nextStatus, decisionNote: result.status === "refunded" ? "결제사업자 취소 완료 상태를 확인했습니다." : "결제사업자에서 아직 최종 취소 상태가 확인되지 않았습니다.", reviewedBy: admin.id, reviewedAt: now, updatedAt: now }).where(eq(refundRequests.id, refund.id));
+      return NextResponse.json({ ok: true, status: nextStatus, orderStatus: result.status });
+    } catch (error) {
+      const message = error instanceof RefundProcessError ? error.message : "결제사업자 상태를 확인하지 못했습니다.";
+      return NextResponse.json({ error: message, status: "reviewing" }, { status: 502 });
+    }
   }
 
   await getDb().update(refundRequests).set({ status: "reviewing", decisionNote: decisionNote || null, reviewedBy: admin.id, reviewedAt: now, updatedAt: now }).where(eq(refundRequests.id, refund.id));

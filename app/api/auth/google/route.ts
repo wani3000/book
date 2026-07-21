@@ -5,6 +5,7 @@ import { createSessionToken, SESSION_COOKIE, SESSION_MAX_AGE } from "@/app/auth/
 import { isConfiguredAdmin } from "@/app/auth/member";
 import { getDb } from "@/db";
 import { members } from "@/db/schema";
+import { PRIVACY_VERSION, TERMS_VERSION } from "@/app/account/policy";
 
 export const dynamic = "force-dynamic";
 
@@ -17,9 +18,17 @@ export async function POST(request: Request) {
   }
 
   let credential = "";
+  let termsAccepted = false;
+  let privacyAccepted = false;
+  let marketingConsent = false;
+  let reactivate = false;
   try {
-    const body = await request.json() as { credential?: unknown };
+    const body = await request.json() as { credential?: unknown; termsAccepted?: unknown; privacyAccepted?: unknown; marketingConsent?: unknown; reactivate?: unknown };
     credential = typeof body.credential === "string" ? body.credential : "";
+    termsAccepted = body.termsAccepted === true;
+    privacyAccepted = body.privacyAccepted === true;
+    marketingConsent = body.marketingConsent === true;
+    reactivate = body.reactivate === true;
   } catch {
     return NextResponse.json({ error: "잘못된 로그인 요청입니다." }, { status: 400 });
   }
@@ -45,6 +54,24 @@ export async function POST(request: Request) {
     if (existing?.status === "suspended") {
       return NextResponse.json({ error: "이용이 정지된 계정입니다. 관리자에게 문의해 주세요." }, { status: 403 });
     }
+    if (!existing && (!termsAccepted || !privacyAccepted)) {
+      return NextResponse.json({
+        code: "SIGNUP_CONSENT_REQUIRED",
+        error: "회원가입에 필요한 약관 동의를 확인해 주세요.",
+      }, { status: 409 });
+    }
+    if (existing?.status === "deleted" && !reactivate) {
+      return NextResponse.json({
+        code: "ACCOUNT_REACTIVATION_REQUIRED",
+        error: "탈퇴한 계정입니다. 재가입 여부를 확인해 주세요.",
+      }, { status: 409 });
+    }
+    if (existing?.status === "deleted" && (!termsAccepted || !privacyAccepted)) {
+      return NextResponse.json({
+        code: "ACCOUNT_REACTIVATION_REQUIRED",
+        error: "재가입에 필요한 약관 동의를 확인해 주세요.",
+      }, { status: 409 });
+    }
     const now = new Date().toISOString();
     await getDb().insert(members).values({
       id: user.id,
@@ -54,6 +81,11 @@ export async function POST(request: Request) {
       picture: user.picture,
       role: isConfiguredAdmin(user.email) ? "admin" : "member",
       status: "active",
+      marketingConsent: marketingConsent ? 1 : 0,
+      termsAcceptedAt: now,
+      termsVersion: TERMS_VERSION,
+      privacyAcceptedAt: now,
+      privacyVersion: PRIVACY_VERSION,
       updatedAt: now,
       lastLoginAt: now,
     }).onConflictDoUpdate({
@@ -63,7 +95,15 @@ export async function POST(request: Request) {
         name: user.name,
         displayName: existing?.status === "deleted" ? user.name : existing?.displayName ?? user.name,
         picture: user.picture,
+        role: existing?.status === "deleted" ? (isConfiguredAdmin(user.email) ? "admin" : "member") : existing?.role ?? "member",
         status: existing?.status === "deleted" ? "active" : existing?.status ?? "active",
+        marketingConsent: existing?.status === "deleted" ? (marketingConsent ? 1 : 0) : existing?.marketingConsent ?? 0,
+        termsAcceptedAt: existing?.status === "deleted" ? now : existing?.termsAcceptedAt,
+        termsVersion: existing?.status === "deleted" ? TERMS_VERSION : existing?.termsVersion,
+        privacyAcceptedAt: existing?.status === "deleted" ? now : existing?.privacyAcceptedAt,
+        privacyVersion: existing?.status === "deleted" ? PRIVACY_VERSION : existing?.privacyVersion,
+        reactivatedAt: existing?.status === "deleted" ? now : existing?.reactivatedAt,
+        deletedAt: existing?.status === "deleted" ? null : existing?.deletedAt,
         updatedAt: now,
         lastLoginAt: now,
       },

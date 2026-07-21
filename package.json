@@ -11,7 +11,9 @@
     "start": "WRANGLER_LOG_PATH=.wrangler/wrangler.log vinext start",
     "test": "npm run build && node --test tests/rendered-html.test.mjs",
     "lint": "eslint . --ignore-pattern dist --ignore-pattern .next",
-    "db:generate": "drizzle-kit generate"
+    "db:generate": "drizzle-kit generate",
+    "check:merchant": "node scripts/check-merchant-readiness.mjs",
+    "check:merchant:technical": "node scripts/check-merchant-readiness.mjs --technical"
   },
   "dependencies": {
     "@paddle/paddle-js": "^1.6.4",

@@ -1,6 +1,6 @@
 import { and, eq } from "drizzle-orm";
-import { cancelKakaoPay, kakaoPayErrorCode } from "@/app/kakaopay/server";
-import { cancelNaverPay, naverPayErrorCode } from "@/app/naverpay/server";
+import { cancelKakaoPay, getKakaoPayOrder, kakaoPayErrorCode } from "@/app/kakaopay/server";
+import { cancelNaverPay, getNaverPayHistory, naverPayErrorCode } from "@/app/naverpay/server";
 import { getDb } from "@/db";
 import { orders, paymentAttempts } from "@/db/schema";
 
@@ -28,7 +28,7 @@ export async function processPaidOrderRefund(orderId: string, reason: string): P
         throw Object.assign(new Error("KakaoPay cancellation mismatch"), { code: "CANCEL_MISMATCH" });
       }
     } else {
-      const cancelled = await cancelNaverPay({ paymentId: order.providerReference, amount: order.amount, reason });
+      const cancelled = await cancelNaverPay({ paymentId: order.providerReference, amount: order.amount, reason, orderId: order.id });
       if (cancelled.pending) status = "refund_pending";
     }
 
@@ -44,4 +44,30 @@ export async function processPaidOrderRefund(orderId: string, reason: string): P
     await getDb().update(orders).set({ status: "refund_review", updatedAt: new Date().toISOString() }).where(eq(orders.id, order.id));
     throw new RefundProcessError("자동 환불 결과를 확인하지 못했습니다. 결제사업자 관리자에서 상태를 확인해 주세요.", code, "refund_review");
   }
+}
+
+export async function reconcileRefundOrder(orderId: string): Promise<{ status: RefundOrderStatus }> {
+  const order = await getDb().query.orders.findFirst({ where: eq(orders.id, orderId) });
+  if (!order || !["refund_pending", "refund_review", "refund_processing"].includes(order.status)) {
+    throw new RefundProcessError("대사할 환불 주문을 찾지 못했습니다.", "ORDER_NOT_RECONCILABLE");
+  }
+
+  let refunded = false;
+  if (order.provider === "kakaopay") {
+    const remote = await getKakaoPayOrder(order.providerReference);
+    refunded = remote.tid === order.providerReference && remote.status === "CANCEL_PAYMENT" && remote.canceled_amount?.total === order.amount;
+  } else if (order.provider === "naverpay") {
+    const history = await getNaverPayHistory(order.providerReference);
+    refunded = history.some((item) => item.paymentId === order.providerReference && item.admissionState === "SUCCESS" && item.admissionTypeCode === "03" && item.totalPayAmount === order.amount && item.merchantPayKey === order.id && item.merchantUserKey === order.memberId);
+  } else {
+    throw new RefundProcessError("이 결제수단은 자동 대사를 지원하지 않습니다.", "UNSUPPORTED_PROVIDER");
+  }
+
+  if (!refunded) return { status: "refund_pending" };
+  const now = new Date().toISOString();
+  await getDb().batch([
+    getDb().update(orders).set({ status: "refunded", updatedAt: now }).where(eq(orders.id, order.id)),
+    getDb().update(paymentAttempts).set({ status: "refunded", updatedAt: now }).where(and(eq(paymentAttempts.provider, order.provider), eq(paymentAttempts.providerReference, order.providerReference))),
+  ]);
+  return { status: "refunded" };
 }

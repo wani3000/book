@@ -12,6 +12,7 @@ export async function GET(request: Request) {
   const orderId = url.searchParams.get("orderId") ?? "";
   const resultCode = url.searchParams.get("resultCode") ?? "";
   const paymentId = url.searchParams.get("paymentId") ?? "";
+  const resultMessage = (url.searchParams.get("resultMessage") ?? "").trim().slice(0, 160);
   const member = await getAuthenticatedMember(request);
   if (!member) return NextResponse.redirect(`${origin}/mypage?payment=login-required`);
   if (!orderId) return NextResponse.redirect(`${origin}/checkout/fail?reason=invalid`);
@@ -23,16 +24,19 @@ export async function GET(request: Request) {
   if (attempt.status === "paid") return NextResponse.redirect(`${origin}/checkout/success?orderId=${encodeURIComponent(orderId)}`);
   if (attempt.status !== "ready") return NextResponse.redirect(`${origin}/checkout/fail?reason=closed`);
   if (resultCode !== "Success" || !paymentId || paymentId.length > 80) {
-    await getDb().update(paymentAttempts).set({ status: resultCode === "Fail" ? "cancelled" : "failed", errorCode: resultCode.slice(0, 80) || "INVALID_RESULT", updatedAt: new Date().toISOString() }).where(eq(paymentAttempts.id, orderId));
-    return NextResponse.redirect(`${origin}/checkout/fail?reason=${resultCode === "Fail" ? "cancel" : "provider"}`);
+    const cancelled = resultCode.toLowerCase() === "usercancel";
+    await getDb().update(paymentAttempts).set({ status: cancelled ? "cancelled" : "failed", errorCode: resultCode.slice(0, 80) || "INVALID_RESULT", updatedAt: new Date().toISOString() }).where(eq(paymentAttempts.id, orderId));
+    const params = new URLSearchParams({ reason: cancelled ? "cancel" : "provider" });
+    if (resultMessage) params.set("message", resultMessage);
+    return NextResponse.redirect(`${origin}/checkout/fail?${params.toString()}`);
   }
 
   await getDb().update(paymentAttempts).set({ status: "approving", providerReference: paymentId, updatedAt: new Date().toISOString() }).where(eq(paymentAttempts.id, orderId));
   try {
-    const approved = await approveNaverPay(paymentId);
+    const approved = await approveNaverPay(paymentId, orderId);
     const book = ebookCatalog[attempt.product];
     const detail = approved.body?.detail;
-    if (approved.body?.paymentId !== paymentId || detail?.totalPayAmount !== book.amount || (detail.merchantPayKey && detail.merchantPayKey !== orderId)) {
+    if (approved.body?.paymentId !== paymentId || detail?.paymentId !== paymentId || detail?.admissionState !== "SUCCESS" || detail?.totalPayAmount !== book.amount || detail?.merchantPayKey !== orderId || detail?.merchantUserKey !== member.id) {
       throw Object.assign(new Error("NaverPay approved order mismatch"), { code: "ORDER_MISMATCH" });
     }
     const now = new Date().toISOString();

@@ -20,6 +20,15 @@ type CancelResponse = {
   canceled_amount?: { total?: number };
 };
 
+type OrderResponse = {
+  tid: string;
+  status?: string;
+  partner_order_id?: string;
+  partner_user_id?: string;
+  amount?: { total?: number };
+  canceled_amount?: { total?: number };
+};
+
 function credentials() {
   const cid = process.env.KAKAOPAY_CID;
   const secretKey = process.env.KAKAOPAY_SECRET_KEY;
@@ -97,6 +106,11 @@ export async function cancelKakaoPay(args: { tid: string; amount: number }) {
     cancel_amount: args.amount,
     cancel_tax_free_amount: 0,
   });
+}
+
+export async function getKakaoPayOrder(tid: string) {
+  const { cid } = credentials();
+  return requestKakaoPay<OrderResponse>("order", { cid, tid });
 }
 
 export function kakaoPayErrorCode(error: unknown) {

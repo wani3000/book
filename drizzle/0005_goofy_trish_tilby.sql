@@ -1,0 +1,1 @@
+ALTER TABLE `payment_attempts` ADD `content_provision_consent_version` text DEFAULT '2026-07-21-v1' NOT NULL;

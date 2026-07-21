@@ -1,7 +1,9 @@
 "use client";
 
 import { initializePaddle, type Paddle } from "@paddle/paddle-js";
+import Link from "next/link";
 import { useEffect, useState } from "react";
+import { DIGITAL_CONTENT_CONSENT_TEXT } from "@/app/payments/policy";
 
 type ProductSlug = "codex" | "career" | "jane";
 
@@ -37,11 +39,13 @@ type NaverPayCheckout = {
   mode: "development" | "production";
   merchantUserKey: string;
   merchantPayKey: string;
+  merchantPayTransactionKey: string;
   productName: string;
   productCount: number;
   totalPayAmount: number;
   taxScopeAmount: number;
   taxExScopeAmount: number;
+  extraDeduction: boolean;
   returnUrl: string;
   productItems: Array<{ categoryType: string; categoryId: string; uid: string; name: string; payReferrer: string; count: number }>;
   error?: string;
@@ -108,14 +112,14 @@ export default function PurchaseButton({ product, label, className = "button pri
   const ready = Boolean(kakaoPayReady || naverPayReady || externalUrl || (paddle && config.priceId));
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [consented, setConsented] = useState(false);
 
   async function beginPurchase(provider?: DirectProvider) {
     if (!ready) return;
     setError("");
     setLoading(true);
     if (provider) {
-      const consented = window.confirm("결제 완료 즉시 PDF 열람이 시작되며, 열람 또는 다운로드 후에는 단순 변심 청약철회가 제한될 수 있습니다. 결제를 계속할까요?");
-      if (!consented) { setLoading(false); return; }
+      if (!consented) { setError("디지털 콘텐츠 즉시 제공과 청약철회 제한에 동의해 주세요."); setLoading(false); return; }
       const response = await fetch(`/api/${provider}/ready`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -129,6 +133,10 @@ export default function PurchaseButton({ product, label, className = "button pri
       if (response.status === 401) {
         window.location.href = `/mypage?next=${encodeURIComponent(window.location.pathname)}`;
         return;
+      }
+      if (response.status === 409) {
+        const data = await response.json().catch(() => ({})) as { owned?: boolean; libraryUrl?: string; error?: string };
+        if (data.owned && data.libraryUrl) { window.location.href = data.libraryUrl; return; }
       }
       if (provider === "naverpay") {
         const data = await response.json().catch(() => ({})) as NaverPayCheckout;
@@ -195,9 +203,13 @@ export default function PurchaseButton({ product, label, className = "button pri
 
   if (kakaoPayReady || naverPayReady) {
     return <div className={`purchase-provider-wrap ${kakaoPayReady && naverPayReady ? "is-dual" : ""}`}>
+      <label className="purchase-consent">
+        <input type="checkbox" checked={consented} onChange={(event) => setConsented(event.target.checked)} />
+        <span>{DIGITAL_CONTENT_CONSENT_TEXT} <Link href="/refund" target="_blank">환불정책 보기</Link></span>
+      </label>
       <div className="purchase-provider-grid">
-        {kakaoPayReady && <button type="button" className={`${className} provider-kakao`} disabled={loading} onClick={() => beginPurchase("kakaopay")}>{loading ? "결제창 여는 중" : "카카오페이로 결제하기"}<span>→</span></button>}
-        {naverPayReady && <button type="button" className={`${className} provider-naver`} disabled={loading} onClick={() => beginPurchase("naverpay")}>{loading ? "결제창 여는 중" : "네이버페이로 결제하기"}<span>→</span></button>}
+        {kakaoPayReady && <button type="button" className={`${className} provider-kakao`} disabled={loading || !consented} onClick={() => beginPurchase("kakaopay")}>{loading ? "결제창 여는 중" : "카카오페이로 결제하기"}<span>→</span></button>}
+        {naverPayReady && <button type="button" className={`${className} provider-naver`} disabled={loading || !consented} onClick={() => beginPurchase("naverpay")}>{loading ? "결제창 여는 중" : "Npay로 결제하기"}<span>→</span></button>}
       </div>
       {error && <span className="purchase-error" role="alert">{error}</span>}
     </div>;

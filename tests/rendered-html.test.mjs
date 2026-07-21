@@ -93,10 +93,18 @@ test("storefront does not publish fabricated ratings or sample reviews", async (
 
 test("Google login persists a verified member and creates a secure session", async () => {
   const source = await readFile(new URL("app/api/auth/google/route.ts", root), "utf8");
+  const account = await readFile(new URL("app/components/GoogleAccount.tsx", root), "utf8");
   assert.match(source, /email_verified !== true/);
   assert.match(source, /insert\(members\)/);
   assert.match(source, /httpOnly: true/);
   assert.match(source, /sameSite: "lax"/);
+  assert.match(source, /SIGNUP_CONSENT_REQUIRED/);
+  assert.match(source, /ACCOUNT_REACTIVATION_REQUIRED/);
+  assert.match(source, /existing\?\.status === "deleted" && !reactivate/);
+  assert.match(source, /reactivatedAt: existing\?\.status === "deleted" \? now/);
+  assert.match(account, /\[필수\] 이용약관 동의/);
+  assert.match(account, /\[선택\] 새 책과 할인 소식 받기/);
+  assert.match(account, /동의하고 재가입하기/);
 });
 
 test("my page provides profile, order, logout, and account deletion flows", async () => {
@@ -105,14 +113,34 @@ test("my page provides profile, order, logout, and account deletion flows", asyn
   const profileApi = await readFile(new URL("app/api/account/profile/route.ts", root), "utf8");
   assert.match(page, /구매 내역/);
   assert.match(page, /회원 탈퇴/);
+  assert.match(page, /주문번호/);
+  assert.match(page, /결제수단/);
+  assert.match(page, /deleteConfirmation !== "회원 탈퇴"/);
   assert.match(profileApi, /export async function PATCH/);
   assert.match(profileApi, /export async function DELETE/);
   assert.match(profileApi, /status: "deleted"/);
+  assert.match(profileApi, /inArray\(refundRequests\.status, \["requested", "reviewing"\]\)/);
+  assert.match(profileApi, /acknowledged !== true/);
   assert.match(refundForm, /환불 신청하기/);
   assert.match(refundForm, /환불 신청 완료/);
   assert.match(refundForm, /환불 검토 중/);
   assert.match(refundForm, /환불 완료/);
   assert.match(refundForm, /환불 불가/);
+});
+
+test("account guide and schema document consent, deletion, and explicit reactivation", async () => {
+  const guide = await readFile(new URL("app/account-guide/page.tsx", root), "utf8");
+  const privacy = await readFile(new URL("app/privacy/page.tsx", root), "utf8");
+  const schema = await readFile(new URL("db/schema.ts", root), "utf8");
+  const migration = await readFile(new URL("drizzle/0006_typical_metal_master.sql", root), "utf8");
+  assert.match(guide, /회원가입과 로그인/);
+  assert.match(guide, /자동 복구하지 않고/);
+  assert.match(privacy, /동의 일시와 버전/);
+  assert.match(schema, /termsAcceptedAt/);
+  assert.match(schema, /privacyAcceptedAt/);
+  assert.match(schema, /reactivatedAt/);
+  assert.match(migration, /terms_accepted_at/);
+  assert.match(migration, /reactivated_at/);
 });
 
 test("test purchaser receives all three protected PDF entitlements", async () => {
@@ -174,6 +202,7 @@ test("merchant review pages disclose seller, privacy, and refund rules", async (
   const terms = await readFile(new URL("app/terms/page.tsx", root), "utf8");
   const privacy = await readFile(new URL("app/privacy/page.tsx", root), "utf8");
   const refund = await readFile(new URL("app/refund/page.tsx", root), "utf8");
+  const payment = await readFile(new URL("app/payment/page.tsx", root), "utf8");
   assert.match(footer, /217-26-12405/);
   assert.match(footer, /제 2020-서울구로-0138호/);
   assert.match(terms, /이용약관/);
@@ -182,6 +211,9 @@ test("merchant review pages disclose seller, privacy, and refund rules", async (
   assert.doesNotMatch(privacy, /실제 운영 설정 확정 후/);
   assert.match(refund, /구매일로부터 7일/);
   assert.match(footer, /카카오톡 상담/);
+  assert.match(footer, /결제·이용 안내/);
+  assert.match(payment, /PDF 전자책 3종/);
+  assert.match(payment, /별도의 배송은 없습니다/);
 });
 
 test("NaverPay checkout creates a member order and verifies approval details", async () => {
@@ -194,10 +226,41 @@ test("NaverPay checkout creates a member order and verifies approval details", a
   assert.match(ready, /getAuthenticatedMember/);
   assert.match(ready, /provider: "naverpay"/);
   assert.match(callback, /detail\?\.totalPayAmount !== book\.amount/);
-  assert.match(callback, /detail\.merchantPayKey !== orderId/);
+  assert.match(callback, /detail\?\.merchantPayKey !== orderId/);
   assert.match(callback, /provider: "naverpay"/);
   assert.match(server, /payments\/v2\.2\/apply\/payment/);
   assert.match(server, /application\/x-www-form-urlencoded/);
+  assert.match(server, /pay\.paygate\.naver\.com/);
+  assert.match(server, /X-NaverPay-Idempotency-Key/);
+  assert.match(server, /expectedRestAmount/);
+  assert.doesNotMatch(server, /NAVERPAY_PARTNER_ID/);
+});
+
+test("direct checkout stores consent version and blocks repeat ownership", async () => {
+  const kakaoReady = await readFile(new URL("app/api/kakaopay/ready/route.ts", root), "utf8");
+  const naverReady = await readFile(new URL("app/api/naverpay/ready/route.ts", root), "utf8");
+  const button = await readFile(new URL("app/components/PurchaseButton.tsx", root), "utf8");
+  const schema = await readFile(new URL("db/schema.ts", root), "utf8");
+  for (const source of [kakaoReady, naverReady]) {
+    assert.match(source, /hasPaidOrder/);
+    assert.match(source, /contentProvisionConsentVersion/);
+    assert.match(source, /status: 409/);
+  }
+  assert.match(button, /purchase-consent/);
+  assert.match(button, /disabled=\{loading \|\| !consented\}/);
+  assert.match(schema, /contentProvisionConsentVersion/);
+});
+
+test("admin can reconcile provider payment state and recover an order", async () => {
+  const api = await readFile(new URL("app/api/admin/payments/route.ts", root), "utf8");
+  const page = await readFile(new URL("app/components/PaymentAdmin.tsx", root), "utf8");
+  assert.match(api, /member\?\.isAdmin/);
+  assert.match(api, /getKakaoPayOrder/);
+  assert.match(api, /getNaverPayHistory/);
+  assert.match(api, /onConflictDoNothing/);
+  assert.match(api, /status: "paid"/);
+  assert.match(api, /status: "refunded"/);
+  assert.match(page, /결제 상태 확인·복구/);
 });
 
 test("direct payment refunds require an admin and revoke paid access", async () => {
@@ -210,6 +273,9 @@ test("direct payment refunds require an admin and revoke paid access", async () 
   assert.match(processor, /status: "refund_processing"/);
   assert.match(processor, /"refund_pending"/);
   assert.match(processor, /"refund_review"/);
+  assert.match(processor, /reconcileRefundOrder/);
+  assert.match(processor, /getNaverPayHistory/);
+  assert.match(processor, /getKakaoPayOrder/);
 });
 
 test("customer refund requests enforce ownership, policy confirmation, and first-access limits", async () => {
@@ -228,11 +294,12 @@ test("admin refund workflow supports review, rejection, and payment cancellation
   const schema = await readFile(new URL("db/schema.ts", root), "utf8");
   const migration = await readFile(new URL("drizzle/0004_wonderful_tenebrous.sql", root), "utf8");
   assert.match(source, /member\?\.isAdmin/);
-  assert.match(source, /\["review", "approve", "reject"\]/);
+  assert.match(source, /\["review", "approve", "reject", "reconcile"\]/);
   assert.match(source, /processPaidOrderRefund/);
   assert.match(source, /status: "rejected"/);
   assert.match(page, /승인·결제 취소/);
   assert.match(page, /환불 불가/);
+  assert.match(page, /결제 상태 확인/);
   assert.match(schema, /refundRequests = sqliteTable/);
   assert.match(schema, /firstAccessedAt: text/);
   assert.match(migration, /CREATE TABLE `refund_requests`/);

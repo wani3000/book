@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { getAuthenticatedMember } from "@/app/auth/member";
 import { ebookCatalog, isEbookProduct } from "@/app/library/catalog";
 import { kakaoPayEnabled, kakaoPayErrorCode, readyKakaoPay } from "@/app/kakaopay/server";
+import { hasPaidOrder } from "@/app/payments/eligibility";
+import { DIGITAL_CONTENT_CONSENT_VERSION } from "@/app/payments/policy";
 import { getDb } from "@/db";
 import { paymentAttempts } from "@/db/schema";
 
@@ -16,6 +18,9 @@ export async function POST(request: Request) {
   }
   if (body.contentProvisionConsent !== true) {
     return NextResponse.json({ error: "디지털 콘텐츠 즉시 제공에 대한 확인이 필요합니다." }, { status: 400 });
+  }
+  if (await hasPaidOrder(member.id, body.product)) {
+    return NextResponse.json({ error: "이미 구매한 전자책입니다.", owned: true, libraryUrl: "/mypage#orders" }, { status: 409 });
   }
 
   const orderId = `pb_${Date.now()}_${crypto.randomUUID().replaceAll("-", "").slice(0, 12)}`;
@@ -32,6 +37,7 @@ export async function POST(request: Request) {
       amount: ebookCatalog[body.product].amount,
       providerReference: ready.tid,
       contentProvisionConsentAt: new Date().toISOString(),
+      contentProvisionConsentVersion: DIGITAL_CONTENT_CONSENT_VERSION,
     });
     return NextResponse.json({
       orderId,

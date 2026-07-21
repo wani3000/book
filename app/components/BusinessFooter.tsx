@@ -7,7 +7,7 @@ export default function BusinessFooter() {
     <footer className="class-footer business-footer">
       <Link className="class-logo" href="/"><span className="class-logo-mark" aria-hidden="true">P</span><strong>PHILIP BOOKS</strong></Link>
       <p>실제 경험을 실행 가능한 지식으로 만듭니다.</p>
-      <div className="business-footer-links"><Link href="/terms">이용약관</Link><Link href="/privacy">개인정보처리방침</Link><Link href="/refund">교환·환불정책</Link></div>
+      <div className="business-footer-links"><Link href="/payment">결제·이용 안내</Link><Link href="/account-guide">회원·구매내역 안내</Link><Link href="/terms">이용약관</Link><Link href="/privacy">개인정보처리방침</Link><Link href="/refund">교환·환불정책</Link></div>
       <address>
         <span>상호 플로렌스랩(Florence Lab)</span><span>대표자 박철완</span><span>사업자등록번호 217-26-12405</span>
         <span>통신판매업신고 제 2020-서울구로-0138호</span><span>서울특별시 구로구 고척로 49, 204동 703호</span>

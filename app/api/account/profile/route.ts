@@ -1,10 +1,11 @@
-import { and, count, eq } from "drizzle-orm";
+import { and, count, eq, inArray } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { getAuthenticatedMember, publicMember } from "@/app/auth/member";
 import { isTestPurchaser } from "@/app/library/catalog";
 import { SESSION_COOKIE } from "@/app/auth/session";
 import { getDb } from "@/db";
-import { members, orders, reviews } from "@/db/schema";
+import { members, orders, refundRequests, reviews } from "@/db/schema";
+import { ACCOUNT_DELETE_CONFIRMATION } from "@/app/account/policy";
 
 export const dynamic = "force-dynamic";
 
@@ -46,6 +47,16 @@ export async function DELETE(request: Request) {
   try {
     const member = await getAuthenticatedMember(request);
     if (!member) return NextResponse.json({ error: "로그인이 필요합니다." }, { status: 401 });
+    const body = await request.json().catch(() => ({})) as { confirmation?: unknown; acknowledged?: unknown };
+    if (body.confirmation !== ACCOUNT_DELETE_CONFIRMATION || body.acknowledged !== true) {
+      return NextResponse.json({ error: `확인란에 '${ACCOUNT_DELETE_CONFIRMATION}'를 정확히 입력하고 안내를 확인해 주세요.` }, { status: 400 });
+    }
+    const pendingRefund = await getDb().query.refundRequests.findFirst({
+      where: and(eq(refundRequests.memberId, member.id), inArray(refundRequests.status, ["requested", "reviewing"])),
+    });
+    if (pendingRefund) {
+      return NextResponse.json({ error: "처리 중인 환불 신청이 있어 지금은 탈퇴할 수 없습니다. 환불 결과를 확인한 뒤 다시 시도해 주세요." }, { status: 409 });
+    }
     const now = new Date().toISOString();
     await getDb().update(members).set({
       email: `deleted-${member.id}@invalid.local`,
@@ -53,6 +64,7 @@ export async function DELETE(request: Request) {
       displayName: "탈퇴 회원",
       picture: null,
       status: "deleted",
+      role: "member",
       deletedAt: now,
       updatedAt: now,
       marketingConsent: 0,

@@ -1,6 +1,6 @@
 # 네이버페이 결제형 가맹 신청·연동 체크리스트
 
-최종 갱신: 2026-07-20 (KST)
+최종 갱신: 2026-07-21 (KST)
 
 ## 결정
 
@@ -49,6 +49,12 @@
 - 결제 완료 주문 저장과 마이페이지 PDF 권한
 - 실패·취소 안내와 승인 응답 미수신 시 대사 필요 상태 분리
 - 관리자 전액 환불 API와 `CancelNotComplete` 대사 필요 상태 처리
+- 공식 최신 `pay.paygate.naver.com` API 주소와 `naverpay-partner` 경로
+- 승인·취소 API의 `X-NaverPay-Idempotency-Key`
+- 승인 응답의 결제번호·주문번호·회원키·금액·성공 상태 검증
+- 전액취소 시 과세·면세 금액과 예상 잔액 비교
+- 동일 전자책 중복 구매 차단
+- 결제 전 디지털 콘텐츠 제공 동의 시각·문구 버전 저장
 
 ## 가입 승인 후 연결할 값
 
@@ -56,10 +62,9 @@ Sites 런타임 환경변수에만 저장한다.
 
 - `NEXT_PUBLIC_NAVERPAY_ENABLED=true`
 - `NAVERPAY_MODE=development` 또는 `production`
-- `NAVERPAY_PARTNER_ID`
 - `NAVERPAY_CLIENT_ID`
 - `NAVERPAY_CLIENT_SECRET`
-- `NAVERPAY_CHAIN_ID` (그룹형 가맹점에 발급된 경우만)
+- `NAVERPAY_CHAIN_ID`
 - `NEXT_PUBLIC_BUSINESS_PHONE`
 
 개발 인증값으로 결제·실패·취소를 검증한 뒤 운영 인증값과 `production` 모드로 전환한다.
