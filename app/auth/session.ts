@@ -10,7 +10,7 @@ export type AuthUser = {
   picture?: string;
 };
 
-function sessionKey() {
+export function authSecretKey() {
   const secret = process.env.GOOGLE_SESSION_SECRET;
   if (!secret) throw new Error("GOOGLE_SESSION_SECRET is not configured");
   return new TextEncoder().encode(secret);
@@ -22,13 +22,13 @@ export async function createSessionToken(user: AuthUser) {
     .setSubject(user.id)
     .setIssuedAt()
     .setExpirationTime(`${SESSION_MAX_AGE}s`)
-    .sign(sessionKey());
+    .sign(authSecretKey());
 }
 
 export async function readSessionToken(token?: string | null): Promise<AuthUser | null> {
   if (!token) return null;
   try {
-    const { payload } = await jwtVerify(token, sessionKey(), { algorithms: ["HS256"] });
+    const { payload } = await jwtVerify(token, authSecretKey(), { algorithms: ["HS256"] });
     if (!payload.sub || typeof payload.email !== "string" || typeof payload.name !== "string") return null;
     return {
       id: payload.sub,

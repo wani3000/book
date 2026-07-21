@@ -3,7 +3,7 @@ import AccountDashboard from "../components/AccountDashboard";
 import BusinessFooter from "../components/BusinessFooter";
 import StorefrontHeader from "../components/StorefrontHeader";
 
-export const metadata: Metadata = { title: "마이페이지", description: "PHILIP BOOKS 회원 정보와 구매한 전자책을 관리합니다.", robots: { index: false, follow: false } };
+export const metadata: Metadata = { title: "마이페이지", description: "다니엘의 노트 회원 정보와 구매한 전자책을 관리합니다.", robots: { index: false, follow: false } };
 
 export default function MyPage() {
   return <main className="account-site class-market"><StorefrontHeader /><AccountDashboard /><BusinessFooter /></main>;

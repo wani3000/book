@@ -29,7 +29,8 @@ export function isEbookProduct(value: string): value is EbookProduct {
 }
 
 export function isTestPurchaser(email: string) {
-  const configured = process.env.TEST_PURCHASER_EMAILS ?? "oxaz1234@gmail.com";
+  const qaAdminEmail = process.env.QA_LOGIN_ENABLED === "true" ? process.env.QA_ADMIN_EMAIL ?? "" : "";
+  const configured = `${process.env.TEST_PURCHASER_EMAILS ?? "oxaz1234@gmail.com"},${qaAdminEmail}`;
   return configured
     .split(",")
     .map((item) => item.trim().toLowerCase())

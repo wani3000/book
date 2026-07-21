@@ -1,10 +1,10 @@
 import { createRemoteJWKSet, jwtVerify } from "jose";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { createSessionToken, SESSION_COOKIE, SESSION_MAX_AGE } from "@/app/auth/session";
 import { isConfiguredAdmin } from "@/app/auth/member";
 import { getDb } from "@/db";
-import { members } from "@/db/schema";
+import { authIdentities, members } from "@/db/schema";
 import { PRIVACY_VERSION, TERMS_VERSION } from "@/app/account/policy";
 
 export const dynamic = "force-dynamic";
@@ -44,13 +44,40 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "확인된 Google 이메일이 필요합니다." }, { status: 401 });
     }
 
-    const user = {
-      id: payload.sub,
+    const googleUser = {
+      providerSubject: payload.sub,
       email: payload.email,
       name: typeof payload.name === "string" && payload.name.trim() ? payload.name : payload.email.split("@")[0],
       picture: typeof payload.picture === "string" ? payload.picture : undefined,
     };
-    const existing = await getDb().query.members.findFirst({ where: eq(members.id, user.id) });
+    let identity = await getDb().query.authIdentities.findFirst({
+      where: and(eq(authIdentities.provider, "google"), eq(authIdentities.providerSubject, googleUser.providerSubject)),
+    });
+    const existing = identity
+      ? await getDb().query.members.findFirst({ where: eq(members.id, identity.memberId) })
+      : await getDb().query.members.findFirst({ where: eq(members.id, googleUser.providerSubject) });
+
+    if (!identity && existing) {
+      await getDb().insert(authIdentities).values({
+        id: crypto.randomUUID(),
+        memberId: existing.id,
+        provider: "google",
+        providerSubject: googleUser.providerSubject,
+        providerEmail: googleUser.email.toLowerCase(),
+      });
+      identity = await getDb().query.authIdentities.findFirst({
+        where: and(eq(authIdentities.provider, "google"), eq(authIdentities.providerSubject, googleUser.providerSubject)),
+      });
+    }
+    if (!existing) {
+      const sameEmail = await getDb().query.members.findFirst({ where: eq(members.email, googleUser.email.toLowerCase()) });
+      if (sameEmail) {
+        return NextResponse.json({
+          code: "ACCOUNT_LINK_REQUIRED",
+          error: "같은 이메일로 가입된 계정이 있습니다. 기존 로그인으로 접속한 뒤 프로필에서 Google 계정을 연결해 주세요.",
+        }, { status: 409 });
+      }
+    }
     if (existing?.status === "suspended") {
       return NextResponse.json({ error: "이용이 정지된 계정입니다. 관리자에게 문의해 주세요." }, { status: 403 });
     }
@@ -73,13 +100,14 @@ export async function POST(request: Request) {
       }, { status: 409 });
     }
     const now = new Date().toISOString();
+    const memberId = existing?.id ?? crypto.randomUUID();
     await getDb().insert(members).values({
-      id: user.id,
-      email: user.email.toLowerCase(),
-      name: user.name,
-      displayName: user.name,
-      picture: user.picture,
-      role: isConfiguredAdmin(user.email) ? "admin" : "member",
+      id: memberId,
+      email: googleUser.email.toLowerCase(),
+      name: googleUser.name,
+      displayName: googleUser.name,
+      picture: googleUser.picture,
+      role: isConfiguredAdmin(googleUser.email) ? "admin" : "member",
       status: "active",
       marketingConsent: marketingConsent ? 1 : 0,
       termsAcceptedAt: now,
@@ -91,11 +119,11 @@ export async function POST(request: Request) {
     }).onConflictDoUpdate({
       target: members.id,
       set: {
-        email: user.email.toLowerCase(),
-        name: user.name,
-        displayName: existing?.status === "deleted" ? user.name : existing?.displayName ?? user.name,
-        picture: user.picture,
-        role: existing?.status === "deleted" ? (isConfiguredAdmin(user.email) ? "admin" : "member") : existing?.role ?? "member",
+        email: googleUser.email.toLowerCase(),
+        name: googleUser.name,
+        displayName: existing?.status === "deleted" ? googleUser.name : existing?.displayName ?? googleUser.name,
+        picture: googleUser.picture,
+        role: existing?.status === "deleted" ? (isConfiguredAdmin(googleUser.email) ? "admin" : "member") : existing?.role ?? "member",
         status: existing?.status === "deleted" ? "active" : existing?.status ?? "active",
         marketingConsent: existing?.status === "deleted" ? (marketingConsent ? 1 : 0) : existing?.marketingConsent ?? 0,
         termsAcceptedAt: existing?.status === "deleted" ? now : existing?.termsAcceptedAt,
@@ -108,8 +136,20 @@ export async function POST(request: Request) {
         lastLoginAt: now,
       },
     });
-    const token = await createSessionToken(user);
-    const response = NextResponse.json({ user });
+    await getDb().insert(authIdentities).values({
+      id: identity?.id ?? crypto.randomUUID(),
+      memberId,
+      provider: "google",
+      providerSubject: googleUser.providerSubject,
+      providerEmail: googleUser.email.toLowerCase(),
+      lastLoginAt: now,
+    }).onConflictDoUpdate({
+      target: [authIdentities.provider, authIdentities.providerSubject],
+      set: { memberId, providerEmail: googleUser.email.toLowerCase(), lastLoginAt: now },
+    });
+    const sessionUser = { id: memberId, email: googleUser.email.toLowerCase(), name: googleUser.name, picture: googleUser.picture };
+    const token = await createSessionToken(sessionUser);
+    const response = NextResponse.json({ user: { ...sessionUser, displayName: existing?.status === "deleted" ? googleUser.name : existing?.displayName ?? googleUser.name } });
     response.cookies.set(SESSION_COOKIE, token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
