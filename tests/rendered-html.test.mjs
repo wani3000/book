@@ -10,7 +10,7 @@ test("collection home connects all three ebook pages", async () => {
   assert.match(source, /href: "\/codex"/);
   assert.match(source, /href: "\/career"/);
   assert.match(source, /href: "\/jane"/);
-  assert.match(header, /PHILIP BOOKS/);
+  assert.match(header, /DANIEL&amp;apos;S NOTE|DANIEL&apos;S NOTE/);
   assert.match(source, /return books\.filter/);
   assert.doesNotMatch(source, /const curated|id="stories"|id="popular"/);
 });
@@ -105,6 +105,49 @@ test("Google login persists a verified member and creates a secure session", asy
   assert.match(account, /\[필수\] 이용약관 동의/);
   assert.match(account, /\[선택\] 새 책과 할인 소식 받기/);
   assert.match(account, /동의하고 재가입하기/);
+  assert.match(account, /continue_with/);
+  assert.match(account, /size: mode === "login" \? "large"/);
+});
+
+test("QA admin login is secret-gated, production-disabled by default, and creates the normal secure session", async () => {
+  const gate = await readFile(new URL("app/auth/qa.ts", root), "utf8");
+  const route = await readFile(new URL("app/api/auth/qa-login/route.ts", root), "utf8");
+  const page = await readFile(new URL("app/qa-login/page.tsx", root), "utf8");
+  assert.match(gate, /QA_LOGIN_ENABLED/);
+  assert.match(gate, /QA_LOGIN_ALLOW_PRODUCTION/);
+  assert.match(gate, /password\.length >= 24/);
+  assert.match(gate, /crypto\.subtle\.digest/);
+  assert.match(route, /qaAdminCredentials/);
+  assert.match(route, /role: "admin"/);
+  assert.match(route, /createSessionToken/);
+  assert.match(route, /httpOnly: true/);
+  assert.match(route, /sameSite: "lax"/);
+  assert.match(route, /Cache-Control": "no-store"/);
+  assert.match(page, /robots: \{ index: false, follow: false, nocache: true \}/);
+  assert.doesNotMatch(route, /oxaz1234@gmail\.com/);
+});
+
+test("Kakao login uses OIDC, PKCE, explicit consent, and provider-safe account linking", async () => {
+  const start = await readFile(new URL("app/api/auth/kakao/start/route.ts", root), "utf8");
+  const callback = await readFile(new URL("app/api/auth/kakao/callback/route.ts", root), "utf8");
+  const pending = await readFile(new URL("app/api/auth/kakao/pending/route.ts", root), "utf8");
+  const identitiesApi = await readFile(new URL("app/api/auth/identities/route.ts", root), "utf8");
+  const kakaoAuth = await readFile(new URL("app/auth/kakao.ts", root), "utf8");
+  const kakaoUi = await readFile(new URL("app/components/KakaoAccount.tsx", root), "utf8");
+  const schema = await readFile(new URL("db/schema.ts", root), "utf8");
+  const migration = await readFile(new URL("drizzle/0007_icy_silver_surfer.sql", root), "utf8");
+  assert.match(start, /code_challenge_method: "S256"/);
+  assert.match(start, /scope: "openid profile_nickname profile_image account_email"/);
+  assert.match(callback, /url\.searchParams\.get\("state"\) !== oauth\.state/);
+  assert.match(callback, /account_link_required/);
+  assert.match(kakaoAuth, /createRemoteJWKSet/);
+  assert.match(kakaoAuth, /payload\.nonce !== nonce/);
+  assert.match(kakaoAuth, /is_email_verified !== true/);
+  assert.match(pending, /termsAccepted !== true \|\| body\.privacyAccepted !== true/);
+  assert.match(identitiesApi, /마지막 로그인 수단은 해제할 수 없습니다/);
+  assert.match(kakaoUi, /카카오로 계속하기/);
+  assert.match(schema, /authIdentities/);
+  assert.match(migration, /legacy-google:/);
 });
 
 test("my page provides profile, order, logout, and account deletion flows", async () => {
@@ -112,6 +155,8 @@ test("my page provides profile, order, logout, and account deletion flows", asyn
   const refundForm = await readFile(new URL("app/components/RefundRequestForm.tsx", root), "utf8");
   const profileApi = await readFile(new URL("app/api/account/profile/route.ts", root), "utf8");
   assert.match(page, /구매 내역/);
+  assert.match(page, /누군가의 경험이/);
+  assert.match(page, /account-login-header/);
   assert.match(page, /회원 탈퇴/);
   assert.match(page, /주문번호/);
   assert.match(page, /결제수단/);

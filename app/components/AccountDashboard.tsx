@@ -2,8 +2,10 @@
 
 import Link from "next/link";
 import { FormEvent, useCallback, useEffect, useState } from "react";
-import { ArrowCounterClockwise, ArrowRight, BookOpen, Gear, Receipt, ShieldCheck, Star, UserCircle } from "@phosphor-icons/react";
+import { ArrowCounterClockwise, ArrowLeft, ArrowRight, BookOpen, Gear, Receipt, ShieldCheck, Star, UserCircle } from "@phosphor-icons/react";
 import GoogleAccount from "./GoogleAccount";
+import GoogleIdentity from "./GoogleIdentity";
+import KakaoAccount from "./KakaoAccount";
 import RefundRequestForm from "./RefundRequestForm";
 
 type Member = {
@@ -15,6 +17,7 @@ type Member = {
   role: "member" | "admin";
   marketingConsent: boolean;
   createdAt: string;
+  linkedProviders: string[];
 };
 
 type Order = { id: string; product: string; productTitle: string; amount: number; currency: string; status: string; provider?: string; providerReference?: string; createdAt: string; downloadUrl?: string; testEntitlement?: boolean; firstAccessedAt?: string | null; simpleChangeEligible?: boolean; refundId?: string | null; refundStatus?: string | null; refundDecisionNote?: string | null; refundRequestedAt?: string | null };
@@ -105,13 +108,20 @@ export default function AccountDashboard() {
   if (loading) return <div className="account-loading">회원 정보를 불러오고 있습니다.</div>;
   if (!member) return (
     <section className="account-login-shell">
+      <header className="account-login-header">
+        <Link href="/" className="account-login-back" aria-label="스토어로 돌아가기"><ArrowLeft size={25} weight="bold" /></Link>
+        <Link href="/" className="account-login-brand" aria-label="다니엘의 노트 홈">
+          <BookOpen size={27} weight="fill" aria-hidden="true" />
+          <strong>DANIEL&apos;S NOTE</strong>
+        </Link>
+        <span aria-hidden="true" />
+      </header>
       <div className="account-login-card">
-        <span><BookOpen size={40} weight="fill" /></span>
-        <p>PHILIP BOOKS</p>
-        <h1>로그인하고<br />나의 전자책을 만나보세요</h1>
-        <div className="account-login-copy">Google 계정 하나로 구매 내역과 전자책을<br />안전하게 관리할 수 있습니다.</div>
-        <GoogleAccount mode="login" />
-        <small className="account-login-note">처음 이용하는 계정은 Google 인증 후 필수 약관 동의를 확인합니다.</small>
+        <p>당신의 다음 장을 위한 기록</p>
+        <h1>누군가의 경험이<br />당신의 다음 시작이 되도록.</h1>
+        <div className="account-login-copy">카카오 또는 Google 계정으로 계속하면 구매한 전자책과<br />나의 기록을 한곳에서 안전하게 관리할 수 있습니다.</div>
+        <div className="account-login-providers"><KakaoAccount mode="login" /><GoogleAccount mode="login" /></div>
+        <small className="account-login-note">처음 방문하셨나요? 로그인하면 회원가입이 함께 진행됩니다.</small>
         <Link href="/#books">로그인 없이 전자책 둘러보기</Link>
       </div>
     </section>
@@ -133,7 +143,7 @@ export default function AccountDashboard() {
 
         <a className="mypage-library-link" href="#orders" onClick={() => setActiveSection("orders")}><span>내 전자책 바로 보기</span><b>내 서재</b><ArrowRight size={20} weight="bold" /></a>
 
-        <p className="mypage-menu-label">PHILIP BOOKS</p>
+        <p className="mypage-menu-label">DANIEL&apos;S NOTE</p>
         <nav>
           <a className={activeSection === "overview" ? "active" : ""} href="#overview" aria-current={activeSection === "overview" ? "page" : undefined} onClick={() => setActiveSection("overview")}><BookOpen />내 서재</a>
           <a className={activeSection === "orders" ? "active" : ""} href="#orders" aria-current={activeSection === "orders" ? "page" : undefined} onClick={() => setActiveSection("orders")}><Receipt />주문 내역</a>
@@ -153,8 +163,10 @@ export default function AccountDashboard() {
         </section>}
 
         {activeSection === "profile" && <><section id="profile" className="mypage-panel"><div className="mypage-panel-title"><div><p>ACCOUNT</p><h2>프로필 관리</h2></div><Gear size={28} /></div>
-          <form className="profile-form" onSubmit={saveProfile}><label>표시 이름<input name="displayName" defaultValue={member.displayName} minLength={2} maxLength={30} required /></label><label>이메일<input value={member.email} readOnly /><small>Google 계정 이메일은 변경할 수 없습니다.</small></label><label className="profile-checkbox"><input type="checkbox" name="marketingConsent" defaultChecked={member.marketingConsent} /><span><b>새 책과 할인 소식 받기</b><small>언제든 이 설정을 끌 수 있습니다.</small></span></label><button type="submit">변경사항 저장</button><p role="status">{message}</p></form>
+          <form className="profile-form" onSubmit={saveProfile}><label>표시 이름<input name="displayName" defaultValue={member.displayName} minLength={2} maxLength={30} required /></label><label>이메일<input value={member.email} readOnly /><small>가입한 로그인 계정의 확인된 이메일입니다.</small></label><label className="profile-checkbox"><input type="checkbox" name="marketingConsent" defaultChecked={member.marketingConsent} /><span><b>새 책과 할인 소식 받기</b><small>언제든 이 설정을 끌 수 있습니다.</small></span></label><button type="submit">변경사항 저장</button><p role="status">{message}</p></form>
         </section>
+
+        <section className="mypage-panel identity-connections"><div className="mypage-panel-title"><div><p>LOGIN</p><h2>로그인 계정 연결</h2></div><ShieldCheck size={28} /></div><p className="identity-connections-copy">로그인 수단을 추가해도 구매 내역과 PDF 권한은 하나의 회원 계정에 그대로 유지됩니다.</p><GoogleIdentity connected={member.linkedProviders.includes("google")} onChanged={load} /><KakaoAccount mode="connect" connected={member.linkedProviders.includes("kakao")} onChanged={load} /></section>
 
         <section className="mypage-danger"><div><h2>회원 탈퇴</h2><p>탈퇴 즉시 로그아웃되고 PDF 열람이 중단됩니다. 거래 기록은 법정 기간 동안 분리 보관하며, 같은 Google 계정으로 재가입할 때 기존 구매 내역과 유효한 열람 권한을 명시적 동의 후 복원합니다.</p></div><button type="button" onClick={() => setDeleteOpen(true)}>회원 탈퇴</button></section>
         {deleteOpen && <div className="account-delete-overlay" role="dialog" aria-modal="true" aria-labelledby="account-delete-title">

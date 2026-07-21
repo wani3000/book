@@ -50,6 +50,13 @@
       "when": 1784632994696,
       "tag": "0006_typical_metal_master",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "6",
+      "when": 1784641480421,
+      "tag": "0007_icy_silver_surfer",
+      "breakpoints": true
     }
   ]
 }

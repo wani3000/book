@@ -1,4 +1,4 @@
-# PHILIP BOOKS production QA — 2026-07-21
+# 다니엘의 노트 production QA — 2026-07-21
 
 Target: `https://codex-solo-builder-book.wani3000.chatgpt.site`
 

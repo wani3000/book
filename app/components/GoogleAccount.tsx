@@ -113,12 +113,12 @@ export default function GoogleAccount({ mode = "compact" }: { mode?: "compact" |
       window.google.accounts.id.renderButton(slot.current, {
         type: "standard",
         theme: "outline",
-        size: "medium",
-        text: "signin_with",
+        size: mode === "login" ? "large" : "medium",
+        text: mode === "login" ? "continue_with" : "signin_with",
         shape: "rectangular",
         logo_alignment: "left",
         width: mode === "login"
-          ? Math.min(400, Math.max(240, window.innerWidth - 56))
+          ? Math.min(400, Math.max(240, window.innerWidth - 40))
           : mode === "panel" ? 280 : 150,
       });
     };

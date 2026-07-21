@@ -11,7 +11,7 @@
 **Full-view comparison evidence**
 
 - The implementation follows the reference's compact white marketplace canvas, slim header, centered search field, small promotional banner, two-row category control grid, five-column product rows, carousel controls, and numbered popularity section.
-- PHILIP BOOKS content intentionally uses portrait ebook covers instead of the reference's landscape video thumbnails. The visual density, card count, metadata hierarchy, and horizontal browsing behavior are retained.
+- DANIEL'S NOTE content intentionally uses portrait ebook covers instead of the reference's landscape video thumbnails. The visual density, card count, metadata hierarchy, and horizontal browsing behavior are retained.
 
 **Focused region comparison evidence**
 
@@ -24,7 +24,7 @@
 
 - Fonts and typography: Geist with Korean system fallbacks produces a comparable neutral commerce UI; weights, title sizes, metadata scale, and wrapping are consistent and readable.
 - Spacing and layout rhythm: header, discovery grid, section gaps, five-column tracks, and mobile horizontal rails preserve the source density without collisions.
-- Colors and tokens: white/gray base, black text, orange active state, and restrained category accents match the reference's marketplace semantics while retaining PHILIP BOOKS identity.
+- Colors and tokens: white/gray base, black text, orange active state, and restrained category accents match the reference's marketplace semantics while retaining the DANIEL'S NOTE identity.
 - Image quality and asset fidelity: all three real ebook covers are sharp, correctly proportioned, and never stretched; no placeholder imagery is present.
 - Copy and content: every card is grounded in one of the three real books; duplicate placements are explicitly curated workbook or recommendation contexts and link to the correct detail page.
 - Icons: Phosphor icons provide one consistent library with appropriate size, weight, and alignment.
@@ -231,3 +231,51 @@ final result: passed
 - No actionable P0, P1, or P2 issues remain.
 
 final result: passed
+
+---
+
+## 감성형 Google 로그인 화면 QA — 2026-07-21
+
+- Source visual truth: `/tmp/codex-remote-attachments/019f754a-2435-7a83-867a-73aa02e8ea9c/761434C0-BD78-4D6A-8DB8-E695EC2ECB9F/1-사진-1.jpg`
+- Implementation screenshot: 생성하지 못함 — 로컬 미리보기에 인앱 브라우저가 연결되지 않음
+- Intended viewport: mobile 390×844, desktop responsive
+- State: 로그아웃 상태의 `/mypage`, Google 로그인 사용 가능
+
+**Full-view comparison evidence**
+
+- 참고 이미지는 흰 배경, 상단 뒤로가기와 중앙 브랜드, 큰 감성 문구, 넓은 소셜 로그인 버튼을 사용한다.
+- 구현은 동일한 정보 계층을 코드에 반영했지만 브라우저 렌더링 캡처를 얻지 못해 실제 크기·줄바꿈·수직 리듬을 결합 이미지로 비교하지 못했다.
+
+**Focused region comparison evidence**
+
+- 코드상 상단은 44px 뒤로가기, 중앙 `DANIEL'S NOTE` 워드마크, 균형용 우측 공간으로 구성했다.
+- Google Identity Services 버튼은 로그인 화면에서 `large`, `continue_with`, 최대 400px로 요청한다.
+- 실제 iframe 렌더링과 한국어 버튼 문구는 브라우저 캡처가 없어 최종 확인하지 못했다.
+
+**Required fidelity surfaces**
+
+- Fonts and typography: Pretendard 기반 32px 모바일 헤드라인과 15px 설명을 지정했으나 실제 렌더링 비교는 대기 중이다.
+- Spacing and layout rhythm: 390px 화면 기준 좌우 20px, 78px 상단, 54–86px 본문 시작 여백을 지정했으나 캡처 검증은 대기 중이다.
+- Colors and visual tokens: 흰 배경, 검정 본문, 중간 회색 보조 문구로 참고 이미지의 명도 구조를 유지한다.
+- Image quality and asset fidelity: 별도 이미지 자산은 없으며 Phosphor의 뒤로가기·책 아이콘과 Google 공식 버튼을 사용한다.
+- Copy and content: `누군가의 경험이 당신의 다음 시작이 되도록.`을 핵심 문구로 사용하고 회원가입·전자책 관리 안내를 유지한다.
+
+**Findings**
+
+- [P2] 실제 모바일 렌더링 비교 미완료
+  - Location: `/mypage` 로그아웃 화면, 390×844
+  - Evidence: 참고 이미지는 열었지만 로컬 구현 화면은 브라우저 연결 실패로 캡처하지 못했다.
+  - Impact: Google iframe의 최종 폭, 한국어 버튼 문구, 화면 아래쪽 잘림 여부를 시각적으로 확정할 수 없다.
+  - Fix: 다음 배포 전 로컬 또는 비공개 체크포인트에서 390×844 캡처 후 참고 이미지와 결합 비교한다.
+
+**Comparison history**
+
+- 1차: 인앱 브라우저에서 `127.0.0.1:3001` 로컬 미리보기 연결이 거부되어 구현 캡처를 만들지 못했다.
+- 코드 검증: ESLint, 프로덕션 빌드, 자동 테스트 26개 통과.
+
+**Primary interactions tested**
+
+- 정적 구조 테스트에서 감성 문구, 전용 로그인 헤더, Google `large` 및 `continue_with` 설정을 확인했다.
+- 실제 Google 팝업과 로그인 완료는 외부 인증을 시작하지 않았으며 이번 변경에서 재검증하지 않았다.
+
+final result: blocked

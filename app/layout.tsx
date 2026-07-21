@@ -11,8 +11,8 @@ const siteUrl = configuredSiteUrl?.startsWith("https://") ? configuredSiteUrl : 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: "PHILIP BOOKS | 경험을 다음 기회로 바꾸는 실전 전자책",
-    template: "%s | 필립의 실전 전자책",
+    default: "다니엘의 노트 | 경험을 다음 기회로 바꾸는 실전 전자책",
+    template: "%s | 다니엘의 노트",
   },
   description: "AI 서비스 제작, UI/UX 디자이너 커리어와 승무원에서 IT로 이동한 실제 경험을 실행 가능한 방법으로 정리한 실전 전자책 컬렉션.",
   keywords: ["Codex 사용법", "비개발자 코딩", "UI UX 디자이너", "승무원 이직", "서비스 운영", "커리어 전환", "전자책"],
@@ -26,9 +26,9 @@ export const metadata: Metadata = {
     locale: "ko_KR",
     title: "경험을 다음 기회로 바꾸는 실전 전자책",
     description: "AI 서비스 제작 · UI/UX 커리어 · 승무원에서 IT로. 실제로 해본 사람의 실행 가능한 플레이북.",
-    siteName: "Philip Books",
+    siteName: "다니엘의 노트",
     url: "/",
-    images: [{ url: "/og-collection.png", width: 1733, height: 908, alt: "PHILIP BOOKS 실전 전자책 세 권" }],
+    images: [{ url: "/og-collection.png", width: 1733, height: 908, alt: "다니엘의 노트 실전 전자책 세 권" }],
   },
   twitter: {
     card: "summary_large_image",

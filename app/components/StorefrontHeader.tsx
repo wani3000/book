@@ -16,9 +16,9 @@ export default function StorefrontHeader({ query, onQueryChange }: StorefrontHea
       <div className="class-header-main">
         <div className="class-brand-cluster">
           <MobileBookMenu />
-          <Link className="class-logo" href="/" aria-label="PHILIP BOOKS 홈">
+          <Link className="class-logo" href="/" aria-label="다니엘의 노트 홈">
             <BookOpen weight="fill" size={29} aria-hidden="true" />
-            <strong>PHILIP BOOKS</strong>
+            <strong>DANIEL&apos;S NOTE</strong>
           </Link>
         </div>
         <form className="class-search" action="/" method="get" role="search">

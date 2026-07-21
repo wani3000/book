@@ -21,6 +21,19 @@ export const members = sqliteTable("members", {
   deletedAt: text("deleted_at"),
 }, (table) => [uniqueIndex("members_email_unique").on(table.email)]);
 
+export const authIdentities = sqliteTable("auth_identities", {
+  id: text("id").primaryKey(),
+  memberId: text("member_id").notNull().references(() => members.id),
+  provider: text("provider").notNull(),
+  providerSubject: text("provider_subject").notNull(),
+  providerEmail: text("provider_email"),
+  createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+  lastLoginAt: text("last_login_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+}, (table) => [
+  uniqueIndex("auth_identities_provider_subject_unique").on(table.provider, table.providerSubject),
+  uniqueIndex("auth_identities_member_provider_unique").on(table.memberId, table.provider),
+]);
+
 export const orders = sqliteTable("orders", {
   id: text("id").primaryKey(),
   memberId: text("member_id").notNull().references(() => members.id),

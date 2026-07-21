@@ -4,8 +4,9 @@ import { getAuthenticatedMember, publicMember } from "@/app/auth/member";
 import { isTestPurchaser } from "@/app/library/catalog";
 import { SESSION_COOKIE } from "@/app/auth/session";
 import { getDb } from "@/db";
-import { members, orders, refundRequests, reviews } from "@/db/schema";
+import { authIdentities, members, orders, refundRequests, reviews } from "@/db/schema";
 import { ACCOUNT_DELETE_CONFIRMATION } from "@/app/account/policy";
+import { unlinkKakaoUser } from "@/app/auth/kakao";
 
 export const dynamic = "force-dynamic";
 
@@ -13,12 +14,13 @@ export async function GET(request: Request) {
   try {
     const member = await getAuthenticatedMember(request);
     if (!member) return NextResponse.json({ error: "로그인이 필요합니다." }, { status: 401 });
-    const [[orderCount], [reviewCount]] = await Promise.all([
+    const [[orderCount], [reviewCount], identities] = await Promise.all([
       getDb().select({ value: count() }).from(orders).where(and(eq(orders.memberId, member.id), eq(orders.status, "paid"))),
       getDb().select({ value: count() }).from(reviews).where(eq(reviews.memberId, member.id)),
+      getDb().select({ provider: authIdentities.provider }).from(authIdentities).where(eq(authIdentities.memberId, member.id)),
     ]);
     return NextResponse.json({
-      member: publicMember(member),
+      member: { ...publicMember(member), linkedProviders: identities.map((identity) => identity.provider) },
       stats: { orders: isTestPurchaser(member.email) ? 3 : orderCount?.value ?? 0, reviews: reviewCount?.value ?? 0 },
     }, { headers: { "Cache-Control": "no-store" } });
   } catch {
@@ -56,6 +58,16 @@ export async function DELETE(request: Request) {
     });
     if (pendingRefund) {
       return NextResponse.json({ error: "처리 중인 환불 신청이 있어 지금은 탈퇴할 수 없습니다. 환불 결과를 확인한 뒤 다시 시도해 주세요." }, { status: 409 });
+    }
+    const kakaoIdentity = await getDb().query.authIdentities.findFirst({
+      where: and(eq(authIdentities.memberId, member.id), eq(authIdentities.provider, "kakao")),
+    });
+    if (kakaoIdentity) {
+      try {
+        await unlinkKakaoUser(kakaoIdentity.providerSubject);
+      } catch {
+        return NextResponse.json({ error: "카카오 계정 연결을 해제하지 못해 탈퇴를 중단했습니다. 잠시 후 다시 시도해 주세요." }, { status: 502 });
+      }
     }
     const now = new Date().toISOString();
     await getDb().update(members).set({
