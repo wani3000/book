@@ -122,7 +122,7 @@ export default function PurchaseButton({ product, label, className = "button pri
         body: JSON.stringify({ product, contentProvisionConsent: true }),
       }).catch(() => null);
       if (!response) {
-        setError("결제 연결을 확인해 주세요.");
+        setError("결제 요청을 처리하지 못했습니다. 잠시 후 다시 시도해 주세요.");
         setLoading(false);
         return;
       }
@@ -196,8 +196,8 @@ export default function PurchaseButton({ product, label, className = "button pri
   if (kakaoPayReady || naverPayReady) {
     return <div className={`purchase-provider-wrap ${kakaoPayReady && naverPayReady ? "is-dual" : ""}`}>
       <div className="purchase-provider-grid">
-        {kakaoPayReady && <button type="button" className={`${className} provider-kakao`} disabled={loading} onClick={() => beginPurchase("kakaopay")}>{loading ? "연결 중" : "카카오페이"}<span>→</span></button>}
-        {naverPayReady && <button type="button" className={`${className} provider-naver`} disabled={loading} onClick={() => beginPurchase("naverpay")}>{loading ? "연결 중" : "네이버페이"}<span>→</span></button>}
+        {kakaoPayReady && <button type="button" className={`${className} provider-kakao`} disabled={loading} onClick={() => beginPurchase("kakaopay")}>{loading ? "결제창 여는 중" : "카카오페이로 결제하기"}<span>→</span></button>}
+        {naverPayReady && <button type="button" className={`${className} provider-naver`} disabled={loading} onClick={() => beginPurchase("naverpay")}>{loading ? "결제창 여는 중" : "네이버페이로 결제하기"}<span>→</span></button>}
       </div>
       {error && <span className="purchase-error" role="alert">{error}</span>}
     </div>;
@@ -208,10 +208,10 @@ export default function PurchaseButton({ product, label, className = "button pri
       type="button"
       className={className}
       disabled={!ready || loading}
-      aria-label={ready ? label : `${label} - 결제 설정 준비 중`}
+      aria-label={label}
       onClick={() => beginPurchase()}
     >
-      {loading ? "결제창 여는 중" : ready ? label : "간편결제 심사 준비 중"}<span>→</span>
+      {loading ? "결제창 여는 중" : label}<span>→</span>
     </button>{error && <span className="purchase-error" role="alert">{error}</span>}</>
   );
 }

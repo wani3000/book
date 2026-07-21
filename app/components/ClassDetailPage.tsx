@@ -7,13 +7,12 @@ import {
   Check,
   Clock,
   DownloadSimple,
-  MagnifyingGlass,
   ShieldCheck,
 } from "@phosphor-icons/react";
 import PurchaseButton from "./PurchaseButton";
 import ReviewSection from "./ReviewSection";
-import GoogleAccount from "./GoogleAccount";
 import BusinessFooter from "./BusinessFooter";
+import StorefrontHeader from "./StorefrontHeader";
 
 type ProductSlug = "codex" | "career" | "jane";
 
@@ -43,25 +42,6 @@ export type DetailBook = {
   faqs: Array<[string, string]>;
 };
 
-function StoreHeader() {
-  return (
-    <header className="detail-global-header">
-      <div>
-        <Link className="class-logo" href="/" aria-label="PHILIP BOOKS 홈">
-          <BookOpen weight="fill" size={28} /><strong>PHILIP BOOKS</strong>
-        </Link>
-        <nav aria-label="주요 메뉴"><Link href="/">전자책</Link><a href="#curriculum">목차</a><a href="#reviews">후기</a><a href="#creator">저자</a></nav>
-        <form className="detail-search" action="/" method="get" role="search">
-          <label className="sr-only" htmlFor="detail-store-search">전자책 검색</label>
-          <input id="detail-store-search" name="q" placeholder="관심 주제, 전자책, 경험을 검색해보세요" />
-          <button type="submit" aria-label="검색"><MagnifyingGlass size={20} weight="bold" /></button>
-        </form>
-        <div className="detail-account"><GoogleAccount /></div>
-      </div>
-    </header>
-  );
-}
-
 function BuyCard({ book, compact = false }: { book: DetailBook; compact?: boolean }) {
   return (
     <aside className={compact ? "detail-buy-card compact" : "detail-buy-card"} aria-label="전자책 구매 정보">
@@ -77,7 +57,7 @@ function BuyCard({ book, compact = false }: { book: DetailBook; compact?: boolea
 export default function ClassDetailPage({ book }: { book: DetailBook }) {
   return (
     <main className={`class-detail theme-${book.theme} product-${book.product}`}>
-      <StoreHeader />
+      <StorefrontHeader />
 
       <div className="detail-breadcrumb"><Link href="/">홈</Link><span>›</span><Link href="/">전자책</Link><span>›</span><b>{book.category}</b></div>
 

@@ -5,19 +5,14 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import {
   ArrowRight,
-  BookOpen,
   Briefcase,
-  ChartLineUp,
   Code,
-  DotsThree,
   MagnifyingGlass,
-  Palette,
   RocketLaunch,
-  Sparkle,
   SquaresFour,
 } from "@phosphor-icons/react";
-import GoogleAccount from "./components/GoogleAccount";
 import BusinessFooter from "./components/BusinessFooter";
+import StorefrontHeader from "./components/StorefrontHeader";
 
 const books = [
   {
@@ -66,17 +61,14 @@ const books = [
 
 const categories = [
   { label: "전체", icon: SquaresFour },
-  { label: "AI 서비스", icon: Sparkle },
-  { label: "커리어 전환", icon: Briefcase },
-  { label: "UI/UX 디자인", icon: Palette },
-  { label: "서비스 운영", icon: ChartLineUp },
+  { label: "커리어", icon: Briefcase },
   { label: "개발 · 생산성", icon: Code },
-  { label: "전체 카테고리", icon: DotsThree },
 ];
 
 export default function BookstoreHome() {
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState("전체");
+  const [promoIndex, setPromoIndex] = useState(0);
 
   useEffect(() => {
     const searchQuery = new URLSearchParams(window.location.search).get("q")?.trim();
@@ -85,11 +77,21 @@ export default function BookstoreHome() {
     return () => window.clearTimeout(applySearch);
   }, []);
 
+  useEffect(() => {
+    const promoTimer = window.setInterval(() => {
+      setPromoIndex((current) => (current + 1) % books.length);
+    }, 5000);
+
+    return () => window.clearInterval(promoTimer);
+  }, []);
+
+  const promoBook = books[promoIndex];
+
   const visible = useMemo(() => {
     const normalized = query.trim().toLowerCase();
     return books.filter((book) => {
-      const categoryMatch = category === "전체" || category === "전체 카테고리" || book.category === category ||
-        (category === "서비스 운영" && book.id === "jane") ||
+      const categoryMatch = category === "전체" ||
+        (category === "커리어" && (book.id === "career" || book.id === "jane")) ||
         (category === "개발 · 생산성" && book.id === "codex");
       const queryMatch = !normalized || [book.title, book.creator, book.category, book.subtitle, ...book.tags].join(" ").toLowerCase().includes(normalized);
       return categoryMatch && queryMatch;
@@ -98,38 +100,20 @@ export default function BookstoreHome() {
 
   return (
     <main className="class-market">
-      <header className="class-header">
-        <div className="class-header-main">
-          <Link className="class-logo" href="/" aria-label="PHILIP BOOKS 홈">
-            <BookOpen weight="fill" size={29} aria-hidden="true" />
-            <strong>PHILIP BOOKS</strong>
-          </Link>
-          <label className="class-search">
-            <span className="sr-only">전자책 검색</span>
-            <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="관심 주제, 전자책, 경험을 검색해보세요" />
-            <MagnifyingGlass size={23} weight="bold" aria-hidden="true" />
-          </label>
-          <div className="class-account">
-            <a href="#books">전체 전자책</a>
-            <GoogleAccount />
-          </div>
-        </div>
-      </header>
+      <StorefrontHeader query={query} onQueryChange={setQuery} />
 
       <section className="class-discovery" aria-label="추천과 카테고리">
-        <a className="class-promo" href="#books">
-          <div><small>이번 주 추천</small><h1>실무에 바로 쓰는<br />세 권의 실전 전자책</h1><p>읽은 다음 날 바로 시작할 수 있는 경험과 워크북</p><span>자세히 보기 <ArrowRight size={15} weight="bold" /></span></div>
-          <div className="class-promo-covers" aria-hidden="true">
-            {books.map((book) => <img key={book.id} src={book.image} width={book.width} height={book.height} alt="" />)}
+        <Link className={`class-promo class-promo-${promoBook.accent}`} href={promoBook.href} aria-label={`${promoBook.title} 자세히 보기`}>
+          <div key={`copy-${promoBook.id}`} className="class-promo-copy">
+            <small>이번 주 추천</small>
+            <h1>실무에 바로 쓰는<br />{promoBook.title}</h1>
+            <p>{promoBook.subtitle}</p>
+            <span>자세히 보기 <ArrowRight size={15} weight="bold" /></span>
           </div>
-        </a>
-        <div className="class-category-grid">
-          {categories.map(({ label, icon: Icon }) => (
-            <button className={category === label ? "active" : ""} type="button" key={label} onClick={() => setCategory(label)} aria-pressed={category === label}>
-              <Icon size={22} weight={category === label ? "fill" : "duotone"} aria-hidden="true" /><span>{label}</span>
-            </button>
-          ))}
-        </div>
+          <div key={`cover-${promoBook.id}`} className="class-promo-covers" aria-hidden="true">
+            <img src={promoBook.image} width={promoBook.width} height={promoBook.height} alt="" />
+          </div>
+        </Link>
       </section>
 
       <section className="class-content-section" id="books">
@@ -141,11 +125,43 @@ export default function BookstoreHome() {
                 <Link className={`class-cover-wrap ${book.accent}`} href={book.href}>
                   <span>{book.badge}</span><img src={book.image} width={book.width} height={book.height} alt={`${book.title} 표지`} />
                 </Link>
-                <div className="class-product-copy"><h3><Link href={book.href}>{book.title}</Link></h3><p>{book.subtitle}</p><small>{book.category} · {book.creator}</small><strong>19,000원</strong></div>
+                <div className="class-product-copy"><h3><Link href={book.href}>{book.title}</Link></h3><p>{book.subtitle}</p><small>{book.category} · {book.creator}</small></div>
               </article>
             ))}
           </div>
         ) : <div className="class-empty"><MagnifyingGlass size={34} /><h3>검색 결과가 없습니다</h3><p>다른 주제나 카테고리를 선택해 보세요.</p><button type="button" onClick={() => { setQuery(""); setCategory("전체"); }}>전체 전자책 보기</button></div>}
+      </section>
+
+      <section className="class-all-books-section" aria-labelledby="all-books-title">
+        <div className="class-all-books-heading">
+          <small>ALL EBOOKS</small>
+          <h2 id="all-books-title">전체 전자책</h2>
+          <p>실제 경험을 다음 기회로 연결하는 세 권의 실전 가이드</p>
+        </div>
+        <div className="class-category-grid" aria-label="전자책 카테고리">
+          {categories.map(({ label, icon: Icon }) => (
+            <button className={category === label ? "active" : ""} type="button" key={label} onClick={() => setCategory(label)} aria-pressed={category === label}>
+              <Icon size={22} weight={category === label ? "fill" : "duotone"} aria-hidden="true" /><span>{label}</span>
+            </button>
+          ))}
+        </div>
+        <div className="class-all-book-list">
+          {visible.map((book) => (
+            <Link className="class-all-book-row" href={book.href} key={`all-${book.id}`}>
+              <span className={`class-all-book-thumb ${book.accent}`}>
+                <img src={book.image} width={book.width} height={book.height} alt={`${book.title} 표지`} />
+              </span>
+              <span className="class-all-book-copy">
+                <span className="class-all-book-tags"><em>{book.category}</em></span>
+                <strong>{book.title}</strong>
+                <span>{book.subtitle}</span>
+                <small>{book.creator} 지음</small>
+              </span>
+              <ArrowRight size={24} weight="bold" aria-hidden="true" />
+            </Link>
+          ))}
+          {!visible.length && <p className="class-all-books-empty">선택한 카테고리에 해당하는 전자책이 없습니다.</p>}
+        </div>
       </section>
 
       <section className="class-start-banner">

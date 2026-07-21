@@ -21,7 +21,7 @@ declare global {
 
 const GOOGLE_SCRIPT = "https://accounts.google.com/gsi/client";
 
-export default function GoogleAccount({ mode = "compact" }: { mode?: "compact" | "panel" }) {
+export default function GoogleAccount({ mode = "compact" }: { mode?: "compact" | "panel" | "login" }) {
   const slot = useRef<HTMLDivElement>(null);
   const [user, setUser] = useState<User | null>(null);
   const [clientId, setClientId] = useState("");
@@ -72,7 +72,9 @@ export default function GoogleAccount({ mode = "compact" }: { mode?: "compact" |
         text: "signin_with",
         shape: "rectangular",
         logo_alignment: "left",
-        width: mode === "panel" ? 280 : 150,
+        width: mode === "login"
+          ? Math.min(400, Math.max(240, window.innerWidth - 56))
+          : mode === "panel" ? 280 : 150,
       });
     };
 
@@ -98,7 +100,7 @@ export default function GoogleAccount({ mode = "compact" }: { mode?: "compact" |
 
   if (!ready) return <span className="google-account-loading">로그인 확인 중</span>;
   if (user) return (
-    <div className={`google-account-user ${mode === "panel" ? "panel" : ""}`}>
+    <div className={`google-account-user ${mode}`}>
       <Link href="/mypage" aria-label="마이페이지로 이동">
         <span aria-hidden="true">{(user.displayName ?? user.name).slice(0, 1).toUpperCase()}</span>
         <span><b>{user.displayName ?? user.name}</b><small>{mode === "panel" ? user.email : "마이페이지"}</small></span>
@@ -106,8 +108,8 @@ export default function GoogleAccount({ mode = "compact" }: { mode?: "compact" |
       <button type="button" onClick={logout}>로그아웃</button>
     </div>
   );
-  if (!clientId) return mode === "panel"
-    ? <div className="google-login-unavailable"><b>Google 로그인 준비 중</b><p>관리자가 Google 로그인 설정을 완료하면 바로 이용할 수 있습니다.</p></div>
+  if (!clientId) return mode === "panel" || mode === "login"
+    ? <div className="google-login-unavailable"><b>Google 로그인을 이용할 수 없습니다</b><p>잠시 후 다시 시도해 주세요.</p></div>
     : <Link className="google-account-login-link" href="/mypage">로그인</Link>;
-  return <div className={`google-account ${mode === "panel" ? "panel" : ""}`}><div ref={slot} /><p role="alert">{error}</p></div>;
+  return <div className={`google-account ${mode}`}><div ref={slot} /><Link className="mobile-google-account-link" href="/mypage">로그인</Link><p role="alert">{error}</p></div>;
 }

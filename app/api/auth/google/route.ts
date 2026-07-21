@@ -13,7 +13,7 @@ const googleKeys = createRemoteJWKSet(new URL("https://www.googleapis.com/oauth2
 export async function POST(request: Request) {
   const clientId = process.env.GOOGLE_CLIENT_ID;
   if (!clientId || !process.env.GOOGLE_SESSION_SECRET) {
-    return NextResponse.json({ error: "Google 로그인이 아직 설정되지 않았습니다." }, { status: 503 });
+    return NextResponse.json({ error: "현재 Google 로그인을 이용할 수 없습니다." }, { status: 503 });
   }
 
   let credential = "";

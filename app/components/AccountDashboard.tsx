@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { FormEvent, useCallback, useEffect, useState } from "react";
-import { BookOpen, CheckCircle, Gear, Receipt, ShieldCheck, Star, UserCircle } from "@phosphor-icons/react";
+import { ArrowRight, BookOpen, Gear, Receipt, ShieldCheck, Star, UserCircle } from "@phosphor-icons/react";
 import GoogleAccount from "./GoogleAccount";
 
 type Member = {
@@ -19,6 +19,7 @@ type Member = {
 type Order = { id: string; product: string; productTitle: string; amount: number; currency: string; status: string; createdAt: string; downloadUrl?: string; testEntitlement?: boolean };
 
 const bookLinks: Record<string, string> = { codex: "/codex", career: "/career", jane: "/jane" };
+type MyPageSection = "overview" | "orders" | "profile";
 
 export default function AccountDashboard() {
   const [member, setMember] = useState<Member | null>(null);
@@ -26,6 +27,7 @@ export default function AccountDashboard() {
   const [stats, setStats] = useState({ orders: 0, reviews: 0 });
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
+  const [activeSection, setActiveSection] = useState<MyPageSection>("overview");
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -53,6 +55,16 @@ export default function AccountDashboard() {
     return () => { window.clearTimeout(initialLoad); window.removeEventListener("philip-auth-changed", refresh); };
   }, [load]);
 
+  useEffect(() => {
+    const syncSection = () => {
+      const section = window.location.hash.slice(1);
+      setActiveSection(section === "orders" || section === "profile" ? section : "overview");
+    };
+    syncSection();
+    window.addEventListener("hashchange", syncSection);
+    return () => window.removeEventListener("hashchange", syncSection);
+  }, []);
+
   async function saveProfile(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const form = new FormData(event.currentTarget);
@@ -76,39 +88,59 @@ export default function AccountDashboard() {
 
   if (loading) return <div className="account-loading">회원 정보를 불러오고 있습니다.</div>;
   if (!member) return (
-    <section className="account-login-card">
-      <span><UserCircle size={38} weight="duotone" /></span>
-      <p>PHILIP BOOKS 회원</p><h1>로그인하고<br />구매 내역을 관리하세요.</h1>
-      <ul><li><CheckCircle /> 구매한 전자책 확인</li><li><CheckCircle /> 프로필과 후기 관리</li><li><CheckCircle /> 한 계정에서 안전하게 이용</li></ul>
-      <GoogleAccount mode="panel" />
-      <Link href="/">로그인 없이 전자책 둘러보기 →</Link>
+    <section className="account-login-shell">
+      <div className="account-login-card">
+        <span><BookOpen size={40} weight="fill" /></span>
+        <p>PHILIP BOOKS</p>
+        <h1>로그인하고<br />나의 전자책을 만나보세요</h1>
+        <div className="account-login-copy">Google 계정 하나로 구매 내역과 전자책을<br />안전하게 관리할 수 있습니다.</div>
+        <GoogleAccount mode="login" />
+        <small className="account-login-note">계속하면 이용약관과 개인정보처리방침에 동의하게 됩니다.</small>
+        <Link href="/#books">로그인 없이 전자책 둘러보기</Link>
+      </div>
     </section>
   );
 
   return (
     <div className="mypage-grid">
       <aside className="mypage-sidebar">
-        <div className="mypage-avatar">{member.displayName.slice(0, 1).toUpperCase()}</div>
-        <h2>{member.displayName}</h2><p>{member.email}</p>
-        <nav><a href="#overview"><UserCircle />계정 홈</a><a href="#orders"><Receipt />구매 내역</a><a href="#profile"><Gear />회원 정보</a></nav>
-        {member.role === "admin" && <><Link className="mypage-admin-link" href="/admin/members"><ShieldCheck />회원 관리</Link><Link className="mypage-admin-link" href="/admin/reviews"><Star />후기 관리</Link></>}
+        <div className="mypage-profile-head">
+          <span className="mypage-avatar"><UserCircle size={42} weight="fill" aria-hidden="true" /></span>
+          <span className="mypage-profile-copy"><strong>{member.displayName}</strong><small>{member.email}</small></span>
+          <a className="mypage-manage-link" href="#profile" onClick={() => setActiveSection("profile")}>계정 관리</a>
+        </div>
+
+        <section className="mypage-summary" aria-label="내 활동 요약">
+          <div><span>구매한 전자책</span><strong>{stats.orders}<small>권</small></strong></div>
+          <div><span>작성한 후기</span><strong>{stats.reviews}<small>개</small></strong></div>
+        </section>
+
+        <a className="mypage-library-link" href="#orders" onClick={() => setActiveSection("orders")}><span>내 전자책 바로 보기</span><b>내 서재</b><ArrowRight size={20} weight="bold" /></a>
+
+        <p className="mypage-menu-label">PHILIP BOOKS</p>
+        <nav>
+          <a className={activeSection === "overview" ? "active" : ""} href="#overview" aria-current={activeSection === "overview" ? "page" : undefined} onClick={() => setActiveSection("overview")}><BookOpen />내 서재</a>
+          <a className={activeSection === "orders" ? "active" : ""} href="#orders" aria-current={activeSection === "orders" ? "page" : undefined} onClick={() => setActiveSection("orders")}><Receipt />주문 내역</a>
+          <a className={activeSection === "profile" ? "active" : ""} href="#profile" aria-current={activeSection === "profile" ? "page" : undefined} onClick={() => setActiveSection("profile")}><Gear />프로필 관리</a>
+          <Link href="/#books"><Star />전자책 둘러보기</Link>
+        </nav>
+        {member.role === "admin" && <div className="mypage-admin-links"><Link className="mypage-admin-link" href="/admin/members"><ShieldCheck />회원 관리</Link><Link className="mypage-admin-link" href="/admin/reviews"><Star />후기 관리</Link></div>}
         <GoogleAccount mode="panel" />
       </aside>
 
       <div className="mypage-content">
-        <section id="overview" className="mypage-welcome"><p>MY PAGE</p><h1>{member.displayName}님,<br />다시 만나 반가워요.</h1><span>가입일 {new Date(member.createdAt).toLocaleDateString("ko-KR")}</span></section>
-        <section className="mypage-stats"><article><BookOpen /><span>구매한 전자책</span><strong>{stats.orders}<small>권</small></strong></article><article><Star /><span>작성한 후기</span><strong>{stats.reviews}<small>개</small></strong></article></section>
+        {activeSection === "overview" && <section id="overview" className="mypage-welcome"><p>MY LIBRARY</p><h1>구매한 전자책을<br />한곳에서 확인하세요.</h1><span>{member.displayName}님의 구매 내역과 PDF를 안전하게 관리합니다.</span><a href="#orders" onClick={() => setActiveSection("orders")}>내 전자책 확인하기</a></section>}
 
-        <section id="orders" className="mypage-panel"><div className="mypage-panel-title"><div><p>LIBRARY</p><h2>구매 내역</h2></div><Receipt size={28} /></div>
-          {orders.length ? <div className="order-list">{orders.map((order) => <article key={order.id}><div><span>{order.testEntitlement ? "테스트 구매 승인" : order.status === "paid" ? "구매 완료" : order.status}</span><h3>{order.productTitle}</h3><p>{new Date(order.createdAt).toLocaleDateString("ko-KR")} · {order.amount.toLocaleString("ko-KR")}원</p></div><div className="order-actions">{order.downloadUrl && <a className="order-read" href={order.downloadUrl} target="_blank" rel="noreferrer">PDF 읽기</a>}<Link href={bookLinks[order.product] ?? "/"}>책 정보</Link></div></article>)}</div>
+        {activeSection === "orders" && <section id="orders" className="mypage-panel"><div className="mypage-panel-title"><div><p>LIBRARY</p><h2>내 전자책 · 주문 내역</h2></div><Receipt size={28} /></div>
+          {orders.length ? <div className="order-list">{orders.map((order) => <article key={order.id}><div><span>{(order.status === "paid" || order.testEntitlement) ? "구매 완료" : order.status}</span><h3>{order.productTitle}</h3><p>{new Date(order.createdAt).toLocaleDateString("ko-KR")} · {order.amount.toLocaleString("ko-KR")}원</p></div><div className="order-actions">{order.downloadUrl && <a className="order-read" href={order.downloadUrl} target="_blank" rel="noreferrer">PDF 읽기</a>}<Link href={bookLinks[order.product] ?? "/"}>책 정보</Link></div></article>)}</div>
             : <div className="mypage-empty"><BookOpen size={34} /><h3>아직 구매한 전자책이 없습니다.</h3><p>지금 필요한 경험에서 첫 책을 골라보세요.</p><Link href="/#books">전자책 둘러보기</Link></div>}
-        </section>
+        </section>}
 
-        <section id="profile" className="mypage-panel"><div className="mypage-panel-title"><div><p>PROFILE</p><h2>회원 정보</h2></div><Gear size={28} /></div>
+        {activeSection === "profile" && <><section id="profile" className="mypage-panel"><div className="mypage-panel-title"><div><p>ACCOUNT</p><h2>프로필 관리</h2></div><Gear size={28} /></div>
           <form className="profile-form" onSubmit={saveProfile}><label>표시 이름<input name="displayName" defaultValue={member.displayName} minLength={2} maxLength={30} required /></label><label>이메일<input value={member.email} readOnly /><small>Google 계정 이메일은 변경할 수 없습니다.</small></label><label className="profile-checkbox"><input type="checkbox" name="marketingConsent" defaultChecked={member.marketingConsent} /><span><b>새 책과 할인 소식 받기</b><small>언제든 이 설정을 끌 수 있습니다.</small></span></label><button type="submit">변경사항 저장</button><p role="status">{message}</p></form>
         </section>
 
-        <section className="mypage-danger"><div><h2>회원 탈퇴</h2><p>탈퇴하면 현재 계정의 마이페이지 접근이 중단됩니다. 구매 기록은 법적 의무와 환불 처리를 위해 필요한 기간 동안 보관될 수 있습니다.</p></div><button type="button" onClick={deleteAccount}>회원 탈퇴</button></section>
+        <section className="mypage-danger"><div><h2>회원 탈퇴</h2><p>탈퇴하면 현재 계정의 마이페이지 접근이 중단됩니다. 구매 기록은 법적 의무와 환불 처리를 위해 필요한 기간 동안 보관될 수 있습니다.</p></div><button type="button" onClick={deleteAccount}>회원 탈퇴</button></section></>}
       </div>
     </div>
   );

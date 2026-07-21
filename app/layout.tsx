@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
-import "pretendard/dist/web/variable/pretendardvariable.css";
+import "pretendard/dist/web/static/Pretendard-Regular.css";
+import "pretendard/dist/web/static/Pretendard-Bold.css";
 import "./globals.css";
+import "./design-system.css";
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
 

@@ -1,0 +1,287 @@
+/*
+ * Philip Books design system
+ * Source: Wanted Design Library Community (Figma)
+ * Web font policy: Pretendard Regular 400 / Bold 700 only.
+ */
+
+:root {
+  /* Typography */
+  --font-sans: "Pretendard", -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", sans-serif;
+  --font-regular: 400;
+  --font-bold: 700;
+
+  --type-display-1: 56px;
+  --type-display-1-line: 1.286;
+  --type-display-1-track: -0.0319em;
+  --type-display-2: 40px;
+  --type-display-2-line: 1.3;
+  --type-display-2-track: -0.0282em;
+  --type-title-1: 36px;
+  --type-title-1-line: 1.334;
+  --type-title-1-track: -0.027em;
+  --type-title-2: 28px;
+  --type-title-2-line: 1.358;
+  --type-title-2-track: -0.0236em;
+  --type-title-3: 24px;
+  --type-title-3-line: 1.334;
+  --type-title-3-track: -0.023em;
+  --type-heading-1: 22px;
+  --type-heading-1-line: 1.364;
+  --type-heading-1-track: -0.0194em;
+  --type-heading-2: 20px;
+  --type-heading-2-line: 1.4;
+  --type-heading-2-track: -0.012em;
+  --type-headline-1: 18px;
+  --type-headline-1-line: 1.445;
+  --type-headline-1-track: -0.0002em;
+  --type-headline-2: 17px;
+  --type-headline-2-line: 1.412;
+  --type-body-1: 16px;
+  --type-body-1-line: 1.5;
+  --type-body-1-reading-line: 1.625;
+  --type-body-1-track: 0.0057em;
+  --type-body-2: 15px;
+  --type-body-2-line: 1.467;
+  --type-body-2-reading-line: 1.6;
+  --type-body-2-track: 0.0096em;
+  --type-label-1: 14px;
+  --type-label-1-line: 1.429;
+  --type-label-1-track: 0.0145em;
+  --type-label-2: 13px;
+  --type-label-2-line: 1.385;
+  --type-label-2-track: 0.0194em;
+  --type-caption-1: 12px;
+  --type-caption-1-line: 1.334;
+  --type-caption-1-track: 0.0252em;
+  --type-caption-2: 11px;
+  --type-caption-2-line: 1.273;
+  --type-caption-2-track: 0.0311em;
+
+  /* Semantic color */
+  --color-label-strong: #000000;
+  --color-label-normal: #171719;
+  --color-label-neutral: rgb(46 47 51 / 88%);
+  --color-label-alternative: rgb(55 56 60 / 61%);
+  --color-label-assistive: rgb(55 56 60 / 28%);
+  --color-label-disabled: rgb(55 56 60 / 16%);
+  --color-background-normal: #ffffff;
+  --color-background-alternative: #f7f7f8;
+  --color-background-inverse: #1b1c1e;
+  --color-line-normal: rgb(112 115 124 / 22%);
+  --color-line-neutral: rgb(112 115 124 / 16%);
+  --color-line-alternative: rgb(112 115 124 / 8%);
+  --color-line-solid-normal: #e1e2e4;
+  --color-line-solid-neutral: #eaebec;
+  --color-line-solid-alternative: #f4f4f5;
+  --color-fill-normal: rgb(112 115 124 / 8%);
+  --color-fill-strong: rgb(112 115 124 / 16%);
+  --color-fill-alternative: rgb(112 115 124 / 5%);
+  --color-interaction-inactive: #989ba2;
+  --color-interaction-disabled: #f4f4f5;
+  --color-primary: #0066ff;
+  --color-primary-strong: #005eeb;
+  --color-primary-heavy: #0054d1;
+  --color-positive: #00bf40;
+  --color-cautionary: #ff9200;
+  --color-negative: #ff4242;
+  --color-accent-lime: #58cf04;
+  --color-accent-cyan: #00bdde;
+  --color-accent-light-blue: #00aeff;
+  --color-accent-violet: #6541f2;
+  --color-accent-pink: #f553da;
+  --shadow-normal: 0 1px 2px rgb(0 0 0 / 12%), 0 0 1px rgb(0 0 0 / 8%);
+  --shadow-emphasize: 0 2px 8px rgb(0 0 0 / 12%), 0 1px 4px rgb(0 0 0 / 8%);
+  --shadow-strong: 0 6px 12px rgb(0 0 0 / 12%), 0 4px 8px rgb(0 0 0 / 8%);
+}
+
+html,
+body,
+button,
+input,
+select,
+textarea {
+  font-family: var(--font-sans);
+  font-weight: var(--font-regular);
+}
+
+strong,
+b,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-weight: var(--font-bold);
+}
+
+/* Home: semantic color and type roles */
+.class-market {
+  --cm-orange: var(--color-primary);
+  --cm-ink: var(--color-label-normal);
+  --cm-muted: var(--color-label-alternative);
+  --cm-line: var(--color-line-solid-neutral);
+  --cm-soft: var(--color-background-alternative);
+  color: var(--color-label-normal);
+  background: var(--color-background-normal);
+}
+
+.class-header,
+.class-footer,
+.class-all-books-section { border-color: var(--color-line-solid-neutral); background: var(--color-background-normal); }
+.class-search { background: var(--color-background-alternative); }
+.class-search input { color: var(--color-label-normal); font-size: var(--type-label-2); line-height: var(--type-label-2-line); }
+.class-search input::placeholder { color: var(--color-label-alternative); }
+.class-account { color: var(--color-label-neutral); font-size: var(--type-label-2); line-height: var(--type-label-2-line); }
+.class-promo { background: var(--color-background-alternative); }
+.class-promo small,
+.class-promo-copy > span { color: var(--color-label-neutral); font-size: var(--type-label-2); line-height: var(--type-label-2-line); }
+.class-promo h1 { font-size: var(--type-heading-1); line-height: var(--type-heading-1-line); letter-spacing: var(--type-heading-1-track); }
+.class-promo p { color: var(--color-label-alternative); font-size: var(--type-label-1); line-height: var(--type-label-1-line); }
+.class-category-grid button { border-color: var(--color-line-solid-normal); font-size: var(--type-label-1); line-height: var(--type-label-1-line); }
+.class-category-grid button:hover,
+.class-category-grid button.active { border-color: var(--color-label-strong); background: var(--color-fill-normal); }
+.class-section-title h2 { font-size: var(--type-title-3); line-height: var(--type-title-3-line); letter-spacing: var(--type-title-3-track); }
+.class-section-title > div,
+.class-section-title > a { color: var(--color-label-neutral); font-size: var(--type-label-1); line-height: var(--type-label-1-line); }
+.class-product-copy h3 { font-size: var(--type-body-1); line-height: var(--type-body-1-line); letter-spacing: var(--type-body-1-track); }
+.class-product-copy p { color: var(--color-label-neutral); font-size: var(--type-label-1); line-height: var(--type-label-1-line); }
+.class-product-copy small { color: var(--color-label-alternative); font-size: var(--type-label-2); line-height: var(--type-label-2-line); }
+.class-product-copy strong { font-size: var(--type-body-1); line-height: var(--type-body-1-line); }
+.class-all-books-heading small { color: var(--color-label-alternative); font-size: var(--type-label-2); line-height: var(--type-label-2-line); }
+.class-all-books-heading h2 { font-size: var(--type-title-2); line-height: var(--type-title-2-line); letter-spacing: var(--type-title-2-track); }
+.class-all-books-heading p { color: var(--color-label-alternative); font-size: var(--type-label-1); line-height: var(--type-label-1-line); }
+.class-all-book-row { border-color: var(--color-line-solid-neutral); }
+.class-all-book-tags b,
+.class-all-book-tags em { font-size: var(--type-label-2); line-height: var(--type-label-2-line); }
+.class-all-book-tags b { border-color: var(--color-label-normal); color: var(--color-label-normal); }
+.class-all-book-tags em { color: var(--color-label-neutral); background: var(--color-fill-strong); }
+.class-all-book-copy > strong { font-size: var(--type-heading-1); line-height: var(--type-heading-1-line); letter-spacing: var(--type-heading-1-track); }
+.class-all-book-copy > span:not(.class-all-book-tags) { color: var(--color-label-neutral); font-size: var(--type-label-1); line-height: var(--type-label-1-line); }
+.class-all-book-copy > small { color: var(--color-label-alternative); font-size: var(--type-label-2); line-height: var(--type-label-2-line); }
+
+/* Detail pages: shared hierarchy with product accents from the library palette */
+.class-detail {
+  --detail-accent: var(--color-primary);
+  --detail-deep: var(--color-primary-heavy);
+  --detail-soft: color-mix(in srgb, var(--color-primary) 8%, white);
+  --detail-tint: color-mix(in srgb, var(--color-primary) 4%, white);
+  --detail-focus: rgb(0 102 255 / 28%);
+  color: var(--color-label-normal);
+  background: var(--color-background-normal);
+}
+.class-detail.theme-violet {
+  --detail-accent: var(--color-accent-violet);
+  --detail-deep: #4b2dc0;
+  --detail-soft: color-mix(in srgb, var(--color-accent-violet) 8%, white);
+  --detail-tint: color-mix(in srgb, var(--color-accent-violet) 4%, white);
+  --detail-focus: rgb(101 65 242 / 28%);
+}
+.class-detail.theme-teal {
+  --detail-accent: var(--color-negative);
+  --detail-deep: #d92f2f;
+  --detail-soft: color-mix(in srgb, var(--color-negative) 8%, white);
+  --detail-tint: color-mix(in srgb, var(--color-negative) 4%, white);
+  --detail-focus: rgb(255 66 66 / 28%);
+}
+.detail-global-header,
+.detail-tabs { border-color: var(--color-line-solid-neutral); background: rgb(255 255 255 / 96%); }
+.detail-search { background: var(--color-background-alternative); }
+.detail-product-info h1 { font-size: var(--type-title-1); line-height: var(--type-title-1-line); letter-spacing: var(--type-title-1-track); }
+.detail-subtitle,
+.detail-lead,
+.detail-section-copy { color: var(--color-label-neutral); font-size: var(--type-body-1); line-height: var(--type-body-1-reading-line); letter-spacing: var(--type-body-1-track); }
+.detail-section-label { font-size: var(--type-label-2); line-height: var(--type-label-2-line); letter-spacing: var(--type-label-2-track); }
+.detail-section h2,
+.detail-faq h2 { font-size: var(--type-title-1); line-height: var(--type-title-1-line); letter-spacing: var(--type-title-1-track); }
+.detail-intro blockquote { font-size: var(--type-heading-1); line-height: 1.65; letter-spacing: var(--type-heading-1-track); }
+.detail-targets h3 { font-size: var(--type-headline-2); line-height: var(--type-headline-2-line); }
+.detail-targets p,
+.detail-outcome-grid p,
+.detail-creator article li { color: var(--color-label-alternative); font-size: var(--type-label-2); line-height: var(--type-label-2-line); }
+.detail-outcome-grid h3 { font-size: var(--type-heading-2); line-height: var(--type-heading-2-line); }
+.detail-curriculum article strong { font-size: var(--type-body-1); line-height: var(--type-body-1-line); }
+.detail-curriculum article p,
+.detail-faq article p { color: var(--color-label-neutral); font-size: var(--type-label-1); line-height: var(--type-label-1-line); }
+.detail-creator article h3 { font-size: var(--type-title-3); line-height: var(--type-title-3-line); }
+.detail-creator article p { color: var(--color-label-neutral); font-size: var(--type-body-1); line-height: var(--type-body-1-reading-line); }
+.detail-faq h3 { font-size: var(--type-body-1); line-height: var(--type-body-1-line); }
+
+@media (max-width: 680px) {
+  .class-market,
+  .class-detail,
+  .mobile-book-overlay {
+    --type-label-1: 15px;
+    --type-label-2: 15px;
+    --type-caption-1: 15px;
+    --type-caption-2: 15px;
+  }
+
+  .class-promo h1 { font-size: var(--type-heading-2); }
+  .class-section-title h2,
+  .class-all-books-heading h2 { font-size: var(--type-heading-1); }
+  .class-product-copy h3,
+  .class-product-copy strong,
+  .class-all-book-copy > strong { font-size: var(--type-body-1); }
+  .class-all-book-tags b,
+  .class-all-book-tags em,
+  .class-all-book-copy > small,
+  .mobile-book-drawer nav small,
+  .mobile-book-drawer nav em { font-size: var(--type-label-2); line-height: var(--type-label-2-line); }
+  .mobile-book-drawer nav strong { font-size: var(--type-body-1); line-height: var(--type-body-1-line); }
+  .detail-product-info h1,
+  .detail-section h2,
+  .detail-faq h2 { font-size: var(--type-title-2); line-height: var(--type-title-2-line); }
+  .detail-lead,
+  .detail-subtitle { font-size: var(--type-body-1); }
+  .detail-mobile-buy span small { font-size: var(--type-label-2); line-height: var(--type-label-2-line); }
+
+  /* Mobile minimum is Body 2 (15px); footer metadata keeps its compact scale. */
+  .class-market .google-account-loading,
+  .class-market .google-account-user b,
+  .class-market .google-account-user small,
+  .class-market .google-account-user button,
+  .class-market .class-cover-wrap > span,
+  .class-market .class-empty p,
+  .class-market .class-empty button,
+  .class-market .class-all-books-empty,
+  .class-market .class-start-banner p,
+  .class-market .class-start-banner > a,
+  .class-market .google-account-login-link,
+  .mobile-book-overlay .mobile-menu-all,
+  .class-detail .detail-account,
+  .class-detail .detail-breadcrumb,
+  .class-detail .detail-card-copy span,
+  .class-detail .detail-card-stats span,
+  .class-detail .detail-category,
+  .class-detail .detail-creator-link,
+  .class-detail .detail-creator-link span,
+  .class-detail .detail-rating,
+  .class-detail .detail-facts span,
+  .class-detail .detail-facts strong,
+  .class-detail .detail-offer-label,
+  .class-detail .detail-discount,
+  .class-detail .detail-price > span,
+  .class-detail .detail-price small,
+  .class-detail .detail-buy-card li,
+  .class-detail .detail-buy-note,
+  .class-detail .detail-targets span,
+  .class-detail .detail-outcome-grid span,
+  .class-detail .detail-curriculum article span,
+  .class-detail .detail-creator article li,
+  .class-detail .detail-final span,
+  .class-detail .detail-final p,
+  .class-detail .detail-tabs a,
+  .class-detail .detail-included li,
+  .class-detail .purchase-error,
+  .class-detail small:not(.class-footer *),
+  .class-detail .eyebrow,
+  .class-detail .review-form label,
+  .class-detail .review-form select,
+  .class-detail .privacy-note,
+  .class-detail .detail-buy-button,
+  .class-detail .detail-buy-button * {
+    font-size: var(--type-label-2);
+    line-height: var(--type-label-2-line);
+  }
+}

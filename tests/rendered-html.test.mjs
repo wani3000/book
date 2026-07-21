@@ -6,10 +6,11 @@ const root = new URL("../", import.meta.url);
 
 test("collection home connects all three ebook pages", async () => {
   const source = await readFile(new URL("app/page.tsx", root), "utf8");
+  const header = await readFile(new URL("app/components/StorefrontHeader.tsx", root), "utf8");
   assert.match(source, /href: "\/codex"/);
   assert.match(source, /href: "\/career"/);
   assert.match(source, /href: "\/jane"/);
-  assert.match(source, /PHILIP BOOKS/);
+  assert.match(header, /PHILIP BOOKS/);
   assert.match(source, /return books\.filter/);
   assert.doesNotMatch(source, /const curated|id="stories"|id="popular"/);
 });

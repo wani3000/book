@@ -8,7 +8,7 @@ import { paymentAttempts } from "@/db/schema";
 export async function POST(request: Request) {
   const member = await getAuthenticatedMember(request);
   if (!member) return NextResponse.json({ error: "로그인이 필요합니다." }, { status: 401 });
-  if (!kakaoPayEnabled()) return NextResponse.json({ error: "카카오페이 연결 준비 중입니다." }, { status: 503 });
+  if (!kakaoPayEnabled()) return NextResponse.json({ error: "현재 카카오페이 결제를 이용할 수 없습니다." }, { status: 503 });
 
   const body = await request.json().catch(() => ({})) as { product?: string; contentProvisionConsent?: boolean };
   if (!body.product || !isEbookProduct(body.product)) {
