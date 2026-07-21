@@ -15,6 +15,24 @@ test("collection home connects all three ebook pages", async () => {
   assert.doesNotMatch(source, /const curated|id="stories"|id="popular"/);
 });
 
+test("production metadata never falls back to localhost", async () => {
+  const layout = await readFile(new URL("app/layout.tsx", root), "utf8");
+  assert.match(layout, /https:\/\/codex-solo-builder-book\.wani3000\.chatgpt\.site/);
+  assert.doesNotMatch(layout, /const siteUrl = .*localhost/);
+});
+
+test("storefront reset clears the stale search query from the URL", async () => {
+  const source = await readFile(new URL("app/page.tsx", root), "utf8");
+  assert.match(source, /url\.searchParams\.delete\("q"\)/);
+  assert.match(source, /window\.history\.replaceState/);
+  assert.match(source, /onClick=\{resetDiscovery\}/);
+});
+
+test("sitemap does not claim every page changed on every request", async () => {
+  const source = await readFile(new URL("app/sitemap.xml/route.ts", root), "utf8");
+  assert.doesNotMatch(source, /new Date|<lastmod>/);
+});
+
 test("shared detail page includes commerce and verified buyer reviews", async () => {
   const source = await readFile(new URL("app/components/ClassDetailPage.tsx", root), "utf8");
   const reviewSource = await readFile(new URL("app/components/ReviewSection.tsx", root), "utf8");
@@ -116,6 +134,8 @@ test("purchase flow requires a signed-in member", async () => {
   assert.match(source, /fetch\("\/api\/checkout\/context"/);
   assert.match(source, /window\.location\.href = `\/mypage/);
   assert.match(source, /customData: \{ entitlement: context\.entitlement \}/);
+  assert.match(source, /간편결제 준비 중/);
+  assert.match(source, /가맹 심사가 끝나면 구매가 열립니다/);
 });
 
 test("Paddle webhook creates paid orders and revokes access after full refunds", async () => {
@@ -150,7 +170,10 @@ test("merchant review pages disclose seller, privacy, and refund rules", async (
   assert.match(footer, /제 2020-서울구로-0138호/);
   assert.match(terms, /이용약관/);
   assert.match(privacy, /개인정보처리방침/);
+  assert.match(privacy, /개인정보의 국외 이전/);
+  assert.doesNotMatch(privacy, /실제 운영 설정 확정 후/);
   assert.match(refund, /구매일로부터 7일/);
+  assert.match(footer, /카카오톡 상담/);
 });
 
 test("NaverPay checkout creates a member order and verifies approval details", async () => {

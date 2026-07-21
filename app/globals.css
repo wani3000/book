@@ -826,6 +826,8 @@ button:disabled { cursor: not-allowed; opacity: .58; transform: none !important;
 }
 
 .purchase-error { display:block; margin-top:8px; color:#c1372c; font-size:11px; line-height:1.45; }
+.purchase-unavailable { width:100%; }
+.purchase-unavailable>span { display:block; margin-top:8px; color:#686870; font-size:11px; line-height:1.45; text-align:center; }
 .purchase-provider-wrap { width:100%; }
 .purchase-provider-grid { display:grid; grid-template-columns:1fr; gap:8px; }
 .purchase-provider-wrap.is-dual .purchase-provider-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }

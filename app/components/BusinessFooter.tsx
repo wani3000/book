@@ -11,7 +11,7 @@ export default function BusinessFooter() {
       <address>
         <span>상호 플로렌스랩(Florence Lab)</span><span>대표자 박철완</span><span>사업자등록번호 217-26-12405</span>
         <span>통신판매업신고 제 2020-서울구로-0138호</span><span>서울특별시 구로구 고척로 49, 204동 703호</span>
-        {phone && <span>고객센터 {phone}</span>}<a href="mailto:florencelab@naver.com">florencelab@naver.com</a>
+        {phone && <span>고객센터 {phone}</span>}<a href="mailto:florencelab@naver.com">florencelab@naver.com</a><a href="https://open.kakao.com/o/sOQOF6Bh" target="_blank" rel="noreferrer">카카오톡 상담</a>
       </address>
       <small>© 2026 PHILIP BOOKS · 플로렌스랩</small>
     </footer>

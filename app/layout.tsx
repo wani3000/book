@@ -4,7 +4,9 @@ import "pretendard/dist/web/static/Pretendard-Bold.css";
 import "./globals.css";
 import "./design-system.css";
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+const productionSiteUrl = "https://codex-solo-builder-book.wani3000.chatgpt.site";
+const configuredSiteUrl = process.env.NEXT_PUBLIC_SITE_URL?.trim();
+const siteUrl = configuredSiteUrl?.startsWith("https://") ? configuredSiteUrl : productionSiteUrl;
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),

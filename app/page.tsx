@@ -87,6 +87,14 @@ export default function BookstoreHome() {
 
   const promoBook = books[promoIndex];
 
+  function resetDiscovery() {
+    setQuery("");
+    setCategory("전체");
+    const url = new URL(window.location.href);
+    url.searchParams.delete("q");
+    window.history.replaceState(null, "", `${url.pathname}${url.search}${url.hash}`);
+  }
+
   const visible = useMemo(() => {
     const normalized = query.trim().toLowerCase();
     return books.filter((book) => {
@@ -129,7 +137,7 @@ export default function BookstoreHome() {
               </article>
             ))}
           </div>
-        ) : <div className="class-empty"><MagnifyingGlass size={34} /><h3>검색 결과가 없습니다</h3><p>다른 주제나 카테고리를 선택해 보세요.</p><button type="button" onClick={() => { setQuery(""); setCategory("전체"); }}>전체 전자책 보기</button></div>}
+        ) : <div className="class-empty"><MagnifyingGlass size={34} /><h3>검색 결과가 없습니다</h3><p>다른 주제나 카테고리를 선택해 보세요.</p><button type="button" onClick={resetDiscovery}>전체 전자책 보기</button></div>}
       </section>
 
       <section className="class-all-books-section" aria-labelledby="all-books-title">

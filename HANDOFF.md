@@ -246,19 +246,20 @@ node --test tests/rendered-html.test.mjs
 git status --short
 ```
 
-2026-07-21 인계 시점 상태:
+2026-07-21 QA 수정 후 상태:
 
 - 빌드 성공
-- 자동검사 18개 통과
+- 자동검사 21개 통과
 - ESLint 오류·경고 0개
 - `dist/server/index.js` 존재
-- `git status` clean
+- 운영 메타데이터의 localhost 유출 방지, 검색 URL 초기화, 고정 사이트맵, 결제 준비 안내, 개인정보 국외 이전 고지를 회귀 테스트로 보호
+- Codex PDF 129쪽 장 제목 줄바꿈 수정 및 렌더 검수 완료
 
 ## 6. 배포 상태와 절차
 
 Sites 프로젝트 ID는 `website/.openai/hosting.json`에 저장돼 있다. 현재 사이트 접근 모드는 `public`이다.
 
-현재 프로젝트 ID는 `appgprj_6a5c35c6dcf881919ab2bf0ecbb09e52`다. 최신 공개 버전은 29이며 환경변수 revision은 2다. 현재 Sites 환경에는 Google 로그인·관리자·테스트 구매자·실제 사이트 URL만 설정돼 있고, 결제 운영 키와 `NEXT_PUBLIC_BUSINESS_PHONE`은 아직 없다.
+현재 프로젝트 ID는 `appgprj_6a5c35c6dcf881919ab2bf0ecbb09e52`다. 2026-07-21 QA 수정 전 공개 버전은 29이며 환경변수 revision은 2였다. 현재 Sites 환경에는 Google 로그인·관리자·테스트 구매자·실제 사이트 URL만 설정돼 있고, 결제 운영 키와 `NEXT_PUBLIC_BUSINESS_PHONE`은 아직 없다. 코드에서는 잘못된 localhost 환경값이 있어도 운영 HTTPS 주소로 메타데이터를 생성한다.
 
 사이트 변경 후 표준 순서:
 
@@ -318,6 +319,9 @@ Sites 프로젝트 ID는 `website/.openai/hosting.json`에 저장돼 있다. 현
 - Google 로그인, 회원 저장, 마이페이지와 관리자 회원관리는 실제 계정으로 검증됐다.
 - 국내 직접결제 주문 적재·환불 권한 회수 코드는 준비됐지만 카카오페이·네이버페이 실결제 검증은 가맹 승인 전이라 남아 있다.
 - 환불 정책 전문과 판매자 법적 고지는 별도 정책 페이지와 공통 푸터에 공개돼 있다.
+- 공개 고객센터 전화번호는 저장소와 Sites 환경변수에 없으므로 표시되지 않는다. 결제 심사·판매 오픈 전 실제 번호를 `NEXT_PUBLIC_BUSINESS_PHONE`에 설정해야 한다. 이메일과 기존 카카오톡 상담 채널은 공개돼 있다.
+- Google 로그인 후 마이페이지 재검증은 테스트 계정의 Google 패스키 확인 경계에서 멈췄다. 로그아웃·로그인 진입, 비로그인 권한 차단, 이전 로그인 상태의 세 권 열람 권한은 확인했다.
+- 2026-07-21 상세 QA와 수정 결과는 `audit/google-user-full-qa-2026-07-21/REPORT.md`에 있다.
 - 후기 작성자는 구매 번호를 입력하며 관리자가 수동 대조한다. 자동 결제 검증은 아직 하지 않는다.
 - 사이트 분석·광고 전환 태그는 아직 연결되지 않았다.
 

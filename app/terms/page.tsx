@@ -3,10 +3,12 @@ import PolicyPage from "@/app/components/PolicyPage";
 
 export const metadata: Metadata = { title: "이용약관", description: "PHILIP BOOKS 전자책 서비스 이용약관" };
 
+const phone = process.env.NEXT_PUBLIC_BUSINESS_PHONE?.trim();
+
 export default function TermsPage() {
   return <PolicyPage eyebrow="TERMS OF SERVICE" title="이용약관">
     <section><h2>제1조 목적</h2><p>이 약관은 플로렌스랩(이하 “회사”)이 운영하는 PHILIP BOOKS에서 제공하는 전자책 판매 및 열람 서비스의 이용 조건과 회사와 이용자의 권리·의무를 정함을 목적으로 합니다.</p></section>
-    <section><h2>제2조 회사 정보</h2><ul><li>상호: 플로렌스랩(Florence Lab)</li><li>대표자: 박철완</li><li>사업자등록번호: 217-26-12405</li><li>통신판매업신고: 제 2020-서울구로-0138호</li><li>주소: 서울특별시 구로구 고척로 49, 204동 703호</li><li>전자우편: florencelab@naver.com</li></ul></section>
+    <section><h2>제2조 회사 정보</h2><ul><li>상호: 플로렌스랩(Florence Lab)</li><li>대표자: 박철완</li><li>사업자등록번호: 217-26-12405</li><li>통신판매업신고: 제 2020-서울구로-0138호</li><li>주소: 서울특별시 구로구 고척로 49, 204동 703호</li>{phone && <li>고객센터: {phone}</li>}<li>전자우편: florencelab@naver.com</li><li>카카오톡 상담: <a href="https://open.kakao.com/o/sOQOF6Bh" target="_blank" rel="noreferrer">상담 채널 열기</a></li></ul></section>
     <section><h2>제3조 서비스와 계약 성립</h2><p>회사는 PDF 전자책의 상품 정보, 가격, 이용 조건을 표시합니다. 이용자가 상품을 선택하고 결제를 완료해 회사가 결제 완료를 확인하면 구매 계약이 성립합니다. 서비스 운영상 필요한 경우 상품 구성이나 제공 방식이 변경될 수 있으며, 구매자의 권리에 중대한 영향을 주는 변경은 사전에 알립니다.</p></section>
     <section><h2>제4조 회원 계정</h2><p>구매 내역과 전자책 열람은 Google 로그인 계정에 연결됩니다. 이용자는 본인의 계정을 안전하게 관리해야 하며, 계정을 타인에게 양도하거나 구매 콘텐츠를 불법 복제·배포해서는 안 됩니다.</p></section>
     <section><h2>제5조 결제와 콘텐츠 제공</h2><p>판매 가격은 상품 상세페이지에 표시하며 현재 각 전자책은 19,000원입니다. 결제는 카카오페이 등 회사가 안내하는 수단으로 처리됩니다. 결제 확인 후 마이페이지에서 구매한 전자책을 열람할 수 있습니다.</p></section>
