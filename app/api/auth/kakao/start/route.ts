@@ -21,7 +21,7 @@ export async function GET(request: Request) {
   }
   const intent: KakaoIntent = requestUrl.searchParams.get("intent") === "link" ? "link" : "login";
   if (intent === "link" && !(await getAuthenticatedMember(request))) {
-    return NextResponse.redirect(new URL("/mypage?auth_error=login_required#profile", request.url));
+    return NextResponse.redirect(new URL("/mypage/profile?auth_error=login_required", request.url));
   }
 
   const state = randomUrlSafe();
@@ -43,7 +43,7 @@ export async function GET(request: Request) {
     redirect_uri: kakaoRedirectUri(),
     state,
     nonce,
-    scope: "openid profile_nickname profile_image account_email",
+    scope: "openid profile_nickname profile_image",
     code_challenge: pkceChallenge(verifier),
     code_challenge_method: "S256",
   }).toString();

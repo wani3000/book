@@ -1,57 +1,51 @@
 "use client";
-/* eslint-disable @next/next/no-img-element */
-
 import Link from "next/link";
-import { ArrowRight, List, X } from "@phosphor-icons/react";
+import { ArrowRight, Briefcase, Code, List, SquaresFour, X } from "@phosphor-icons/react";
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 
-const menuBooks = [
-  {
-    href: "/codex",
-    title: "아이디어를 서비스로 바꾸는 Codex 사용법",
-    meta: "AI 서비스 · 필립",
-    image: "/ebook-cover.png",
-    accent: "lime",
-  },
-  {
-    href: "/career",
-    title: "커리어도 디자인할 수 있습니다",
-    meta: "UI/UX 디자인 · 필립",
-    image: "/career-cover.png",
-    accent: "blue",
-  },
-  {
-    href: "/jane",
-    title: "승무원 다음은 IT였습니다",
-    meta: "커리어 전환 · 제인",
-    image: "/jane-cover.png",
-    accent: "burgundy",
-  },
+const menuCategories = [
+  { href: "/#all-books-title", label: "전체", icon: SquaresFour },
+  { href: "/?category=커리어#all-books-title", label: "커리어", icon: Briefcase },
+  { href: "/?category=개발%20%C2%B7%20생산성#all-books-title", label: "개발 · 생산성", icon: Code },
 ];
 
 export default function MobileBookMenu() {
   const [open, setOpen] = useState(false);
   const closeButton = useRef<HTMLButtonElement>(null);
+  const triggerButton = useRef<HTMLButtonElement>(null);
+  const drawer = useRef<HTMLElement>(null);
 
   useEffect(() => {
     if (!open) return;
+    const trigger = triggerButton.current;
     const previousOverflow = document.documentElement.style.overflow;
     document.documentElement.style.overflow = "hidden";
+    document.getElementById("main-content")?.setAttribute("inert", "");
     closeButton.current?.focus();
-    const closeOnEscape = (event: KeyboardEvent) => {
+    const handleKeys = (event: KeyboardEvent) => {
       if (event.key === "Escape") setOpen(false);
+      if (event.key !== "Tab") return;
+      const focusable = [...(drawer.current?.querySelectorAll<HTMLElement>('button:not([disabled]),a[href],[tabindex]:not([tabindex="-1"])') ?? [])];
+      if (!focusable.length) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
+      else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
     };
-    window.addEventListener("keydown", closeOnEscape);
+    window.addEventListener("keydown", handleKeys);
     return () => {
       document.documentElement.style.overflow = previousOverflow;
-      window.removeEventListener("keydown", closeOnEscape);
+      document.getElementById("main-content")?.removeAttribute("inert");
+      window.removeEventListener("keydown", handleKeys);
+      trigger?.focus();
     };
   }, [open]);
 
   return (
     <div className="mobile-book-menu">
       <button
+        ref={triggerButton}
         className="mobile-menu-trigger"
         type="button"
         aria-label="전자책 메뉴 열기"
@@ -63,21 +57,20 @@ export default function MobileBookMenu() {
       </button>
 
       {open && createPortal(
-        <div className="mobile-book-overlay">
-          <aside className="mobile-book-drawer" id="mobile-book-drawer" role="dialog" aria-modal="true" aria-label="전자책 선택">
+        <div className="mobile-book-overlay" onMouseDown={(event) => { if (event.target === event.currentTarget) setOpen(false); }}>
+          <aside ref={drawer} className="mobile-book-drawer" id="mobile-book-drawer" role="dialog" aria-modal="true" aria-label="전자책 카테고리 선택">
             <div className="mobile-drawer-head">
               <button ref={closeButton} type="button" aria-label="전자책 메뉴 닫기" onClick={() => setOpen(false)}><X size={24} weight="bold" /></button>
             </div>
-            <nav aria-label="전자책 3권">
-              {menuBooks.map((book, index) => (
-                <Link href={book.href} key={book.href} onClick={() => setOpen(false)}>
-                  <span className={`mobile-menu-cover ${book.accent}`}><img src={book.image} alt="" /></span>
-                  <span><small>BOOK 0{index + 1}</small><strong>{book.title}</strong><em>{book.meta}</em></span>
+            <nav className="mobile-category-menu" aria-label="전자책 카테고리">
+              {menuCategories.map(({ href, label, icon: Icon }) => (
+                <Link href={href} key={label} onClick={() => setOpen(false)}>
+                  <span className="mobile-category-icon"><Icon size={23} weight="duotone" aria-hidden="true" /></span>
+                  <strong>{label}</strong>
                   <ArrowRight size={18} weight="bold" />
                 </Link>
               ))}
             </nav>
-            <Link className="mobile-menu-all" href="/#books" onClick={() => setOpen(false)}>전체 전자책 보기 <ArrowRight size={17} weight="bold" /></Link>
           </aside>
         </div>,
         document.body,

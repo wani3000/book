@@ -29,6 +29,10 @@ export type KakaoPendingUser = {
 
 const kakaoKeys = createRemoteJWKSet(new URL("https://kauth.kakao.com/.well-known/jwks.json"));
 
+function fallbackKakaoEmail(providerSubject: string) {
+  return `kakao-${providerSubject}@daniels-note.kakao.local`;
+}
+
 export function kakaoRedirectUri() {
   const explicit = process.env.KAKAO_REDIRECT_URI?.trim();
   if (explicit) return explicit;
@@ -40,7 +44,6 @@ export function kakaoLoginEnabled() {
   return Boolean(
     process.env.KAKAO_REST_API_KEY?.trim()
     && process.env.KAKAO_CLIENT_SECRET?.trim()
-    && process.env.KAKAO_ADMIN_KEY?.trim()
     && process.env.GOOGLE_SESSION_SECRET?.trim()
     && kakaoRedirectUri(),
   );
@@ -178,16 +181,18 @@ export async function verifiedKakaoUser(accessToken: string, idToken: string, no
   };
   const providerSubject = String(result.id ?? "");
   if (!providerSubject || providerSubject !== payload.sub) throw new Error("KAKAO_SUBJECT_MISMATCH");
-  const email = typeof result.kakao_account?.email === "string" ? result.kakao_account.email.trim().toLowerCase() : "";
-  if (!email || result.kakao_account?.is_email_valid !== true || result.kakao_account?.is_email_verified !== true) {
-    throw new Error("KAKAO_VERIFIED_EMAIL_REQUIRED");
-  }
+  const accountEmail = typeof result.kakao_account?.email === "string" ? result.kakao_account.email.trim().toLowerCase() : "";
+  const email = accountEmail
+    && result.kakao_account?.is_email_valid === true
+    && result.kakao_account?.is_email_verified === true
+    ? accountEmail
+    : fallbackKakaoEmail(providerSubject);
   const nickname = result.kakao_account?.profile?.nickname ?? result.properties?.nickname;
   const picture = result.kakao_account?.profile?.profile_image_url ?? result.properties?.profile_image;
   return {
     providerSubject,
     email,
-    name: typeof nickname === "string" && nickname.trim() ? nickname.trim() : email.split("@")[0],
+    name: typeof nickname === "string" && nickname.trim() ? nickname.trim() : "카카오 회원",
     picture: typeof picture === "string" ? picture : undefined,
   };
 }

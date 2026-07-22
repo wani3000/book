@@ -85,7 +85,7 @@ export async function GET(request: Request) {
         target: [authIdentities.provider, authIdentities.providerSubject],
         set: { providerEmail: kakaoUser.email, lastLoginAt: now },
       });
-      const response = NextResponse.redirect(new URL("/mypage?kakao=linked#profile", request.url));
+      const response = NextResponse.redirect(new URL("/mypage/profile?kakao=linked", request.url));
       clearOAuthCookie(response);
       return response;
     }

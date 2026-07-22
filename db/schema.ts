@@ -87,6 +87,39 @@ export const reviews = sqliteTable("reviews", {
   purchaseReference: text("purchase_reference").notNull(),
   purchaseVerified: integer("purchase_verified").notNull().default(0),
   memberId: text("member_id").references(() => members.id),
+  orderId: text("order_id").references(() => orders.id),
   status: text("status").notNull().default("pending"),
+  moderationReason: text("moderation_reason"),
+  reviewedBy: text("reviewed_by").references(() => members.id),
+  reviewedAt: text("reviewed_at"),
   createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+  updatedAt: text("updated_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+}, (table) => [uniqueIndex("reviews_member_product_unique").on(table.memberId, table.product)]);
+
+export const auditLogs = sqliteTable("audit_logs", {
+  id: text("id").primaryKey(),
+  actorMemberId: text("actor_member_id").references(() => members.id),
+  action: text("action").notNull(),
+  entityType: text("entity_type").notNull(),
+  entityId: text("entity_id").notNull(),
+  detail: text("detail"),
+  createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+});
+
+export const requestLimits = sqliteTable("request_limits", {
+  key: text("key").primaryKey(),
+  count: integer("count").notNull().default(0),
+  windowStartedAt: integer("window_started_at").notNull(),
+});
+
+export const notificationOutbox = sqliteTable("notification_outbox", {
+  id: text("id").primaryKey(),
+  memberId: text("member_id").references(() => members.id),
+  event: text("event").notNull(),
+  recipient: text("recipient").notNull(),
+  payload: text("payload").notNull(),
+  status: text("status").notNull().default("pending"),
+  lastError: text("last_error"),
+  createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+  sentAt: text("sent_at"),
 });

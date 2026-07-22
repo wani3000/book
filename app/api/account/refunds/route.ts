@@ -4,6 +4,8 @@ import { getAuthenticatedMember } from "@/app/auth/member";
 import { isTestPurchaser } from "@/app/library/catalog";
 import { getDb } from "@/db";
 import { orders, refundRequests } from "@/db/schema";
+import { deliverNotice } from "@/app/notifications/outbox";
+import { enforceRateLimit, requireSameOrigin } from "@/app/security/request";
 
 export const dynamic = "force-dynamic";
 
@@ -12,6 +14,10 @@ const withdrawalWindowMs = 7 * 24 * 60 * 60 * 1000;
 
 export async function POST(request: Request) {
   try {
+    const originError = requireSameOrigin(request);
+    if (originError) return originError;
+    const limited = await enforceRateLimit(request, "refund", 5, 600);
+    if (limited) return limited;
     const member = await getAuthenticatedMember(request);
     if (!member) return NextResponse.json({ error: "로그인이 필요합니다." }, { status: 401 });
     if (isTestPurchaser(member.email)) return NextResponse.json({ error: "테스트 열람 권한은 실제 결제가 아니어서 환불 대상이 아닙니다." }, { status: 400 });
@@ -46,6 +52,7 @@ export async function POST(request: Request) {
       requestedAt: now,
       updatedAt: now,
     });
+    await deliverNotice({ memberId: member.id, recipient: member.email, event: "refund.requested", subject: "[다니엘의 노트] 환불 신청이 접수되었습니다.", text: `${order.productTitle} 환불 신청이 접수되었습니다. 주문번호: ${order.id}\n마이페이지 주문 내역에서 처리 상태를 확인할 수 있습니다.` });
     return NextResponse.json({ ok: true, status: "requested" }, { status: 201 });
   } catch {
     return NextResponse.json({ error: "환불 신청을 접수하지 못했습니다." }, { status: 500 });

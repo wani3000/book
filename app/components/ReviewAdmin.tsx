@@ -42,14 +42,13 @@ export default function ReviewAdmin() {
   const visible = useMemo(() => reviews.filter((review) => filter === "all" || review.status === filter), [filter, reviews]);
 
   async function updateReview(review: Review, action: "approve" | "reject") {
-    const prompt = action === "approve"
-      ? `구매 번호 ${review.purchaseReference}를 결제 내역에서 확인했나요? 확인된 후기만 공개할 수 있습니다.`
-      : "이 후기를 비공개 처리할까요?";
-    if (!window.confirm(prompt)) return;
+    const reason = action === "reject" ? window.prompt("비공개 사유를 입력해 주세요. 기록에 남습니다.", "운영 정책에 맞지 않는 내용") : "";
+    if (action === "reject" && !reason) return;
+    if (action === "approve" && !window.confirm("자동 연결된 구매 내역을 확인하고 이 후기를 공개할까요?")) return;
     const response = await fetch("/api/admin/reviews", {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ reviewId: review.id, action }),
+      body: JSON.stringify({ reviewId: review.id, action, reason }),
     });
     const data = await response.json();
     if (!response.ok) { setError(data.error ?? "후기를 처리하지 못했습니다."); return; }
@@ -63,7 +62,7 @@ export default function ReviewAdmin() {
   const approvedCount = reviews.filter((review) => review.status === "approved" && review.purchaseVerified === 1).length;
 
   return <div className="admin-members admin-reviews">
-    <section className="admin-title"><p>REVIEW ADMIN</p><h1>구매 후기 관리</h1><span>결제 내역과 구매 번호를 확인한 뒤에만 후기를 공개하세요.</span></section>
+    <section className="admin-title"><p>REVIEW ADMIN</p><h1>구매 후기 관리</h1><span>로그인 회원의 실제 주문과 자동 연결된 후기만 검토합니다.</span></section>
     <section className="admin-summary"><article><ChatCircleText /><span>전체 후기</span><strong>{reviews.length}</strong></article><article><Clock /><span>확인 대기</span><strong>{pendingCount}</strong></article><article><CheckCircle /><span>구매 인증 공개</span><strong>{approvedCount}</strong></article></section>
     <section className="admin-toolbar"><nav className="admin-links"><Link href="/admin/members">회원</Link><Link className="active" href="/admin/reviews">후기</Link><Link href="/admin/refunds">환불</Link></nav><select aria-label="후기 상태" value={filter} onChange={(event) => setFilter(event.target.value)}><option value="pending">확인 대기</option><option value="approved">공개</option><option value="rejected">비공개</option><option value="all">전체</option></select></section>
     {error && <p className="admin-error" role="alert">{error}</p>}

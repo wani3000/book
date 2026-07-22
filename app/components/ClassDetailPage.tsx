@@ -55,8 +55,17 @@ function BuyCard({ book, compact = false }: { book: DetailBook; compact?: boolea
 }
 
 export default function ClassDetailPage({ book }: { book: DetailBook }) {
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@graph": [
+      { "@type": "Book", name: book.title, author: { "@type": "Person", name: book.creator }, bookFormat: "https://schema.org/EBook", inLanguage: "ko-KR", numberOfPages: Number.parseInt(book.pages), image: book.cover },
+      { "@type": "Product", name: book.title, category: book.category, image: book.cover, description: book.subtitle, brand: { "@type": "Brand", name: "다니엘의 노트" }, offers: { "@type": "Offer", priceCurrency: "KRW", price: "19000", availability: "https://schema.org/PreOrder", url: `https://codex-solo-builder-book.wani3000.chatgpt.site/${book.product}` } },
+      { "@type": "BreadcrumbList", itemListElement: [{ "@type": "ListItem", position: 1, name: "홈", item: "https://codex-solo-builder-book.wani3000.chatgpt.site/" }, { "@type": "ListItem", position: 2, name: book.category }, { "@type": "ListItem", position: 3, name: book.title }] },
+    ],
+  };
   return (
     <main className={`class-detail theme-${book.theme} product-${book.product}`}>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData).replaceAll("<", "\\u003c") }} />
       <StorefrontHeader />
 
       <div className="detail-breadcrumb"><Link href="/">홈</Link><span>›</span><Link href="/">전자책</Link><span>›</span><b>{book.category}</b></div>

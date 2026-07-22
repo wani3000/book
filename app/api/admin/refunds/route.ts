@@ -3,13 +3,18 @@ import { NextResponse } from "next/server";
 import { getAuthenticatedMember } from "@/app/auth/member";
 import { processPaidOrderRefund, reconcileRefundOrder, RefundProcessError } from "@/app/refunds/process";
 import { getDb } from "@/db";
-import { members, orders, refundRequests } from "@/db/schema";
+import { auditLogs, members, orders, refundRequests } from "@/db/schema";
+import { requireSameOrigin } from "@/app/security/request";
 
 export const dynamic = "force-dynamic";
 
 async function requireAdmin(request: Request) {
   const member = await getAuthenticatedMember(request);
   return member?.isAdmin ? member : null;
+}
+
+async function auditRefund(adminId: string, refundId: string, action: string, detail?: string) {
+  await getDb().insert(auditLogs).values({ id: crypto.randomUUID(), actorMemberId: adminId, action: `refund.${action}`, entityType: "refund", entityId: refundId, detail: detail || null });
 }
 
 export async function GET(request: Request) {
@@ -45,6 +50,8 @@ export async function GET(request: Request) {
 }
 
 export async function PATCH(request: Request) {
+  const originError = requireSameOrigin(request);
+  if (originError) return originError;
   const admin = await requireAdmin(request);
   if (!admin) return NextResponse.json({ error: "관리자 권한이 필요합니다." }, { status: 403 });
   const body = await request.json().catch(() => ({})) as { refundId?: unknown; action?: unknown; decisionNote?: unknown };
@@ -62,11 +69,13 @@ export async function PATCH(request: Request) {
   const now = new Date().toISOString();
   if (action === "review") {
     await getDb().update(refundRequests).set({ status: "reviewing", reviewedBy: admin.id, reviewedAt: now, updatedAt: now }).where(eq(refundRequests.id, refund.id));
+    await auditRefund(admin.id, refund.id, action);
     return NextResponse.json({ ok: true, status: "reviewing" });
   }
   if (action === "reject") {
     if (decisionNote.length < 5 || decisionNote.length > 500) return NextResponse.json({ error: "환불 불가 사유를 5자 이상 500자 이하로 입력해 주세요." }, { status: 400 });
     await getDb().update(refundRequests).set({ status: "rejected", decisionNote, reviewedBy: admin.id, reviewedAt: now, updatedAt: now }).where(eq(refundRequests.id, refund.id));
+    await auditRefund(admin.id, refund.id, action, decisionNote);
     return NextResponse.json({ ok: true, status: "rejected" });
   }
   if (action === "reconcile") {
@@ -74,6 +83,7 @@ export async function PATCH(request: Request) {
       const result = await reconcileRefundOrder(refund.orderId);
       const nextStatus = result.status === "refunded" ? "refunded" : "reviewing";
       await getDb().update(refundRequests).set({ status: nextStatus, decisionNote: result.status === "refunded" ? "결제사업자 취소 완료 상태를 확인했습니다." : "결제사업자에서 아직 최종 취소 상태가 확인되지 않았습니다.", reviewedBy: admin.id, reviewedAt: now, updatedAt: now }).where(eq(refundRequests.id, refund.id));
+      await auditRefund(admin.id, refund.id, action, nextStatus);
       return NextResponse.json({ ok: true, status: nextStatus, orderStatus: result.status });
     } catch (error) {
       const message = error instanceof RefundProcessError ? error.message : "결제사업자 상태를 확인하지 못했습니다.";
@@ -86,6 +96,7 @@ export async function PATCH(request: Request) {
     const result = await processPaidOrderRefund(refund.orderId, refund.reasonDetail);
     const nextStatus = result.status === "refunded" ? "refunded" : "reviewing";
     await getDb().update(refundRequests).set({ status: nextStatus, reviewedBy: admin.id, reviewedAt: new Date().toISOString(), updatedAt: new Date().toISOString() }).where(eq(refundRequests.id, refund.id));
+    await auditRefund(admin.id, refund.id, action, nextStatus);
     return NextResponse.json({ ok: true, status: nextStatus, orderStatus: result.status });
   } catch (error) {
     const message = error instanceof RefundProcessError ? error.message : "환불 처리 결과를 확인하지 못했습니다.";

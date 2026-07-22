@@ -2,7 +2,8 @@ import { desc, eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { getAuthenticatedMember } from "@/app/auth/member";
 import { getDb } from "@/db";
-import { members } from "@/db/schema";
+import { auditLogs, members } from "@/db/schema";
+import { requireSameOrigin } from "@/app/security/request";
 
 export const dynamic = "force-dynamic";
 
@@ -35,6 +36,8 @@ export async function GET(request: Request) {
 
 export async function PATCH(request: Request) {
   try {
+    const originError = requireSameOrigin(request);
+    if (originError) return originError;
     const admin = await requireAdmin(request);
     if (!admin) return NextResponse.json({ error: "관리자 권한이 필요합니다." }, { status: 403 });
     const body = await request.json() as { memberId?: unknown; status?: unknown; role?: unknown };
@@ -47,7 +50,11 @@ export async function PATCH(request: Request) {
     if (memberId === admin.id && (status !== "active" || role !== "admin")) {
       return NextResponse.json({ error: "현재 로그인한 관리자 자신의 권한은 낮출 수 없습니다." }, { status: 400 });
     }
-    await getDb().update(members).set({ status, role, updatedAt: new Date().toISOString() }).where(eq(members.id, memberId));
+    const now = new Date().toISOString();
+    await getDb().batch([
+      getDb().update(members).set({ status, role, updatedAt: now }).where(eq(members.id, memberId)),
+      getDb().insert(auditLogs).values({ id: crypto.randomUUID(), actorMemberId: admin.id, action: "member.update", entityType: "member", entityId: memberId, detail: JSON.stringify({ status, role }), createdAt: now }),
+    ]);
     return NextResponse.json({ ok: true });
   } catch {
     return NextResponse.json({ error: "회원 상태를 변경하지 못했습니다." }, { status: 500 });

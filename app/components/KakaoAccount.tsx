@@ -23,6 +23,7 @@ const errorMessages: Record<string, string> = {
 export default function KakaoAccount({ mode = "login", connected = false, onChanged }: { mode?: "login" | "connect"; connected?: boolean; onChanged?: () => void }) {
   const [enabled, setEnabled] = useState(false);
   const [pendingFlow, setPendingFlow] = useState<PendingFlow>(null);
+  const [emailAvailable, setEmailAvailable] = useState(false);
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [disconnecting, setDisconnecting] = useState(false);
@@ -38,8 +39,11 @@ export default function KakaoAccount({ mode = "login", connected = false, onChan
         if (params.get("kakao") === "consent") {
           fetch("/api/auth/kakao/pending", { cache: "no-store" })
             .then((response) => response.json())
-            .then((result: { pending?: boolean; flow?: PendingFlow }) => {
-              if (result.pending && result.flow) setPendingFlow(result.flow);
+            .then((result: { pending?: boolean; flow?: PendingFlow; emailAvailable?: boolean }) => {
+              if (result.pending && result.flow) {
+                setPendingFlow(result.flow);
+                setEmailAvailable(result.emailAvailable === true);
+              }
               else setError("카카오 로그인 시간이 만료되었습니다. 다시 시도해 주세요.");
             })
             .catch(() => setError("카카오 가입 정보를 확인하지 못했습니다."));
@@ -90,7 +94,9 @@ export default function KakaoAccount({ mode = "login", connected = false, onChan
   const linkHref = "/api/auth/kakao/start?intent=link&returnTo=%2Fmypage%23profile";
 
   return <>
-    {mode === "login" && enabled && <a className="kakao-login-button" href="/api/auth/kakao/start"><ChatCircleDots size={24} weight="fill" aria-hidden="true" /><span>카카오로 계속하기</span></a>}
+    {mode === "login" && (enabled
+      ? <a className="kakao-login-button" href="/api/auth/kakao/start"><ChatCircleDots size={24} weight="fill" aria-hidden="true" /><span>카카오로 계속하기</span></a>
+      : <button className="kakao-login-button is-disabled" type="button" disabled><ChatCircleDots size={24} weight="fill" aria-hidden="true" /><span>카카오 로그인 준비 중</span></button>)}
     {mode === "connect" && <div className={`identity-provider ${connected ? "connected" : ""}`}>
       <span className="identity-provider-icon kakao"><ChatCircleDots size={22} weight="fill" aria-hidden="true" /></span>
       <span><b>카카오</b><small>{connected ? "로그인 계정 연결됨" : enabled ? "간편 로그인을 추가할 수 있습니다." : "운영 설정 후 연결할 수 있습니다."}</small></span>
@@ -108,7 +114,9 @@ export default function KakaoAccount({ mode = "login", connected = false, onChan
         <div className="account-consent-copy">{pendingFlow === "signup" ? "카카오 계정으로 구매 내역과 전자책을 안전하게 관리합니다." : "재가입하면 보관 중인 구매 내역과 유효한 전자책 열람 권한이 다시 연결됩니다."}</div>
         <label><input type="checkbox" name="termsAccepted" required /><span><b>[필수] 이용약관 동의</b><Link href="/terms" target="_blank">내용 보기</Link></span></label>
         <label><input type="checkbox" name="privacyAccepted" required /><span><b>[필수] 개인정보 수집·이용 동의</b><Link href="/privacy" target="_blank">내용 보기</Link></span></label>
-        <label><input type="checkbox" name="marketingConsent" /><span><b>[선택] 새 책과 할인 소식 받기</b><small>동의하지 않아도 서비스 이용에 제한이 없습니다.</small></span></label>
+        {emailAvailable
+          ? <label><input type="checkbox" name="marketingConsent" /><span><b>[선택] 새 책과 할인 소식 받기</b><small>동의하지 않아도 서비스 이용에 제한이 없습니다.</small></span></label>
+          : <div className="account-consent-copy">카카오에서 이메일을 제공하지 않아 이메일 소식 수신 항목은 표시하지 않습니다.</div>}
         <div className="account-consent-actions"><button type="button" onClick={() => setPendingFlow(null)} disabled={submitting}>취소</button><button type="submit" disabled={submitting}>{submitting ? "처리 중…" : pendingFlow === "signup" ? "동의하고 가입하기" : "동의하고 재가입하기"}</button></div>
         {error && <p className="account-consent-error" role="alert">{error}</p>}
       </form>

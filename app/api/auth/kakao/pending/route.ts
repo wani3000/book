@@ -12,7 +12,7 @@ export const dynamic = "force-dynamic";
 export async function GET(request: Request) {
   const pending = await readKakaoPendingToken(cookieValue(request, KAKAO_PENDING_COOKIE));
   return NextResponse.json(
-    pending ? { pending: true, flow: pending.flow } : { pending: false },
+    pending ? { pending: true, flow: pending.flow, emailAvailable: !pending.email.endsWith("@daniels-note.kakao.local") } : { pending: false },
     { headers: { "Cache-Control": "no-store" } },
   );
 }
@@ -27,6 +27,7 @@ export async function POST(request: Request) {
 
   try {
     const now = new Date().toISOString();
+    const marketingConsent = !pending.email.endsWith("@daniels-note.kakao.local") && body.marketingConsent === true ? 1 : 0;
     let memberId = pending.memberId;
     let existing = memberId ? await getDb().query.members.findFirst({ where: eq(members.id, memberId) }) : null;
     if (pending.flow === "reactivate" && (!existing || existing.status !== "deleted")) {
@@ -42,7 +43,7 @@ export async function POST(request: Request) {
         picture: pending.picture,
         role: isConfiguredAdmin(pending.email) ? "admin" : "member",
         status: "active",
-        marketingConsent: body.marketingConsent === true ? 1 : 0,
+        marketingConsent,
         termsAcceptedAt: now,
         termsVersion: TERMS_VERSION,
         privacyAcceptedAt: now,
@@ -61,7 +62,7 @@ export async function POST(request: Request) {
         picture: pending.picture,
         role: isConfiguredAdmin(pending.email) ? "admin" : "member",
         status: "active",
-        marketingConsent: body.marketingConsent === true ? 1 : 0,
+        marketingConsent,
         termsAcceptedAt: now,
         termsVersion: TERMS_VERSION,
         privacyAcceptedAt: now,

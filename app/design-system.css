@@ -1,5 +1,5 @@
 /*
- * Daniel's Note design system
+ * 다니엘의 노트 design system
  * Source: Wanted Design Library Community (Figma)
  * Web font policy: Pretendard Regular 400 / Bold 700 only.
  */
@@ -279,6 +279,8 @@ h6 {
   .class-detail .review-form label,
   .class-detail .review-form select,
   .class-detail .privacy-note,
+  .class-detail .sample-review-notice,
+  .class-detail .sample-badge,
   .class-detail .detail-buy-button,
   .class-detail .detail-buy-button * {
     font-size: var(--type-label-2);

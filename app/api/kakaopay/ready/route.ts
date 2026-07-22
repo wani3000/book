@@ -20,7 +20,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "디지털 콘텐츠 즉시 제공에 대한 확인이 필요합니다." }, { status: 400 });
   }
   if (await hasPaidOrder(member.id, body.product)) {
-    return NextResponse.json({ error: "이미 구매한 전자책입니다.", owned: true, libraryUrl: "/mypage#orders" }, { status: 409 });
+    return NextResponse.json({ error: "이미 구매한 전자책입니다.", owned: true, libraryUrl: "/mypage/library" }, { status: 409 });
   }
 
   const orderId = `pb_${Date.now()}_${crypto.randomUUID().replaceAll("-", "").slice(0, 12)}`;

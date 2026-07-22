@@ -18,7 +18,7 @@ export default function StorefrontHeader({ query, onQueryChange }: StorefrontHea
           <MobileBookMenu />
           <Link className="class-logo" href="/" aria-label="다니엘의 노트 홈">
             <BookOpen weight="fill" size={29} aria-hidden="true" />
-            <strong>DANIEL&apos;S NOTE</strong>
+            <strong>다니엘의 노트</strong>
           </Link>
         </div>
         <form className="class-search" action="/" method="get" role="search">
@@ -34,7 +34,7 @@ export default function StorefrontHeader({ query, onQueryChange }: StorefrontHea
         </form>
         <div className="class-account">
           <Link href="/#books">전체 전자책</Link>
-          <GoogleAccount />
+          <GoogleAccount mode="icon" />
         </div>
       </div>
     </header>
