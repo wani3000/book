@@ -27,6 +27,7 @@ export default function KakaoAccount({ mode = "login", connected = false, onChan
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [disconnecting, setDisconnecting] = useState(false);
+  const [loginHref, setLoginHref] = useState("/api/auth/kakao/start");
 
   useEffect(() => {
     fetch("/api/auth/config", { cache: "no-store" })
@@ -34,6 +35,8 @@ export default function KakaoAccount({ mode = "login", connected = false, onChan
       .then((config: { kakaoEnabled?: boolean }) => {
         setEnabled(config.kakaoEnabled === true);
         const params = new URLSearchParams(window.location.search);
+        const requestedReturnTo = params.get("returnTo");
+        if (requestedReturnTo?.startsWith("/") && !requestedReturnTo.startsWith("//")) setLoginHref(`/api/auth/kakao/start?returnTo=${encodeURIComponent(requestedReturnTo)}`);
         const authError = params.get("auth_error");
         if (authError) setError(errorMessages[authError] ?? "로그인 중 문제가 발생했습니다.");
         if (params.get("kakao") === "consent") {
@@ -95,7 +98,7 @@ export default function KakaoAccount({ mode = "login", connected = false, onChan
 
   return <>
     {mode === "login" && (enabled
-      ? <a className="kakao-login-button auth-login-button" href="/api/auth/kakao/start"><ChatCircleDots size={20} weight="fill" aria-hidden="true" /><span>카카오로 계속하기</span><i aria-hidden="true" /></a>
+      ? <a className="kakao-login-button auth-login-button" href={loginHref}><ChatCircleDots size={20} weight="fill" aria-hidden="true" /><span>카카오로 계속하기</span><i aria-hidden="true" /></a>
       : <button className="kakao-login-button auth-login-button is-disabled" type="button" disabled><ChatCircleDots size={20} weight="fill" aria-hidden="true" /><span>카카오 로그인 준비 중</span><i aria-hidden="true" /></button>)}
     {mode === "connect" && <div className={`identity-provider ${connected ? "connected" : ""}`}>
       <span className="identity-provider-icon kakao"><ChatCircleDots size={22} weight="fill" aria-hidden="true" /></span>

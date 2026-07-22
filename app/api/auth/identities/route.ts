@@ -4,10 +4,13 @@ import { getAuthenticatedMember } from "@/app/auth/member";
 import { unlinkKakaoUser } from "@/app/auth/kakao";
 import { getDb } from "@/db";
 import { authIdentities } from "@/db/schema";
+import { requireSameOrigin } from "@/app/security/request";
 
 export const dynamic = "force-dynamic";
 
 export async function DELETE(request: Request) {
+  const originError = requireSameOrigin(request);
+  if (originError) return originError;
   const member = await getAuthenticatedMember(request);
   if (!member) return NextResponse.json({ error: "로그인이 필요합니다." }, { status: 401 });
   const body = await request.json().catch(() => ({})) as { provider?: unknown };

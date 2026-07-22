@@ -5,6 +5,7 @@ import { ebookCatalog, isEbookProduct } from "@/app/library/catalog";
 import { approveKakaoPay, kakaoPayErrorCode } from "@/app/kakaopay/server";
 import { getDb } from "@/db";
 import { orders, paymentAttempts } from "@/db/schema";
+import { deliverNotice } from "@/app/notifications/outbox";
 
 export async function GET(request: Request) {
   const url = new URL(request.url);
@@ -49,6 +50,7 @@ export async function GET(request: Request) {
       }),
       getDb().update(paymentAttempts).set({ status: "paid", updatedAt: now }).where(eq(paymentAttempts.id, orderId)),
     ]);
+    await deliverNotice({ memberId: member.id, recipient: member.email, event: "payment.completed", subject: "[다니엘의 노트] 결제가 완료되었습니다.", text: `${book.title} 결제가 완료되었습니다. 주문번호: ${orderId}\n마이페이지 내 서재에서 전자책을 읽을 수 있습니다.` });
     return NextResponse.redirect(`${origin}/checkout/success?orderId=${encodeURIComponent(orderId)}`);
   } catch (error) {
     const code = kakaoPayErrorCode(error);

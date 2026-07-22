@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { ArrowClockwise, CheckCircle, Clock, ShieldCheck, WarningCircle } from "@phosphor-icons/react";
+import { redirectForAdminReauthentication } from "./adminReauthentication";
 
 type Attempt = {
   id: string; memberName: string; memberEmail: string; product: string; amount: number; provider: string;
@@ -36,6 +37,7 @@ export default function PaymentAdmin() {
     setWorkingId(attempt.id); setError("");
     const response = await fetch("/api/admin/payments", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ attemptId: attempt.id }) });
     const data = await response.json().catch(() => ({}));
+    if (await redirectForAdminReauthentication(data)) return;
     if (!response.ok) setError(data.error ?? "결제 상태를 확인하지 못했습니다.");
     await load(); setWorkingId("");
   }

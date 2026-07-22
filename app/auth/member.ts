@@ -3,6 +3,8 @@ import { getDb } from "@/db";
 import { members } from "@/db/schema";
 import { cookieValue, readSessionToken, SESSION_COOKIE } from "./session";
 
+export const ADMIN_REAUTH_MAX_AGE_SECONDS = 30 * 60;
+
 export function configuredAdminEmails() {
   return new Set(
     (process.env.ADMIN_EMAILS ?? "")
@@ -22,6 +24,15 @@ export async function getAuthenticatedMember(request: Request) {
   const member = await getDb().query.members.findFirst({ where: eq(members.id, session.id) });
   if (!member || member.status !== "active") return null;
   return { ...member, isAdmin: member.role === "admin" || isConfiguredAdmin(member.email) };
+}
+
+export function hasRecentAuthentication(
+  member: NonNullable<Awaited<ReturnType<typeof getAuthenticatedMember>>>,
+  maxAgeSeconds = ADMIN_REAUTH_MAX_AGE_SECONDS,
+) {
+  if (!member.authenticatedAt) return false;
+  const ageSeconds = Math.floor(Date.now() / 1000) - member.authenticatedAt;
+  return ageSeconds >= 0 && ageSeconds <= maxAgeSeconds;
 }
 
 export function publicMember(member: NonNullable<Awaited<ReturnType<typeof getAuthenticatedMember>>>) {

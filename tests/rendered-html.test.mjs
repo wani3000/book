@@ -89,7 +89,22 @@ test("Jane book page includes career transition, commerce, and reviews", async (
   assert.match(source, /승무원 다음은 IT였습니다/);
   assert.match(source, /프로젝트 운영 매니저/);
   assert.match(source, /Codex로 만든 HTML 대시보드/);
+  assert.match(source, /pages: "48쪽"/);
+  assert.match(source, /22개 장 \+ 통합 실습팩/);
+  assert.doesNotMatch(source, /78쪽/);
   assert.match(source, /product: "jane"/);
+});
+
+test("all three sales pages match the current PDF editions", async () => {
+  const codex = await readFile(new URL("app/codex/page.tsx", root), "utf8");
+  const career = await readFile(new URL("app/career/page.tsx", root), "utf8");
+  const jane = await readFile(new URL("app/jane/page.tsx", root), "utf8");
+  assert.match(codex, /pages: "230쪽"/);
+  assert.match(codex, /50단계 실전 \+ 경험편 24장/);
+  assert.match(career, /pages: "90쪽"/);
+  assert.match(career, /20개 장 \+ 통합 별첨/);
+  assert.match(jane, /pages: "48쪽"/);
+  assert.match(jane, /22개 장 \+ 통합 실습팩/);
 });
 
 test("review API only exposes approved verified reviews", async () => {
@@ -315,7 +330,11 @@ test("test purchaser receives all three protected PDF entitlements", async () =>
   assert.match(libraryApi, /eq\(orders\.status, "paid"\)/);
   assert.match(libraryApi, /isNull\(orders\.firstAccessedAt\)/);
   assert.match(libraryApi, /firstAccessedAt: new Date\(\)\.toISOString\(\)/);
-  assert.match(libraryApi, /NextResponse\.redirect/);
+  assert.match(catalog, /objectKey: "ebooks\//);
+  assert.doesNotMatch(catalog, /assetPath|library-assets/);
+  assert.match(libraryApi, /env\.BOOKS\.get\(book\.objectKey\)/);
+  assert.match(libraryApi, /"Cache-Control": "private, no-store, max-age=0"/);
+  assert.doesNotMatch(libraryApi, /NextResponse\.redirect/);
   assert.match(dashboard, /PDF 읽기/);
 });
 
@@ -496,7 +515,11 @@ test("P1 security, accessibility, health, audit, and notification controls exist
   const menu = await readFile(new URL("app/components/MobileBookMenu.tsx", root), "utf8");
   const home = await readFile(new URL("app/page.tsx", root), "utf8");
   const schema = await readFile(new URL("db/schema.ts", root), "utf8");
-  await readFile(new URL("app/api/health/route.ts", root), "utf8");
+  const health = await readFile(new URL("app/api/health/route.ts", root), "utf8");
+  const notices = await readFile(new URL("app/notifications/outbox.ts", root), "utf8");
+  const kakaoApproval = await readFile(new URL("app/api/kakaopay/approve/route.ts", root), "utf8");
+  const naverApproval = await readFile(new URL("app/api/naverpay/return/route.ts", root), "utf8");
+  const refunds = await readFile(new URL("app/api/admin/refunds/route.ts", root), "utf8");
   await readFile(new URL("OPERATIONS_RUNBOOK.md", root), "utf8");
   assert.match(worker, /Strict-Transport-Security/);
   assert.match(worker, /Content-Security-Policy/);
@@ -509,6 +532,32 @@ test("P1 security, accessibility, health, audit, and notification controls exist
   assert.match(home, /자동 전환 일시정지/);
   assert.match(schema, /auditLogs/);
   assert.match(schema, /notificationOutbox/);
+  assert.match(health, /schema: "0008"/);
+  assert.match(health, /authIdentities/);
+  assert.match(health, /notificationOutbox/);
+  assert.match(notices, /Transactional notice could not be recorded/);
+  assert.match(kakaoApproval, /event: "payment\.completed"/);
+  assert.match(naverApproval, /event: "payment\.completed"/);
+  assert.match(refunds, /"refund\.completed"/);
+  assert.match(refunds, /"refund\.rejected"/);
+});
+
+test("sensitive admin mutations require a recent login", async () => {
+  const session = await readFile(new URL("app/auth/session.ts", root), "utf8");
+  const member = await readFile(new URL("app/auth/member.ts", root), "utf8");
+  const membersApi = await readFile(new URL("app/api/admin/members/route.ts", root), "utf8");
+  const reviewsApi = await readFile(new URL("app/api/admin/reviews/route.ts", root), "utf8");
+  const paymentsApi = await readFile(new URL("app/api/admin/payments/route.ts", root), "utf8");
+  const refundsApi = await readFile(new URL("app/api/admin/refunds/route.ts", root), "utf8");
+  const reauthentication = await readFile(new URL("app/components/adminReauthentication.ts", root), "utf8");
+  assert.match(session, /authenticatedAt/);
+  assert.match(member, /ADMIN_REAUTH_MAX_AGE_SECONDS = 30 \* 60/);
+  for (const source of [membersApi, reviewsApi, paymentsApi, refundsApi]) {
+    assert.match(source, /hasRecentAuthentication/);
+    assert.match(source, /admin_reauthentication_required/);
+  }
+  assert.match(reauthentication, /api\/auth\/logout/);
+  assert.match(reauthentication, /returnTo=/);
 });
 
 test("book detail pages expose Book, Product, Offer, and breadcrumb structured data", async () => {

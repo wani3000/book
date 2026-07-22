@@ -8,6 +8,7 @@ export type AuthUser = {
   email: string;
   name: string;
   picture?: string;
+  authenticatedAt?: number;
 };
 
 export function authSecretKey() {
@@ -35,6 +36,7 @@ export async function readSessionToken(token?: string | null): Promise<AuthUser 
       email: payload.email,
       name: payload.name,
       picture: typeof payload.picture === "string" ? payload.picture : undefined,
+      authenticatedAt: typeof payload.iat === "number" ? payload.iat : 0,
     };
   } catch {
     return null;

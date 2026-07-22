@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { ArrowCounterClockwise, CheckCircle, Clock, ShieldCheck, XCircle } from "@phosphor-icons/react";
+import { redirectForAdminReauthentication } from "./adminReauthentication";
 
 type Refund = {
   id: string; orderId: string; memberName: string; memberEmail: string; productTitle: string; amount: number; provider: string;
@@ -39,7 +40,8 @@ export default function RefundAdmin() {
     if (action === "approve" && !window.confirm(`${refund.memberName}님의 ${refund.productTitle} 결제를 취소하고 PDF 권한을 회수할까요?`)) return;
     setWorkingId(refund.id); setError("");
     const response = await fetch("/api/admin/refunds", { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ refundId: refund.id, action, decisionNote: note }) });
-    const data = await response.json().catch(() => ({})) as { error?: string };
+    const data = await response.json().catch(() => ({})) as { error?: string; code?: string };
+    if (await redirectForAdminReauthentication(data)) return;
     const processError = response.ok ? "" : (data.error ?? "환불 신청을 처리하지 못했습니다.");
     await load();
     if (processError) setError(processError);

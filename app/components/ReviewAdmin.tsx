@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { ChatCircleText, CheckCircle, Clock, ShieldCheck, XCircle } from "@phosphor-icons/react";
+import { redirectForAdminReauthentication } from "./adminReauthentication";
 
 type Review = {
   id: number;
@@ -51,6 +52,7 @@ export default function ReviewAdmin() {
       body: JSON.stringify({ reviewId: review.id, action, reason }),
     });
     const data = await response.json();
+    if (await redirectForAdminReauthentication(data)) return;
     if (!response.ok) { setError(data.error ?? "후기를 처리하지 못했습니다."); return; }
     await load();
   }

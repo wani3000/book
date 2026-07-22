@@ -7,6 +7,7 @@ import { getDb } from "@/db";
 import { authIdentities, members, orders, refundRequests, reviews } from "@/db/schema";
 import { ACCOUNT_DELETE_CONFIRMATION } from "@/app/account/policy";
 import { unlinkKakaoUser } from "@/app/auth/kakao";
+import { requireSameOrigin } from "@/app/security/request";
 
 export const dynamic = "force-dynamic";
 
@@ -30,6 +31,8 @@ export async function GET(request: Request) {
 
 export async function PATCH(request: Request) {
   try {
+    const originError = requireSameOrigin(request);
+    if (originError) return originError;
     const member = await getAuthenticatedMember(request);
     if (!member) return NextResponse.json({ error: "로그인이 필요합니다." }, { status: 401 });
     const body = await request.json() as { displayName?: unknown; marketingConsent?: unknown };
@@ -47,6 +50,8 @@ export async function PATCH(request: Request) {
 
 export async function DELETE(request: Request) {
   try {
+    const originError = requireSameOrigin(request);
+    if (originError) return originError;
     const member = await getAuthenticatedMember(request);
     if (!member) return NextResponse.json({ error: "로그인이 필요합니다." }, { status: 401 });
     const body = await request.json().catch(() => ({})) as { confirmation?: unknown; acknowledged?: unknown };

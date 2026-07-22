@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { MagnifyingGlass, ShieldCheck, UserCircle, UsersThree } from "@phosphor-icons/react";
+import { redirectForAdminReauthentication } from "./adminReauthentication";
 
 type Member = { id: string; email: string; name: string; displayName: string; role: string; status: string; marketingConsent: number; createdAt: string; lastLoginAt: string };
 
@@ -37,6 +38,7 @@ export default function MemberAdmin() {
     if (!window.confirm(`${member.displayName} 회원을 ${action} 처리할까요?`)) return;
     const response = await fetch("/api/admin/members", { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ memberId: member.id, status, role }) });
     const data = await response.json();
+    if (await redirectForAdminReauthentication(data)) return;
     if (!response.ok) { setError(data.error ?? "회원 정보를 변경하지 못했습니다."); return; }
     await load();
   }

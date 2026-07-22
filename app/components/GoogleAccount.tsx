@@ -27,6 +27,7 @@ export default function GoogleAccount({ mode = "compact" }: { mode?: "compact" |
   const [error, setError] = useState("");
   const [consentFlow, setConsentFlow] = useState<ConsentFlow>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [loginHref, setLoginHref] = useState("/api/auth/google/start");
 
   useEffect(() => {
     Promise.all([
@@ -36,6 +37,8 @@ export default function GoogleAccount({ mode = "compact" }: { mode?: "compact" |
       setUser(session.user ?? null);
       setOauthEnabled(config.googleOAuthEnabled === true);
       const params = new URLSearchParams(window.location.search);
+      const requestedReturnTo = params.get("returnTo");
+      if (requestedReturnTo?.startsWith("/") && !requestedReturnTo.startsWith("//")) setLoginHref(`/api/auth/google/start?returnTo=${encodeURIComponent(requestedReturnTo)}`);
       const authError = params.get("auth_error");
       if (authError) setError(googleErrors[authError] ?? "Google 로그인 중 문제가 발생했습니다.");
       if (params.get("google") === "consent") {
@@ -127,7 +130,7 @@ export default function GoogleAccount({ mode = "compact" }: { mode?: "compact" |
 
   return <div className="google-account login">
     {oauthEnabled
-      ? <a className="google-login-button auth-login-button" href="/api/auth/google/start"><GoogleGMark /><span>Google로 계속하기</span><i aria-hidden="true" /></a>
+      ? <a className="google-login-button auth-login-button" href={loginHref}><GoogleGMark /><span>Google로 계속하기</span><i aria-hidden="true" /></a>
       : <button className="google-login-button auth-login-button is-disabled" type="button" disabled><GoogleGMark /><span>Google 로그인 준비 중</span><i aria-hidden="true" /></button>}
     {error && <p role="alert">{error}</p>}
     {consentFlow && <div className="account-consent-overlay" role="dialog" aria-modal="true" aria-labelledby="account-consent-title">

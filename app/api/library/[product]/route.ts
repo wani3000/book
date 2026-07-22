@@ -4,6 +4,7 @@ import { getAuthenticatedMember } from "@/app/auth/member";
 import { ebookCatalog, isEbookProduct, isTestPurchaser } from "@/app/library/catalog";
 import { getDb } from "@/db";
 import { orders } from "@/db/schema";
+import { env } from "cloudflare:workers";
 
 export const dynamic = "force-dynamic";
 
@@ -31,8 +32,19 @@ export async function GET(request: Request, { params }: { params: Promise<{ prod
   if (!canRead) return NextResponse.json({ error: "구매한 회원만 읽을 수 있습니다." }, { status: 403 });
 
   const book = ebookCatalog[product];
-  const response = NextResponse.redirect(new URL(book.assetPath, request.url), 307);
-  response.headers.set("Cache-Control", "private, no-store, max-age=0");
-  response.headers.set("X-Robots-Tag", "noindex, nofollow, noarchive");
-  return response;
+  if (!env.BOOKS) return NextResponse.json({ error: "전자책 저장소가 준비되지 않았습니다." }, { status: 503 });
+  const object = await env.BOOKS.get(book.objectKey);
+  if (!object) return NextResponse.json({ error: "전자책 파일을 찾지 못했습니다." }, { status: 503 });
+  const filename = encodeURIComponent(book.filename);
+  return new Response(object.body, {
+    status: 200,
+    headers: {
+      "Content-Type": "application/pdf",
+      "Content-Length": String(object.size),
+      "Content-Disposition": `inline; filename*=UTF-8''${filename}`,
+      "Cache-Control": "private, no-store, max-age=0",
+      "X-Robots-Tag": "noindex, nofollow, noarchive",
+      "Accept-Ranges": "none",
+    },
+  });
 }

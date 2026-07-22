@@ -1,6 +1,6 @@
 import { desc, eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
-import { getAuthenticatedMember } from "@/app/auth/member";
+import { getAuthenticatedMember, hasRecentAuthentication } from "@/app/auth/member";
 import { getDb } from "@/db";
 import { auditLogs, reviews } from "@/db/schema";
 import { requireSameOrigin } from "@/app/security/request";
@@ -28,6 +28,7 @@ export async function PATCH(request: Request) {
     if (originError) return originError;
     const admin = await requireAdmin(request);
     if (!admin) return NextResponse.json({ error: "관리자 권한이 필요합니다." }, { status: 403 });
+    if (!hasRecentAuthentication(admin)) return NextResponse.json({ error: "민감한 관리 작업을 계속하려면 다시 로그인해 주세요.", code: "admin_reauthentication_required", reauthenticateUrl: "/mypage?reauth=admin" }, { status: 401 });
     const body = await request.json() as { reviewId?: unknown; action?: unknown; reason?: unknown };
     const reviewId = Number(body.reviewId);
     const action = typeof body.action === "string" ? body.action : "";
