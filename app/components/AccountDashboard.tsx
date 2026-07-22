@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { FormEvent, MouseEvent, useCallback, useEffect, useState } from "react";
+import { FormEvent, useCallback, useEffect, useState } from "react";
 import { ArrowCounterClockwise, ArrowLeft, ArrowRight, BookOpen, Gear, Receipt, ShieldCheck, SignOut, Star, UserCircle } from "@phosphor-icons/react";
 import GoogleAccount from "./GoogleAccount";
 import GoogleIdentity from "./GoogleIdentity";
@@ -32,7 +32,16 @@ const libraryBooks: Record<string, { cover: string; creator: string }> = {
 type MyPageSection = "overview" | "library" | "orders" | "profile";
 
 function MyPageHeader({ title, fallbackHref }: { title: string; fallbackHref: string }) {
-  const goBack = () => window.location.assign(fallbackHref);
+  const goBack = () => {
+    try {
+      const referrer = document.referrer ? new URL(document.referrer) : null;
+      if (referrer?.origin === window.location.origin && window.history.length > 1) {
+        window.history.back();
+        return;
+      }
+    } catch { /* use the deterministic fallback below */ }
+    window.location.assign(fallbackHref);
+  };
 
   return <header className="mypage-page-header"><div>
     <button type="button" onClick={goBack} aria-label={fallbackHref === "/" ? "이전 페이지로 돌아가기" : "마이페이지로 돌아가기"}><ArrowLeft size={24} weight="bold" /></button>
@@ -41,14 +50,13 @@ function MyPageHeader({ title, fallbackHref }: { title: string; fallbackHref: st
   </div></header>;
 }
 
-export default function AccountDashboard() {
+export default function AccountDashboard({ section = "overview" }: { section?: MyPageSection }) {
   const [member, setMember] = useState<Member | null>(null);
   const [orders, setOrders] = useState<Order[]>([]);
   const [stats, setStats] = useState({ orders: 0, reviews: 0 });
   const [loading, setLoading] = useState(true);
   const [ordersLoading, setOrdersLoading] = useState(true);
   const [message, setMessage] = useState("");
-  const [activeSection, setActiveSection] = useState<MyPageSection>("overview");
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deleteConfirmation, setDeleteConfirmation] = useState("");
   const [deleteAcknowledged, setDeleteAcknowledged] = useState(false);
@@ -100,24 +108,8 @@ export default function AccountDashboard() {
   }, [load]);
 
   useEffect(() => {
-    const syncSection = () => {
-      const section = window.location.hash.slice(1);
-      setActiveSection(section === "library" || section === "orders" || section === "profile" ? section : "overview");
-    };
-    syncSection();
-    window.addEventListener("hashchange", syncSection);
-    return () => window.removeEventListener("hashchange", syncSection);
-  }, []);
-
-  useEffect(() => {
     window.scrollTo({ top: 0, left: 0, behavior: "auto" });
-  }, [activeSection]);
-
-  function openSection(event: MouseEvent<HTMLAnchorElement>, section: Exclude<MyPageSection, "overview">) {
-    event.preventDefault();
-    window.history.pushState(null, "", `#${section}`);
-    setActiveSection(section);
-  }
+  }, [section]);
 
   async function saveProfile(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -190,18 +182,18 @@ export default function AccountDashboard() {
     </section>
   );
 
-  const pageTitle = activeSection === "overview" ? "마이페이지" : activeSection === "library" ? "내 서재" : activeSection === "orders" ? "주문 내역" : "프로필 관리";
+  const pageTitle = section === "overview" ? "마이페이지" : section === "library" ? "내 서재" : section === "orders" ? "주문 내역" : "프로필 관리";
   const hasCustomerEmail = !member.email.endsWith("@daniels-note.kakao.local");
   const accountLabel = hasCustomerEmail ? member.email : "카카오 계정으로 로그인";
 
   return (<>
-    <MyPageHeader title={pageTitle} fallbackHref={activeSection === "overview" ? "/" : "/mypage"} />
-    <div className={`mypage-grid ${activeSection === "overview" ? "is-home" : "is-detail"}`}>
-      {activeSection === "overview" ? <aside className="mypage-sidebar">
+    <MyPageHeader title={pageTitle} fallbackHref={section === "overview" ? "/" : "/mypage"} />
+    <div className={`mypage-grid ${section === "overview" ? "is-home" : "is-detail"}`}>
+      {section === "overview" ? <aside className="mypage-sidebar">
         <div className="mypage-profile-head">
           <span className="mypage-avatar"><UserCircle size={42} weight="fill" aria-hidden="true" /></span>
           <span className="mypage-profile-copy"><strong>{member.displayName}</strong><small>{accountLabel}</small></span>
-          <a className="mypage-manage-link" href="#profile" onClick={(event) => openSection(event, "profile")}>프로필 관리</a>
+          <Link className="mypage-manage-link" href="/mypage/profile">프로필 관리</Link>
         </div>
 
         <section className="mypage-summary" aria-label="내 활동 요약">
@@ -209,19 +201,19 @@ export default function AccountDashboard() {
           <div><span>작성한 후기</span><strong>{stats.reviews}<small>개</small></strong></div>
         </section>
 
-        <a className="mypage-library-link" href="#library" onClick={(event) => openSection(event, "library")}><span>내 전자책 바로 보기</span><b>내 서재</b><ArrowRight size={20} weight="bold" /></a>
+        <Link className="mypage-library-link" href="/mypage/library"><span>내 전자책 바로 보기</span><b>내 서재</b><ArrowRight size={20} weight="bold" /></Link>
 
         <p className="mypage-menu-label">다니엘의 노트</p>
         <nav>
-          <a href="#library" onClick={(event) => openSection(event, "library")}><BookOpen />내 서재<ArrowRight className="mypage-menu-arrow" weight="bold" /></a>
-          <a href="#orders" onClick={(event) => openSection(event, "orders")}><Receipt />주문 내역<ArrowRight className="mypage-menu-arrow" weight="bold" /></a>
-          <a href="#profile" onClick={(event) => openSection(event, "profile")}><Gear />프로필 관리<ArrowRight className="mypage-menu-arrow" weight="bold" /></a>
+          <Link href="/mypage/library"><BookOpen />내 서재<ArrowRight className="mypage-menu-arrow" weight="bold" /></Link>
+          <Link href="/mypage/orders"><Receipt />주문 내역<ArrowRight className="mypage-menu-arrow" weight="bold" /></Link>
+          <Link href="/mypage/profile"><Gear />프로필 관리<ArrowRight className="mypage-menu-arrow" weight="bold" /></Link>
           <button type="button" onClick={logout}><SignOut />로그아웃</button>
         </nav>
-        {member.role === "admin" && <div className="mypage-admin-links"><Link className="mypage-admin-link" href="/admin/members"><ShieldCheck />회원 관리</Link><Link className="mypage-admin-link" href="/admin/reviews"><Star />후기 관리</Link><Link className="mypage-admin-link" href="/admin/refunds"><ArrowCounterClockwise />환불 관리</Link><Link className="mypage-admin-link" href="/admin/payments"><ArrowCounterClockwise />결제 상태 관리</Link></div>}
+        {member.role === "admin" && <div className="mypage-admin-links"><Link className="mypage-admin-link" href="/admin/operations"><ShieldCheck />운영 현황</Link><Link className="mypage-admin-link" href="/admin/members"><ShieldCheck />회원 관리</Link><Link className="mypage-admin-link" href="/admin/reviews"><Star />후기 관리</Link><Link className="mypage-admin-link" href="/admin/refunds"><ArrowCounterClockwise />환불 관리</Link><Link className="mypage-admin-link" href="/admin/payments"><ArrowCounterClockwise />결제 상태 관리</Link></div>}
       </aside> : <div className="mypage-detail">
 
-        {activeSection === "library" && <section id="library" className="mypage-panel mypage-library-panel">
+        {section === "library" && <section id="library" className="mypage-panel mypage-library-panel">
           {ordersLoading ? <div className="mypage-inline-loading" role="status">내 전자책을 불러오고 있습니다.</div> : orders.length ? <div className="mypage-library-grid">{orders.map((order) => {
             const book = libraryBooks[order.product];
             return <article key={order.id}>
@@ -232,12 +224,12 @@ export default function AccountDashboard() {
           })}</div> : <div className="mypage-empty"><BookOpen size={34} /><h3>아직 구매한 전자책이 없습니다.</h3><p>지금 필요한 경험에서 첫 책을 골라보세요.</p><Link href="/#books">전자책 둘러보기</Link></div>}
         </section>}
 
-        {activeSection === "orders" && <section id="orders" className="mypage-panel mypage-orders-panel">
-          {ordersLoading ? <div className="mypage-inline-loading" role="status">주문 내역을 불러오고 있습니다.</div> : orders.length ? <div className="order-list">{orders.map((order) => <article key={order.id}><div className="order-main"><span>{order.refundStatus === "requested" ? "환불 신청 완료" : order.refundStatus === "reviewing" ? "환불 검토 중" : order.refundStatus === "refunded" || order.status === "refunded" ? "환불 완료" : order.refundStatus === "rejected" ? "환불 불가" : (order.status === "paid" || order.testEntitlement) ? "구매 완료" : "처리 중"}</span><h3>{order.productTitle}</h3><p>{new Date(order.createdAt).toLocaleDateString("ko-KR")} · {order.amount.toLocaleString("ko-KR")}원{order.firstAccessedAt ? ` · 최초 열람 ${new Date(order.firstAccessedAt).toLocaleDateString("ko-KR")}` : " · 미열람"}</p><dl className="order-meta"><div><dt>주문번호</dt><dd>{order.id}</dd></div><div><dt>결제수단</dt><dd>{order.testEntitlement ? "테스트 열람 권한" : order.provider === "naverpay" ? "Npay" : order.provider === "kakaopay" ? "카카오페이" : order.provider ?? "결제 확인 중"}</dd></div></dl><RefundRequestForm order={order} onSubmitted={load} /></div><div className="order-actions">{order.downloadUrl && <a className="order-read" href={order.downloadUrl} target="_blank" rel="noreferrer">PDF 읽기</a>}<Link href={bookLinks[order.product] ?? "/"}>책 정보</Link></div></article>)}</div>
+        {section === "orders" && <section id="orders" className="mypage-panel mypage-orders-panel">
+          {ordersLoading ? <div className="mypage-inline-loading" role="status">주문 내역을 불러오고 있습니다.</div> : orders.length ? <div className="order-list">{orders.map((order) => <article key={order.id}><div className="order-main"><span>{order.refundStatus === "requested" ? "환불 신청 완료" : order.refundStatus === "reviewing" ? "환불 검토 중" : order.refundStatus === "refunded" || order.status === "refunded" ? "환불 완료" : order.refundStatus === "rejected" ? "환불 불가" : (order.status === "paid" || order.testEntitlement) ? "구매 완료" : "처리 중"}</span><h3>{order.productTitle}</h3><p>{new Date(order.createdAt).toLocaleDateString("ko-KR")} · {order.amount.toLocaleString("ko-KR")}원{order.firstAccessedAt ? ` · 최초 열람 ${new Date(order.firstAccessedAt).toLocaleDateString("ko-KR")}` : " · 미열람"}</p><dl className="order-meta"><div><dt>주문번호</dt><dd>{order.id}</dd></div><div><dt>결제수단</dt><dd>{order.testEntitlement ? "테스트 열람 권한" : order.provider === "naverpay" ? "Npay" : order.provider === "kakaopay" ? "카카오페이" : order.provider ?? "결제 확인 중"}</dd></div></dl><RefundRequestForm order={order} onSubmitted={load} /></div><div className="order-actions">{order.downloadUrl && <a className="order-read" href={order.downloadUrl} target="_blank" rel="noreferrer">PDF 읽기</a>}<Link href={bookLinks[order.product] ?? "/"}>책 정보</Link><a href={`mailto:florencelab@naver.com?subject=${encodeURIComponent(`[다니엘의 노트 문의] 주문 ${order.id}`)}`}>주문 문의</a></div></article>)}</div>
             : <div className="mypage-empty"><BookOpen size={34} /><h3>아직 구매한 전자책이 없습니다.</h3><p>지금 필요한 경험에서 첫 책을 골라보세요.</p><Link href="/#books">전자책 둘러보기</Link></div>}
         </section>}
 
-        {activeSection === "profile" && <div className="mypage-profile-sections"><section id="profile" className="mypage-panel mypage-profile-panel">
+        {section === "profile" && <div className="mypage-profile-sections"><section id="profile" className="mypage-panel mypage-profile-panel">
           <form className="profile-form" onSubmit={saveProfile}><label>표시 이름<input name="displayName" defaultValue={member.displayName} minLength={2} maxLength={30} required /></label><label>{hasCustomerEmail ? "이메일" : "로그인 계정"}<input className="profile-readonly-field" value={accountLabel} disabled aria-describedby="profile-email-note" /><small id="profile-email-note">{hasCustomerEmail ? "가입한 로그인 계정의 확인된 이메일입니다." : "카카오가 이메일을 제공하지 않아 계정 종류만 표시합니다."}</small></label><label className="profile-checkbox"><input type="checkbox" name="marketingConsent" defaultChecked={member.marketingConsent} disabled={!hasCustomerEmail} /><span><b>새 책과 할인 소식 받기</b><small>{hasCustomerEmail ? "언제든 이 설정을 끌 수 있습니다." : "이메일 계정을 연결하면 소식 수신을 설정할 수 있습니다."}</small></span></label><button type="submit">변경사항 저장</button><p role="status">{message}</p></form>
         </section>
 

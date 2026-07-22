@@ -21,7 +21,7 @@ export async function GET(request: Request) {
   }
   const intent: KakaoIntent = requestUrl.searchParams.get("intent") === "link" ? "link" : "login";
   if (intent === "link" && !(await getAuthenticatedMember(request))) {
-    return NextResponse.redirect(new URL("/mypage?auth_error=login_required#profile", request.url));
+    return NextResponse.redirect(new URL("/mypage/profile?auth_error=login_required", request.url));
   }
 
   const state = randomUrlSafe();

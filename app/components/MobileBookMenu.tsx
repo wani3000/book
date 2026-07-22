@@ -13,25 +13,39 @@ const menuCategories = [
 export default function MobileBookMenu() {
   const [open, setOpen] = useState(false);
   const closeButton = useRef<HTMLButtonElement>(null);
+  const triggerButton = useRef<HTMLButtonElement>(null);
+  const drawer = useRef<HTMLElement>(null);
 
   useEffect(() => {
     if (!open) return;
+    const trigger = triggerButton.current;
     const previousOverflow = document.documentElement.style.overflow;
     document.documentElement.style.overflow = "hidden";
+    document.getElementById("main-content")?.setAttribute("inert", "");
     closeButton.current?.focus();
-    const closeOnEscape = (event: KeyboardEvent) => {
+    const handleKeys = (event: KeyboardEvent) => {
       if (event.key === "Escape") setOpen(false);
+      if (event.key !== "Tab") return;
+      const focusable = [...(drawer.current?.querySelectorAll<HTMLElement>('button:not([disabled]),a[href],[tabindex]:not([tabindex="-1"])') ?? [])];
+      if (!focusable.length) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
+      else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
     };
-    window.addEventListener("keydown", closeOnEscape);
+    window.addEventListener("keydown", handleKeys);
     return () => {
       document.documentElement.style.overflow = previousOverflow;
-      window.removeEventListener("keydown", closeOnEscape);
+      document.getElementById("main-content")?.removeAttribute("inert");
+      window.removeEventListener("keydown", handleKeys);
+      trigger?.focus();
     };
   }, [open]);
 
   return (
     <div className="mobile-book-menu">
       <button
+        ref={triggerButton}
         className="mobile-menu-trigger"
         type="button"
         aria-label="전자책 메뉴 열기"
@@ -43,8 +57,8 @@ export default function MobileBookMenu() {
       </button>
 
       {open && createPortal(
-        <div className="mobile-book-overlay">
-          <aside className="mobile-book-drawer" id="mobile-book-drawer" role="dialog" aria-modal="true" aria-label="전자책 카테고리 선택">
+        <div className="mobile-book-overlay" onMouseDown={(event) => { if (event.target === event.currentTarget) setOpen(false); }}>
+          <aside ref={drawer} className="mobile-book-drawer" id="mobile-book-drawer" role="dialog" aria-modal="true" aria-label="전자책 카테고리 선택">
             <div className="mobile-drawer-head">
               <button ref={closeButton} type="button" aria-label="전자책 메뉴 닫기" onClick={() => setOpen(false)}><X size={24} weight="bold" /></button>
             </div>

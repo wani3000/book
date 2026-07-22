@@ -5,7 +5,8 @@ import { ebookCatalog, isEbookProduct } from "@/app/library/catalog";
 import { getKakaoPayOrder } from "@/app/kakaopay/server";
 import { getNaverPayHistory } from "@/app/naverpay/server";
 import { getDb } from "@/db";
-import { members, orders, paymentAttempts } from "@/db/schema";
+import { auditLogs, members, orders, paymentAttempts } from "@/db/schema";
+import { requireSameOrigin } from "@/app/security/request";
 
 export const dynamic = "force-dynamic";
 
@@ -38,7 +39,10 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
-  if (!await requireAdmin(request)) return NextResponse.json({ error: "관리자 권한이 필요합니다." }, { status: 403 });
+  const originError = requireSameOrigin(request);
+  if (originError) return originError;
+  const admin = await requireAdmin(request);
+  if (!admin) return NextResponse.json({ error: "관리자 권한이 필요합니다." }, { status: 403 });
   const body = await request.json().catch(() => ({})) as { attemptId?: unknown };
   const attemptId = typeof body.attemptId === "string" ? body.attemptId.trim() : "";
   if (!attemptId || attemptId.length > 100) return NextResponse.json({ error: "확인할 결제 시도가 올바르지 않습니다." }, { status: 400 });
@@ -67,11 +71,13 @@ export async function POST(request: Request) {
       await getDb().batch([
         getDb().update(paymentAttempts).set({ status: "refunded", errorCode: null, updatedAt: now }).where(eq(paymentAttempts.id, attempt.id)),
         getDb().update(orders).set({ status: "refunded", updatedAt: now }).where(eq(orders.id, attempt.id)),
+        getDb().insert(auditLogs).values({ id: crypto.randomUUID(), actorMemberId: admin.id, action: "payment.reconcile.refunded", entityType: "payment_attempt", entityId: attempt.id, createdAt: now }),
       ]);
       return NextResponse.json({ ok: true, status: "refunded" });
     }
     if (!paid) {
       await getDb().update(paymentAttempts).set({ status: "reconcile", errorCode: "REMOTE_PAYMENT_NOT_FINAL", updatedAt: now }).where(eq(paymentAttempts.id, attempt.id));
+      await getDb().insert(auditLogs).values({ id: crypto.randomUUID(), actorMemberId: admin.id, action: "payment.reconcile.pending", entityType: "payment_attempt", entityId: attempt.id, createdAt: now });
       return NextResponse.json({ ok: true, status: "reconcile", message: "결제사업자에서 최종 승인 또는 취소 상태가 확인되지 않았습니다." });
     }
 
@@ -89,6 +95,7 @@ export async function POST(request: Request) {
         updatedAt: now,
       }).onConflictDoNothing(),
       getDb().update(paymentAttempts).set({ status: "paid", errorCode: null, updatedAt: now }).where(eq(paymentAttempts.id, attempt.id)),
+      getDb().insert(auditLogs).values({ id: crypto.randomUUID(), actorMemberId: admin.id, action: "payment.reconcile.paid", entityType: "payment_attempt", entityId: attempt.id, createdAt: now }),
     ]);
     return NextResponse.json({ ok: true, status: "paid" });
   } catch {

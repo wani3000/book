@@ -80,7 +80,7 @@ test("review API only exposes approved verified reviews", async () => {
   assert.match(source, /eq\(reviews\.status, "approved"\)/);
   assert.match(source, /eq\(reviews\.purchaseVerified, 1\)/);
   assert.match(source, /getAuthenticatedMember/);
-  assert.match(source, /hasPaidOrder\(member\.id, product\)/);
+  assert.match(source, /eq\(orders\.memberId, member\.id\)/);
   assert.match(source, /구매한 전자책에만 후기를 작성할 수 있습니다/);
 });
 
@@ -88,7 +88,7 @@ test("review moderation is protected and only approves purchase-verified reviews
   const source = await readFile(new URL("app/api/admin/reviews/route.ts", root), "utf8");
   const page = await readFile(new URL("app/components/ReviewAdmin.tsx", root), "utf8");
   assert.match(source, /member\?\.isAdmin/);
-  assert.match(source, /purchaseVerified: action === "approve" \? 1 : 0/);
+  assert.match(source, /purchaseVerified: 1/);
   assert.match(source, /status: action === "approve" \? "approved" : "rejected"/);
   assert.match(page, /구매 확인 후 공개/);
 });
@@ -188,22 +188,21 @@ test("my page provides profile, order, logout, and account deletion flows", asyn
   assert.match(page, /회원 탈퇴/);
   assert.match(page, /주문번호/);
   assert.match(page, /결제수단/);
-  assert.match(page, /activeSection === "overview" \? <aside className="mypage-sidebar">/);
-  assert.match(page, /href="#library"/);
+  assert.match(page, /section === "overview" \? <aside className="mypage-sidebar">/);
+  assert.match(page, /href="\/mypage\/library"/);
   assert.match(page, /"마이페이지로 돌아가기"/);
-  assert.match(page, /activeSection === "library"/);
-  assert.match(page, />프로필 관리<\/a>/);
+  assert.match(page, /section === "library"/);
+  assert.match(page, /href="\/mypage\/profile">프로필 관리<\/Link>/);
   assert.match(page, /className="mypage-profile-sections"/);
   assert.doesNotMatch(page, /<p>LOGIN<\/p>|<p>SESSION<\/p>/);
   assert.match(page, /function MyPageHeader/);
   assert.match(page, /window\.location\.assign\(fallbackHref\)/);
   assert.match(page, /window\.scrollTo\(\{ top: 0, left: 0, behavior: "auto" \}\)/);
-  assert.match(page, /window\.history\.pushState\(null, "", `#\$\{section\}`\)/);
-  assert.match(page, /event\.preventDefault\(\)/);
+  assert.doesNotMatch(page, /window\.history\.pushState\(null, "", `#\$\{section\}`\)/);
   assert.match(page, /const \[ordersLoading, setOrdersLoading\] = useState\(true\)/);
   assert.match(page, /const orderRequest = fetch\("\/api\/account\/orders"/);
   assert.match(page, /setMember\(profile\.member\);[\s\S]*setLoading\(false\);[\s\S]*await orderRequest/);
-  assert.match(page, /activeSection === "overview" \? "\/" : "\/mypage"/);
+  assert.match(page, /section === "overview" \? "\/" : "\/mypage"/);
   assert.doesNotMatch(shell, /StorefrontHeader/);
   assert.match(page, /deleteConfirmation !== "회원 탈퇴"/);
   assert.match(profileApi, /export async function PATCH/);
@@ -434,4 +433,51 @@ test("admin refund workflow supports review, rejection, and payment cancellation
   assert.match(schema, /firstAccessedAt: text/);
   assert.match(migration, /CREATE TABLE `refund_requests`/);
   assert.match(migration, /ADD `first_accessed_at`/);
+});
+
+test("mypage uses independent routes instead of hash navigation", async () => {
+  const dashboard = await readFile(new URL("app/components/AccountDashboard.tsx", root), "utf8");
+  for (const path of ["library", "orders", "profile"]) {
+    await readFile(new URL(`app/mypage/${path}/page.tsx`, root), "utf8");
+    assert.match(dashboard, new RegExp(`/mypage/${path}`));
+  }
+  assert.doesNotMatch(dashboard, /hashchange|window\.location\.hash|href="#orders"/);
+});
+
+test("reviews are automatically tied to a paid order and limited to one per product", async () => {
+  const api = await readFile(new URL("app/api/reviews/route.ts", root), "utf8");
+  const form = await readFile(new URL("app/components/ReviewSection.tsx", root), "utf8");
+  const migration = await readFile(new URL("drizzle/0008_prelaunch_p1.sql", root), "utf8");
+  assert.match(api, /eq\(orders\.memberId, member\.id\)/);
+  assert.match(api, /purchaseReference: paidOrder\?\.providerReference/);
+  assert.match(api, /purchaseVerified: 1/);
+  assert.doesNotMatch(form, /name="purchaseReference"/);
+  assert.match(migration, /reviews_member_product_unique/);
+});
+
+test("P1 security, accessibility, health, audit, and notification controls exist", async () => {
+  const worker = await readFile(new URL("worker/index.ts", root), "utf8");
+  const layout = await readFile(new URL("app/layout.tsx", root), "utf8");
+  const menu = await readFile(new URL("app/components/MobileBookMenu.tsx", root), "utf8");
+  const home = await readFile(new URL("app/page.tsx", root), "utf8");
+  const schema = await readFile(new URL("db/schema.ts", root), "utf8");
+  await readFile(new URL("app/api/health/route.ts", root), "utf8");
+  await readFile(new URL("OPERATIONS_RUNBOOK.md", root), "utf8");
+  assert.match(worker, /Strict-Transport-Security/);
+  assert.match(worker, /Content-Security-Policy/);
+  assert.match(worker, /request_limits/);
+  assert.match(worker, /허용되지 않은 요청 출처/);
+  assert.match(layout, /본문 바로가기/);
+  assert.match(menu, /setAttribute\("inert"/);
+  assert.match(menu, /event\.key !== "Tab"/);
+  assert.match(home, /prefers-reduced-motion/);
+  assert.match(home, /자동 전환 일시정지/);
+  assert.match(schema, /auditLogs/);
+  assert.match(schema, /notificationOutbox/);
+});
+
+test("book detail pages expose Book, Product, Offer, and breadcrumb structured data", async () => {
+  const source = await readFile(new URL("app/components/ClassDetailPage.tsx", root), "utf8");
+  for (const type of ["Book", "Product", "Offer", "BreadcrumbList"]) assert.match(source, new RegExp(`\\"@type\\": \\"${type}\\"`));
+  assert.match(source, /application\/ld\+json/);
 });

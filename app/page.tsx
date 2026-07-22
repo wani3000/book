@@ -69,6 +69,8 @@ export default function BookstoreHome() {
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState("전체");
   const [promoIndex, setPromoIndex] = useState(0);
+  const [promoPaused, setPromoPaused] = useState(false);
+  const [reduceMotion, setReduceMotion] = useState(false);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -84,12 +86,21 @@ export default function BookstoreHome() {
   }, []);
 
   useEffect(() => {
+    const media = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const sync = () => setReduceMotion(media.matches);
+    sync();
+    media.addEventListener("change", sync);
+    return () => media.removeEventListener("change", sync);
+  }, []);
+
+  useEffect(() => {
+    if (promoPaused || reduceMotion) return;
     const promoTimer = window.setInterval(() => {
       setPromoIndex((current) => (current + 1) % books.length);
     }, 5000);
 
     return () => window.clearInterval(promoTimer);
-  }, []);
+  }, [promoPaused, reduceMotion]);
 
   const promoBook = books[promoIndex];
 
@@ -118,7 +129,7 @@ export default function BookstoreHome() {
       <StorefrontHeader query={query} onQueryChange={setQuery} />
 
       <section className="class-discovery" aria-label="추천과 카테고리">
-        <Link className={`class-promo class-promo-${promoBook.accent}`} href={promoBook.href} aria-label={`${promoBook.title} 자세히 보기`}>
+        <div className="class-promo-wrap"><Link className={`class-promo class-promo-${promoBook.accent}`} href={promoBook.href} aria-label={`${promoBook.title} 자세히 보기`}>
           <div key={`copy-${promoBook.id}`} className="class-promo-copy">
             <small>이번 주 추천</small>
             <span className="class-promo-chip">실무에 바로 쓰는</span>
@@ -129,7 +140,7 @@ export default function BookstoreHome() {
           <div key={`cover-${promoBook.id}`} className="class-promo-covers" aria-hidden="true">
             <img src={promoBook.image} width={promoBook.width} height={promoBook.height} alt="" />
           </div>
-        </Link>
+        </Link><button className="class-promo-pause" type="button" aria-pressed={promoPaused} onClick={() => setPromoPaused((value) => !value)}>{promoPaused ? "자동 전환 재생" : "자동 전환 일시정지"}</button></div>
       </section>
 
       <section className="class-content-section" id="books">

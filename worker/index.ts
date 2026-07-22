@@ -28,9 +28,32 @@ interface ExecutionContext {
 const worker = {
   async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
     const url = new URL(request.url);
-    let response: Response;
+    let response: Response | undefined;
 
-    if (url.pathname === "/_vinext/image") {
+    const mutating = ["POST", "PUT", "PATCH", "DELETE"].includes(request.method);
+    const externalWebhook = url.pathname === "/api/paddle/webhook";
+    const origin = request.headers.get("Origin");
+    const guardedApi = mutating && [
+      "/api/auth/google", "/api/auth/qa-login", "/api/reviews", "/api/account/refunds",
+      "/api/kakaopay/ready", "/api/naverpay/ready", "/api/checkout/context",
+    ].includes(url.pathname);
+    if (guardedApi) {
+      const ip = (request.headers.get("cf-connecting-ip") || request.headers.get("x-forwarded-for") || "unknown").split(",")[0].trim();
+      const windowStartedAt = Math.floor(Date.now() / 60_000) * 60;
+      const key = `${url.pathname}:${ip}:${windowStartedAt}`;
+      try {
+        await env.DB.prepare("INSERT INTO request_limits (`key`,`count`,`window_started_at`) VALUES (?1,1,?2) ON CONFLICT(`key`) DO UPDATE SET `count`=`count`+1").bind(key, windowStartedAt).run();
+        const limited = await env.DB.prepare("SELECT `count` FROM request_limits WHERE `key`=?1").bind(key).first<{ count: number }>();
+        if ((limited?.count ?? 0) > 20) {
+          response = Response.json({ error: "요청이 너무 많습니다. 잠시 후 다시 시도해 주세요." }, { status: 429, headers: { "Retry-After": "60" } });
+        }
+      } catch (error) {
+        console.error("rate_limit_check_failed", { path: url.pathname, message: error instanceof Error ? error.message : "unknown" });
+      }
+    }
+    if (!response && mutating && !externalWebhook && origin && origin !== url.origin) {
+      response = Response.json({ error: "허용되지 않은 요청 출처입니다." }, { status: 403 });
+    } else if (!response && url.pathname === "/_vinext/image") {
       const allowedWidths = [...DEFAULT_DEVICE_SIZES, ...DEFAULT_IMAGE_SIZES];
       response = await handleImageOptimization(request, {
         fetchAsset: (path) => env.ASSETS.fetch(new Request(new URL(path, request.url))),
@@ -39,7 +62,7 @@ const worker = {
           return result.response();
         },
       }, allowedWidths);
-    } else {
+    } else if (!response) {
       response = await handler.fetch(request, env, ctx);
     }
 
@@ -50,6 +73,7 @@ const worker = {
     secured.headers.set("Permissions-Policy", "camera=(), microphone=(), geolocation=(), payment=(self)");
     secured.headers.set("Cross-Origin-Opener-Policy", "same-origin-allow-popups");
     if (import.meta.env.PROD) {
+      secured.headers.set("Strict-Transport-Security", "max-age=31536000; includeSubDomains; preload");
       secured.headers.set("Content-Security-Policy", [
         "default-src 'self'",
         "base-uri 'self'",
