@@ -1,11 +1,12 @@
 import { NextResponse } from "next/server";
 import { kakaoLoginEnabled } from "@/app/auth/kakao";
+import { googleOAuthEnabled } from "@/app/auth/google";
 
 export const dynamic = "force-dynamic";
 
 export function GET() {
   return NextResponse.json(
-    { clientId: process.env.GOOGLE_CLIENT_ID ?? "", kakaoEnabled: kakaoLoginEnabled() },
+    { googleOAuthEnabled: googleOAuthEnabled(), kakaoEnabled: kakaoLoginEnabled() },
     { headers: { "Cache-Control": "no-store" } },
   );
 }

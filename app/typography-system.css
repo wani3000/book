@@ -2,10 +2,11 @@
  * Daniel's Note web typography policy.
  * - PDF typography is intentionally out of scope.
  * - BusinessFooter is intentionally out of scope and keeps its current scale.
- * - Pretendard Regular 400 / Bold 700 only.
+ * - Pretendard Regular 400 / Bold 700 for the general interface.
  * - Desktop and tablet UI text: 14px minimum, body copy: 16px.
  * - Mobile UI text: 15px minimum, form controls: 16px minimum.
  * - Buttons are the deliberate exception: 13px Regular at every breakpoint.
+ * - Google and Kakao sign-in labels share the provider exception: 15px / 20px.
  */
 
 :root {
@@ -252,7 +253,7 @@
 
 /*
  * Unified button label. Keep existing dimensions and hit areas; only the label
- * typography is normalized. Google Identity Services owns its iframe styling.
+ * typography is normalized. Provider sign-in buttons are handled separately.
  */
 :where(.class-market, .class-detail, .account-site, .admin-site, .admin-page-shell, .qa-login-page, .checkout-success, .checkout-fail, .policy-site) button,
 :where(
@@ -260,7 +261,6 @@
   .nav-cta,
   .store-button,
   .store-nav-cta,
-  .kakao-login-button,
   .detail-buy-button,
   .class-start-banner > a,
   .mypage-welcome > a,
@@ -275,4 +275,11 @@
   font-size: var(--type-button) !important;
   font-weight: var(--type-button-weight) !important;
   line-height: var(--type-button-line) !important;
+}
+
+/* Provider sign-in buttons share one brand-compliant visual specification. */
+:where(.google-login-button, .kakao-login-button) {
+  font-size: 15px !important;
+  font-weight: 500 !important;
+  line-height: 20px !important;
 }

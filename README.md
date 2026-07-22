@@ -50,7 +50,7 @@ node --test tests/rendered-html.test.mjs
 
 ## 회원 기능 상태
 
-Google ID 토큰 서버 검증, D1 회원 등록, 보안 세션, 마이페이지와 관리자 회원관리가 구현돼 있다. 실제 활성화에는 `GOOGLE_CLIENT_ID`, `GOOGLE_SESSION_SECRET`, `ADMIN_EMAILS` 설정과 새 배포가 필요하다. 구매 내역 테이블은 준비됐지만 실제 주문 저장은 결제 웹훅 구현 후 동작한다.
+Google Authorization Code + PKCE 로그인, ID 토큰 서버 검증, D1 회원 등록, 보안 세션, 마이페이지와 관리자 회원관리가 구현돼 있다. 실제 활성화에는 `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `GOOGLE_REDIRECT_URI`, `GOOGLE_SESSION_SECRET`, `ADMIN_EMAILS` 설정과 새 배포가 필요하다. 구매 내역 테이블은 준비됐지만 실제 주문 저장은 결제 웹훅 구현 후 동작한다.
 
 ## 배포 주의사항
 

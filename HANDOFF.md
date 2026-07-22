@@ -47,7 +47,7 @@
 - 메인 추천 배너는 한 번에 한 권만 보여주며 5초마다 다음 전자책으로 전환한다.
 - 메인 `전체 전자책`은 흰 배경·무박스 구조이며 `전체 / 커리어 / 개발 · 생산성` 필터를 사용한다.
 - 랜딩 목록에서는 가격을 노출하지 않는다. 실제 가격은 상세 구매 단계와 구매 완료 주문 내역에서만 표시한다.
-- 웹 UI 글꼴은 Pretendard Regular 400과 Bold 700만 사용한다. 일반 본문은 16px, 데스크톱·태블릿은 14px, 모바일은 15px를 최소 크기로 사용한다. 버튼 라벨은 화면 크기와 관계없이 13px Regular 400을 사용하며 기존 버튼 높이와 클릭 영역은 유지한다. Google 공식 로그인 버튼, 사업자 푸터는 이 규칙의 적용 대상에서 제외하고 기존 스타일을 유지한다.
+- 웹 UI 글꼴은 기본적으로 Pretendard Regular 400과 Bold 700을 사용한다. 일반 본문은 16px, 데스크톱·태블릿은 14px, 모바일은 15px를 최소 크기로 사용한다. 일반 버튼 라벨은 화면 크기와 관계없이 13px Regular 400을 사용한다. 로그인 제공자 버튼은 Google·카카오 모두 400×56px, 15px/20px, Medium 500으로 통일한다. 사업자 푸터는 이 규칙의 적용 대상에서 제외하고 기존 스타일을 유지한다.
 - Wanted Design Library 기반 색상·타이포 토큰을 `app/design-system.css`에 정의했다.
 - 모바일은 푸터를 제외한 자체 본문 글자 크기를 최소 15px로 정리했다.
 - Google 로그인 상태를 공통 헤더와 마이페이지가 공유하며 로그인 후 헤더에 표시 이름이 노출된다.
@@ -85,7 +85,7 @@
 | --- | --- | --- | ---: | ---: | --- |
 | `codex` | 아이디어를 서비스로 바꾸는 Codex 사용법 | 필립 | 230쪽 | 19,000원 | `/codex` |
 | `career` | 커리어도 디자인할 수 있습니다 | 필립 | 90쪽 | 19,000원 | `/career` |
-| `jane` | 승무원 다음은 IT였습니다 | 제인 | 78쪽 | 19,000원 | `/jane` |
+| `jane` | 승무원 다음은 IT였습니다 | 제인 | 48쪽 | 19,000원 | `/jane` |
 
 박철완은 공개 콘텐츠에서 가명 `필립`으로 표기한다. 3권 저자는 공개 콘텐츠에서 닉네임 `제인`으로만 표기한다.
 다만 이용약관과 사업자 푸터의 `대표자 박철완`은 전자상거래 판매자 법정 고지이므로 가명으로 바꾸지 않는다.
@@ -412,12 +412,12 @@ Sites 프로젝트 ID는 `website/.openai/hosting.json`에 저장돼 있다. 현
 
 ## 12. Google 로그인 구현 및 인계 상태
 
-- 구현 파일: `app/components/GoogleAccount.tsx`, `app/auth/session.ts`, `app/api/auth/config/route.ts`, `app/api/auth/google/route.ts`, `app/api/auth/session/route.ts`, `app/api/auth/logout/route.ts`
-- Google Identity Services 공식 버튼을 사용하고, Google ID 토큰을 서버에서 공개키·발급자·대상 클라이언트 기준으로 검증한다.
+- 구현 파일: `app/components/GoogleAccount.tsx`, `app/auth/google.ts`, `app/auth/session.ts`, `app/api/auth/config/route.ts`, `app/api/auth/google/start/route.ts`, `app/api/auth/google/callback/route.ts`, `app/api/auth/google/pending/route.ts`, `app/api/auth/session/route.ts`, `app/api/auth/logout/route.ts`
+- Google 로그인은 iframe 없는 커스텀 버튼과 Authorization Code + PKCE 리디렉션 방식을 사용하고, Google ID 토큰을 서버에서 공개키·발급자·대상 클라이언트·nonce 기준으로 검증한다.
 - 검증 후 `HttpOnly`, `Secure`, `SameSite=Lax` 쿠키에 7일 세션을 저장하며 헤더에 이름·이메일·로그아웃을 표시한다.
-- 필요한 Sites 런타임 환경 변수는 `GOOGLE_CLIENT_ID`와 `GOOGLE_SESSION_SECRET`이다. `GOOGLE_SESSION_SECRET`은 충분히 긴 무작위 값으로 생성해 비밀 환경 변수로 저장한다.
+- 필요한 Sites 런타임 환경 변수는 `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `GOOGLE_REDIRECT_URI`, `GOOGLE_SESSION_SECRET`이다. `GOOGLE_CLIENT_SECRET`과 `GOOGLE_SESSION_SECRET`은 비밀 환경 변수로 저장한다.
 - 최초 관리자로 사용할 이메일을 `ADMIN_EMAILS`에 쉼표로 구분해 설정한다. 관리자 API는 세션과 서버 환경변수를 함께 확인한다.
 - 테스트 구매 계정은 `TEST_PURCHASER_EMAILS`에 쉼표로 구분해 설정한다. 현재 기본값은 `oxaz1234@gmail.com`이며 이 계정에는 세 권 전체가 표시된다.
-- 사용자가 제공해야 하는 값은 `.apps.googleusercontent.com`으로 끝나는 Google OAuth 웹 클라이언트 ID뿐이다. 클라이언트 보안 비밀번호는 필요하지 않다.
-- Google Cloud OAuth 클라이언트의 승인된 JavaScript 원본에 `https://codex-solo-builder-book.wani3000.chatgpt.site`를 등록해야 한다.
-- 클라이언트 ID를 받은 뒤 두 환경 변수를 Sites에 설정하고 새 버전을 배포한 다음 로그인, 새로고침 후 세션 유지, 로그아웃, 모바일 헤더를 검증한다.
+- Google Cloud OAuth 웹 클라이언트의 클라이언트 ID와 클라이언트 보안 비밀번호가 모두 필요하다.
+- Google Cloud OAuth 클라이언트의 승인된 리디렉션 URI에 `https://codex-solo-builder-book.wani3000.chatgpt.site/api/auth/google/callback`을 정확히 등록해야 한다.
+- 운영 환경 변수를 설정한 뒤 새 버전을 배포하고 신규 가입 동의, 기존 회원 로그인, 재가입, 계정 연결, 새로고침 후 세션 유지, 로그아웃을 검증한다.

@@ -95,8 +95,8 @@ export default function KakaoAccount({ mode = "login", connected = false, onChan
 
   return <>
     {mode === "login" && (enabled
-      ? <a className="kakao-login-button" href="/api/auth/kakao/start"><ChatCircleDots size={24} weight="fill" aria-hidden="true" /><span>카카오로 계속하기</span></a>
-      : <button className="kakao-login-button is-disabled" type="button" disabled><ChatCircleDots size={24} weight="fill" aria-hidden="true" /><span>카카오 로그인 준비 중</span></button>)}
+      ? <a className="kakao-login-button auth-login-button" href="/api/auth/kakao/start"><ChatCircleDots size={20} weight="fill" aria-hidden="true" /><span>카카오로 계속하기</span><i aria-hidden="true" /></a>
+      : <button className="kakao-login-button auth-login-button is-disabled" type="button" disabled><ChatCircleDots size={20} weight="fill" aria-hidden="true" /><span>카카오 로그인 준비 중</span><i aria-hidden="true" /></button>)}
     {mode === "connect" && <div className={`identity-provider ${connected ? "connected" : ""}`}>
       <span className="identity-provider-icon kakao"><ChatCircleDots size={22} weight="fill" aria-hidden="true" /></span>
       <span><b>카카오</b><small>{connected ? "로그인 계정 연결됨" : enabled ? "간편 로그인을 추가할 수 있습니다." : "운영 설정 후 연결할 수 있습니다."}</small></span>

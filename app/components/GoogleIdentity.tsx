@@ -1,79 +1,28 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
-
-type GoogleCredentialResponse = { credential?: string };
-
-declare global {
-  interface Window {
-    google?: {
-      accounts: {
-        id: {
-          initialize(options: { client_id: string; callback: (response: GoogleCredentialResponse) => void }): void;
-          renderButton(element: HTMLElement, options: Record<string, string | number | boolean>): void;
-        };
-      };
-    };
-  }
-}
-
-const GOOGLE_SCRIPT = "https://accounts.google.com/gsi/client";
+import { LinkSimple } from "@phosphor-icons/react";
+import { useEffect, useState } from "react";
+import GoogleGMark from "./GoogleGMark";
 
 export default function GoogleIdentity({ connected, onChanged }: { connected: boolean; onChanged: () => void }) {
-  const slot = useRef<HTMLDivElement>(null);
-  const [clientId, setClientId] = useState("");
+  const [oauthEnabled, setOauthEnabled] = useState(false);
   const [error, setError] = useState("");
   const [disconnecting, setDisconnecting] = useState(false);
 
   useEffect(() => {
     fetch("/api/auth/config", { cache: "no-store" })
       .then((response) => response.json())
-      .then((config: { clientId?: string }) => setClientId(config.clientId ?? ""))
-      .catch(() => setClientId(""));
-  }, []);
-
-  const finishLink = useCallback(async ({ credential }: GoogleCredentialResponse) => {
-    if (!credential) return;
-    setError("");
-    const response = await fetch("/api/auth/google/link", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ credential }),
-    });
-    const result = await response.json() as { error?: string };
-    if (!response.ok) setError(result.error ?? "Google 계정을 연결하지 못했습니다.");
-    else onChanged();
+      .then((config: { googleOAuthEnabled?: boolean }) => {
+        setOauthEnabled(config.googleOAuthEnabled === true);
+        const params = new URLSearchParams(window.location.search);
+        const authError = params.get("auth_error") ?? "";
+        if (authError.startsWith("google_") || authError === "member_has_google") {
+          setError("Google 계정 연결을 완료하지 못했습니다. 다시 시도해 주세요.");
+        }
+        if (params.get("google") === "linked") onChanged();
+      })
+      .catch(() => setOauthEnabled(false));
   }, [onChanged]);
-
-  useEffect(() => {
-    if (connected || !clientId || !slot.current) return;
-    const render = () => {
-      if (!window.google || !slot.current) return;
-      window.google.accounts.id.initialize({ client_id: clientId, callback: finishLink });
-      slot.current.replaceChildren();
-      window.google.accounts.id.renderButton(slot.current, {
-        type: "standard",
-        theme: "outline",
-        size: "medium",
-        text: "continue_with",
-        shape: "rectangular",
-        logo_alignment: "left",
-        width: 190,
-      });
-    };
-    const existing = document.querySelector<HTMLScriptElement>(`script[src="${GOOGLE_SCRIPT}"]`);
-    if (window.google) render();
-    else if (existing) existing.addEventListener("load", render, { once: true });
-    else {
-      const script = document.createElement("script");
-      script.src = GOOGLE_SCRIPT;
-      script.async = true;
-      script.defer = true;
-      script.addEventListener("load", render, { once: true });
-      document.head.appendChild(script);
-    }
-    return () => existing?.removeEventListener("load", render);
-  }, [clientId, connected, finishLink]);
 
   async function disconnect() {
     if (!window.confirm("Google 계정 연결을 해제할까요? 카카오 등 다른 로그인 수단은 유지됩니다.")) return;
@@ -91,11 +40,11 @@ export default function GoogleIdentity({ connected, onChanged }: { connected: bo
   }
 
   return <div className={`identity-provider ${connected ? "connected" : ""}`}>
-    <span className="identity-provider-icon google">G</span>
-    <span><b>Google</b><small>{connected ? "로그인 계정 연결됨" : clientId ? "간편 로그인을 추가할 수 있습니다." : "운영 설정 후 연결할 수 있습니다."}</small></span>
+    <span className="identity-provider-icon google"><GoogleGMark size={20} /></span>
+    <span><b>Google</b><small>{connected ? "로그인 계정 연결됨" : oauthEnabled ? "간편 로그인을 추가할 수 있습니다." : "운영 설정 후 연결할 수 있습니다."}</small></span>
     {connected
       ? <button type="button" disabled={disconnecting} onClick={disconnect}>{disconnecting ? "해제 중…" : "연결 해제"}</button>
-      : clientId ? <div className="identity-google-slot" ref={slot} /> : <em>준비 중</em>}
+      : oauthEnabled ? <a href="/api/auth/google/start?intent=link&returnTo=%2Fmypage%2Fprofile"><LinkSimple size={17} aria-hidden="true" />계정 연결</a> : <em>준비 중</em>}
     {error && <p role="alert">{error}</p>}
   </div>;
 }

@@ -129,6 +129,12 @@ test("storefront separates verified reviews from clearly disclosed reference rev
 test("Google login persists a verified member and creates a secure session", async () => {
   const source = await readFile(new URL("app/api/auth/google/route.ts", root), "utf8");
   const account = await readFile(new URL("app/components/GoogleAccount.tsx", root), "utf8");
+  const oauth = await readFile(new URL("app/auth/google.ts", root), "utf8");
+  const start = await readFile(new URL("app/api/auth/google/start/route.ts", root), "utf8");
+  const callback = await readFile(new URL("app/api/auth/google/callback/route.ts", root), "utf8");
+  const pending = await readFile(new URL("app/api/auth/google/pending/route.ts", root), "utf8");
+  const identity = await readFile(new URL("app/components/GoogleIdentity.tsx", root), "utf8");
+  const styles = await readFile(new URL("app/globals.css", root), "utf8");
   assert.match(source, /email_verified !== true/);
   assert.match(source, /insert\(members\)/);
   assert.match(source, /httpOnly: true/);
@@ -140,8 +146,20 @@ test("Google login persists a verified member and creates a secure session", asy
   assert.match(account, /\[필수\] 이용약관 동의/);
   assert.match(account, /\[선택\] 새 책과 할인 소식 받기/);
   assert.match(account, /동의하고 재가입하기/);
-  assert.match(account, /continue_with/);
-  assert.match(account, /size: mode === "login" \? "large"/);
+  assert.match(account, /className="google-login-button auth-login-button"/);
+  assert.match(account, /Google로 계속하기/);
+  assert.doesNotMatch(account, /renderButton|iframe|accounts\.google\.com\/gsi\/client/);
+  assert.doesNotMatch(identity, /renderButton|iframe|accounts\.google\.com\/gsi\/client/);
+  assert.match(oauth, /GOOGLE_CLIENT_SECRET/);
+  assert.match(oauth, /code_verifier: verifier/);
+  assert.match(oauth, /payload\.nonce !== nonce/);
+  assert.match(start, /code_challenge_method: "S256"/);
+  assert.match(start, /scope: "openid email profile"/);
+  assert.match(callback, /url\.searchParams\.get\("state"\) !== oauth\.state/);
+  assert.match(callback, /google_account_link_required/);
+  assert.match(pending, /body\.termsAccepted !== true \|\| body\.privacyAccepted !== true/);
+  assert.match(styles, /\.auth-login-button \{ width:100%; height:56px/);
+  assert.match(styles, /font-size:15px; font-weight:500; line-height:20px/);
   assert.match(account, /mode === "compact"\) return <Link className="google-account-login-link" href="\/mypage">로그인<\/Link>/);
   assert.match(account, /className="google-account-profile-link" href="\/mypage"/);
   assert.match(account, /님의 마이페이지로 이동/);

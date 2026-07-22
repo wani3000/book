@@ -339,3 +339,10 @@ final result: passed
 - 수정 전: 메인 데스크톱에서 9~13px 텍스트 20개, Codex 상세에서 최소 50개, 모바일 상세와 로그인에서 11~13px 텍스트가 확인됐다.
 - 수정 후: 알려진 21개 경로에서 버튼을 제외한 데스크톱 14px 미만, 모바일 15px 미만, 400/700 이외의 렌더링 굵기, 가로 넘침이 모두 0건이다. 자체 버튼은 13px/400으로 통일했고 Google 공식 버튼과 푸터는 검사와 변경 대상에서 제외했다.
 - 증거: `/Users/chulwan/Documents/Codex/2026-07-18/pc/audit/typography-2026-07-22/`의 수정 전·후 캡처를 사용했다.
+
+# 2026-07-22 로그인 제공자 버튼 정렬
+
+- Google iframe 버튼을 제거하고 Authorization Code + PKCE 리디렉션과 커스텀 HTML 버튼으로 전환했다.
+- Google·카카오 로그인 버튼은 동일한 400×56px 컨테이너, 15px/20px 라벨, Medium 500, 20px 아이콘 규격을 사용한다.
+- Google 브랜드 가이드 때문에 로그인 제공자 2개만 일반 버튼의 13px Regular 규칙에서 제외한다.
+- Google OAuth 운영 전환에는 `GOOGLE_CLIENT_SECRET`과 승인된 콜백 URI 등록이 필요하므로 설정 완료 전에는 배포하지 않는다.
