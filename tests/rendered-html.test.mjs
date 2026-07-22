@@ -10,9 +10,17 @@ test("collection home connects all three ebook pages", async () => {
   assert.match(source, /href: "\/codex"/);
   assert.match(source, /href: "\/career"/);
   assert.match(source, /href: "\/jane"/);
-  assert.match(header, /DANIEL&amp;apos;S NOTE|DANIEL&apos;S NOTE/);
+  assert.match(header, /다니엘의 노트/);
   assert.match(source, /return books\.filter/);
   assert.doesNotMatch(source, /const curated|id="stories"|id="popular"/);
+});
+
+test("mobile menu uses the three storefront categories", async () => {
+  const menu = await readFile(new URL("app/components/MobileBookMenu.tsx", root), "utf8");
+  assert.match(menu, /label: "전체"/);
+  assert.match(menu, /label: "커리어"/);
+  assert.match(menu, /label: "개발 · 생산성"/);
+  assert.doesNotMatch(menu, /menuBooks|전체 전자책 보기/);
 });
 
 test("production metadata never falls back to localhost", async () => {
@@ -72,6 +80,8 @@ test("review API only exposes approved verified reviews", async () => {
   assert.match(source, /eq\(reviews\.status, "approved"\)/);
   assert.match(source, /eq\(reviews\.purchaseVerified, 1\)/);
   assert.match(source, /getAuthenticatedMember/);
+  assert.match(source, /hasPaidOrder\(member\.id, product\)/);
+  assert.match(source, /구매한 전자책에만 후기를 작성할 수 있습니다/);
 });
 
 test("review moderation is protected and only approves purchase-verified reviews", async () => {
@@ -83,12 +93,20 @@ test("review moderation is protected and only approves purchase-verified reviews
   assert.match(page, /구매 확인 후 공개/);
 });
 
-test("storefront does not publish fabricated ratings or sample reviews", async () => {
+test("storefront separates verified reviews from clearly disclosed reference reviews", async () => {
   const detail = await readFile(new URL("app/components/ClassDetailPage.tsx", root), "utf8");
   const reviews = await readFile(new URL("app/components/ReviewSection.tsx", root), "utf8");
   assert.doesNotMatch(detail, /후기 3개|4\.8/);
-  assert.doesNotMatch(reviews, /sampleReviews|가상 독자/);
   assert.match(reviews, /아직 공개된 구매 후기가 없습니다/);
+  assert.match(reviews, /실제 구매자의 후기가 아닙니다/);
+  assert.doesNotMatch(reviews, /예시 후기/);
+  assert.match(reviews, /className="sample-badge">참고용/);
+  assert.match(reviews, /const \[canSubmitReview, setCanSubmitReview\] = useState\(false\)/);
+  assert.match(reviews, /fetch\("\/api\/account\/orders"/);
+  assert.match(reviews, /\{canSubmitReview && <section className="review-form-shell"/);
+  assert.match(reviews, /codex: \[/);
+  assert.match(reviews, /career: \[/);
+  assert.match(reviews, /jane: \[/);
 });
 
 test("Google login persists a verified member and creates a secure session", async () => {
@@ -107,6 +125,11 @@ test("Google login persists a verified member and creates a secure session", asy
   assert.match(account, /동의하고 재가입하기/);
   assert.match(account, /continue_with/);
   assert.match(account, /size: mode === "login" \? "large"/);
+  assert.match(account, /mode === "compact"\) return <Link className="google-account-login-link" href="\/mypage">로그인<\/Link>/);
+  assert.match(account, /className="google-account-profile-link" href="\/mypage"/);
+  assert.match(account, /님의 마이페이지로 이동/);
+  assert.match(account, /mode === "icon"/);
+  assert.match(account, /className="header-user-icon" href="\/mypage"/);
 });
 
 test("QA admin login is secret-gated, production-disabled by default, and creates the normal secure session", async () => {
@@ -137,21 +160,26 @@ test("Kakao login uses OIDC, PKCE, explicit consent, and provider-safe account l
   const schema = await readFile(new URL("db/schema.ts", root), "utf8");
   const migration = await readFile(new URL("drizzle/0007_icy_silver_surfer.sql", root), "utf8");
   assert.match(start, /code_challenge_method: "S256"/);
-  assert.match(start, /scope: "openid profile_nickname profile_image account_email"/);
+  assert.match(start, /scope: "openid profile_nickname profile_image"/);
   assert.match(callback, /url\.searchParams\.get\("state"\) !== oauth\.state/);
   assert.match(callback, /account_link_required/);
   assert.match(kakaoAuth, /createRemoteJWKSet/);
   assert.match(kakaoAuth, /payload\.nonce !== nonce/);
-  assert.match(kakaoAuth, /is_email_verified !== true/);
+  assert.match(kakaoAuth, /fallbackKakaoEmail/);
+  assert.match(kakaoAuth, /export function kakaoLoginEnabled\(\)/);
+  assert.match(kakaoAuth, /process\.env\.KAKAO_REST_API_KEY\?\.trim\(\)/);
+  assert.match(kakaoAuth, /process\.env\.KAKAO_CLIENT_SECRET\?\.trim\(\)/);
   assert.match(pending, /termsAccepted !== true \|\| body\.privacyAccepted !== true/);
   assert.match(identitiesApi, /마지막 로그인 수단은 해제할 수 없습니다/);
   assert.match(kakaoUi, /카카오로 계속하기/);
+  assert.match(kakaoUi, /카카오 로그인 준비 중/);
   assert.match(schema, /authIdentities/);
   assert.match(migration, /legacy-google:/);
 });
 
 test("my page provides profile, order, logout, and account deletion flows", async () => {
   const page = await readFile(new URL("app/components/AccountDashboard.tsx", root), "utf8");
+  const shell = await readFile(new URL("app/mypage/page.tsx", root), "utf8");
   const refundForm = await readFile(new URL("app/components/RefundRequestForm.tsx", root), "utf8");
   const profileApi = await readFile(new URL("app/api/account/profile/route.ts", root), "utf8");
   assert.match(page, /구매 내역/);
@@ -160,6 +188,23 @@ test("my page provides profile, order, logout, and account deletion flows", asyn
   assert.match(page, /회원 탈퇴/);
   assert.match(page, /주문번호/);
   assert.match(page, /결제수단/);
+  assert.match(page, /activeSection === "overview" \? <aside className="mypage-sidebar">/);
+  assert.match(page, /href="#library"/);
+  assert.match(page, /"마이페이지로 돌아가기"/);
+  assert.match(page, /activeSection === "library"/);
+  assert.match(page, />프로필 관리<\/a>/);
+  assert.match(page, /className="mypage-profile-sections"/);
+  assert.doesNotMatch(page, /<p>LOGIN<\/p>|<p>SESSION<\/p>/);
+  assert.match(page, /function MyPageHeader/);
+  assert.match(page, /window\.location\.assign\(fallbackHref\)/);
+  assert.match(page, /window\.scrollTo\(\{ top: 0, left: 0, behavior: "auto" \}\)/);
+  assert.match(page, /window\.history\.pushState\(null, "", `#\$\{section\}`\)/);
+  assert.match(page, /event\.preventDefault\(\)/);
+  assert.match(page, /const \[ordersLoading, setOrdersLoading\] = useState\(true\)/);
+  assert.match(page, /const orderRequest = fetch\("\/api\/account\/orders"/);
+  assert.match(page, /setMember\(profile\.member\);[\s\S]*setLoading\(false\);[\s\S]*await orderRequest/);
+  assert.match(page, /activeSection === "overview" \? "\/" : "\/mypage"/);
+  assert.doesNotMatch(shell, /StorefrontHeader/);
   assert.match(page, /deleteConfirmation !== "회원 탈퇴"/);
   assert.match(profileApi, /export async function PATCH/);
   assert.match(profileApi, /export async function DELETE/);
@@ -171,6 +216,43 @@ test("my page provides profile, order, logout, and account deletion flows", asyn
   assert.match(refundForm, /환불 검토 중/);
   assert.match(refundForm, /환불 완료/);
   assert.match(refundForm, /환불 불가/);
+});
+
+test("Kakao-only accounts never expose the internal fallback email in the interface", async () => {
+  const dashboard = await readFile(new URL("app/components/AccountDashboard.tsx", root), "utf8");
+  const pendingApi = await readFile(new URL("app/api/auth/kakao/pending/route.ts", root), "utf8");
+  const kakaoUi = await readFile(new URL("app/components/KakaoAccount.tsx", root), "utf8");
+  assert.match(dashboard, /@daniels-note\.kakao\.local/);
+  assert.match(dashboard, /카카오 계정으로 로그인/);
+  assert.match(dashboard, /카카오가 이메일을 제공하지 않아 계정 종류만 표시합니다/);
+  assert.match(dashboard, /disabled=\{!hasCustomerEmail\}/);
+  assert.match(pendingApi, /emailAvailable: !pending\.email\.endsWith/);
+  assert.match(pendingApi, /const marketingConsent = !pending\.email\.endsWith/);
+  assert.match(kakaoUi, /카카오에서 이메일을 제공하지 않아 이메일 소식 수신 항목은 표시하지 않습니다/);
+});
+
+test("the Korean service name and production security headers are applied consistently", async () => {
+  const files = await Promise.all([
+    readFile(new URL("app/components/PolicyPage.tsx", root), "utf8"),
+    readFile(new URL("app/components/AccountDashboard.tsx", root), "utf8"),
+    readFile(new URL("app/admin/members/page.tsx", root), "utf8"),
+    readFile(new URL("app/admin/reviews/page.tsx", root), "utf8"),
+    readFile(new URL("app/admin/refunds/page.tsx", root), "utf8"),
+    readFile(new URL("app/admin/payments/page.tsx", root), "utf8"),
+  ]);
+  for (const source of files) {
+    assert.doesNotMatch(source, /DANIEL(?:&apos;|')?S NOTE/);
+  }
+  const worker = await readFile(new URL("worker/index.ts", root), "utf8");
+  for (const header of ["Content-Security-Policy", "X-Content-Type-Options", "X-Frame-Options", "Referrer-Policy", "Permissions-Policy"]) {
+    assert.match(worker, new RegExp(header));
+  }
+});
+
+test("mobile account and policy body copy keeps a 15px minimum outside the footer", async () => {
+  const css = await readFile(new URL("app/globals.css", root), "utf8");
+  assert.match(css, /Mobile body copy stays at 15px or larger/);
+  assert.match(css, /\.account-site \.order-meta[\s\S]*\.policy-site \.policy-document li[\s\S]*font-size:15px/);
 });
 
 test("account guide and schema document consent, deletion, and explicit reactivation", async () => {

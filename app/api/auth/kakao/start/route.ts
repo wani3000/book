@@ -43,7 +43,7 @@ export async function GET(request: Request) {
     redirect_uri: kakaoRedirectUri(),
     state,
     nonce,
-    scope: "openid profile_nickname profile_image account_email",
+    scope: "openid profile_nickname profile_image",
     code_challenge: pkceChallenge(verifier),
     code_challenge_method: "S256",
   }).toString();

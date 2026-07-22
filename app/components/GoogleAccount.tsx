@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { FormEvent, useCallback, useEffect, useRef, useState } from "react";
+import { UserCircle } from "@phosphor-icons/react";
 
 type User = { id: string; email: string; name: string; displayName?: string; picture?: string; role?: string };
 type GoogleCredentialResponse = { credential?: string };
@@ -22,7 +23,7 @@ declare global {
 
 const GOOGLE_SCRIPT = "https://accounts.google.com/gsi/client";
 
-export default function GoogleAccount({ mode = "compact" }: { mode?: "compact" | "panel" | "login" }) {
+export default function GoogleAccount({ mode = "compact" }: { mode?: "compact" | "icon" | "panel" | "login" }) {
   const slot = useRef<HTMLDivElement>(null);
   const [user, setUser] = useState<User | null>(null);
   const [clientId, setClientId] = useState("");
@@ -105,7 +106,7 @@ export default function GoogleAccount({ mode = "compact" }: { mode?: "compact" |
   };
 
   useEffect(() => {
-    if (!ready || user || !clientId || !slot.current) return;
+    if (!ready || user || !clientId || !slot.current || mode === "compact" || mode === "icon") return;
     const render = () => {
       if (!window.google || !slot.current) return;
       window.google.accounts.id.initialize({ client_id: clientId, callback: finishGoogleLogin });
@@ -152,11 +153,18 @@ export default function GoogleAccount({ mode = "compact" }: { mode?: "compact" |
     }
   };
 
-  if (!ready) return <span className="google-account-loading">로그인 확인 중</span>;
+  if (!ready) return mode === "icon"
+    ? <span className="header-user-icon is-loading" aria-label="로그인 확인 중"><UserCircle size={27} weight="regular" aria-hidden="true" /></span>
+    : <span className="google-account-loading">로그인 확인 중</span>;
+  if (mode === "icon") return (
+    <Link className="header-user-icon" href="/mypage" aria-label={user ? `${user.displayName ?? user.name}님의 마이페이지로 이동` : "로그인 또는 마이페이지로 이동"}>
+      <UserCircle size={27} weight={user ? "fill" : "regular"} aria-hidden="true" />
+    </Link>
+  );
   if (user) return (
     <div>
       <div className={`google-account-user ${mode}`}>
-        <Link href="/mypage" aria-label="마이페이지로 이동">
+        <Link className="google-account-profile-link" href="/mypage" aria-label={`${user.displayName ?? user.name}님의 마이페이지로 이동`}>
           <span aria-hidden="true">{(user.displayName ?? user.name).slice(0, 1).toUpperCase()}</span>
           <span><b>{user.displayName ?? user.name}</b><small>{mode === "panel" ? user.email : "마이페이지"}</small></span>
         </Link>
@@ -165,6 +173,7 @@ export default function GoogleAccount({ mode = "compact" }: { mode?: "compact" |
       {error && <p className="google-account-error" role="alert">{error}</p>}
     </div>
   );
+  if (mode === "compact") return <Link className="google-account-login-link" href="/mypage">로그인</Link>;
   if (!clientId) return mode === "panel" || mode === "login"
     ? <div className="google-login-unavailable"><b>Google 로그인을 이용할 수 없습니다</b><p>잠시 후 다시 시도해 주세요.</p></div>
     : <Link className="google-account-login-link" href="/mypage">로그인</Link>;

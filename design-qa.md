@@ -11,7 +11,7 @@
 **Full-view comparison evidence**
 
 - The implementation follows the reference's compact white marketplace canvas, slim header, centered search field, small promotional banner, two-row category control grid, five-column product rows, carousel controls, and numbered popularity section.
-- DANIEL'S NOTE content intentionally uses portrait ebook covers instead of the reference's landscape video thumbnails. The visual density, card count, metadata hierarchy, and horizontal browsing behavior are retained.
+- 다니엘의 노트 content intentionally uses portrait ebook covers instead of the reference's landscape video thumbnails. The visual density, card count, metadata hierarchy, and horizontal browsing behavior are retained.
 
 **Focused region comparison evidence**
 
@@ -24,7 +24,7 @@
 
 - Fonts and typography: Geist with Korean system fallbacks produces a comparable neutral commerce UI; weights, title sizes, metadata scale, and wrapping are consistent and readable.
 - Spacing and layout rhythm: header, discovery grid, section gaps, five-column tracks, and mobile horizontal rails preserve the source density without collisions.
-- Colors and tokens: white/gray base, black text, orange active state, and restrained category accents match the reference's marketplace semantics while retaining the DANIEL'S NOTE identity.
+- Colors and tokens: white/gray base, black text, orange active state, and restrained category accents match the reference's marketplace semantics while retaining the 다니엘의 노트 identity.
 - Image quality and asset fidelity: all three real ebook covers are sharp, correctly proportioned, and never stretched; no placeholder imagery is present.
 - Copy and content: every card is grounded in one of the three real books; duplicate placements are explicitly curated workbook or recommendation contexts and link to the correct detail page.
 - Icons: Phosphor icons provide one consistent library with appropriate size, weight, and alignment.
@@ -248,7 +248,7 @@ final result: passed
 
 **Focused region comparison evidence**
 
-- 코드상 상단은 44px 뒤로가기, 중앙 `DANIEL'S NOTE` 워드마크, 균형용 우측 공간으로 구성했다.
+- 코드상 상단은 44px 뒤로가기, 중앙 `다니엘의 노트` 워드마크, 균형용 우측 공간으로 구성했다.
 - Google Identity Services 버튼은 로그인 화면에서 `large`, `continue_with`, 최대 400px로 요청한다.
 - 실제 iframe 렌더링과 한국어 버튼 문구는 브라우저 캡처가 없어 최종 확인하지 못했다.
 
@@ -279,3 +279,55 @@ final result: passed
 - 실제 Google 팝업과 로그인 완료는 외부 인증을 시작하지 않았으며 이번 변경에서 재검증하지 않았다.
 
 final result: blocked
+
+---
+
+## 마이페이지 허브·상세 화면 분리 QA — 2026-07-22
+
+- Source visual truth: `/var/folders/sb/cmz9v7xx5jn3xhtb61xgzx3m0000gn/T/TemporaryItems/NSIRD_screencaptureui_wDoDg6/스크린샷 2026-07-22 오전 10.08.25.png`
+- Implementation screenshots: `/Users/hanwha/Documents/전자책/book/artifacts/mypage-hub-mobile-309.png`, `/Users/hanwha/Documents/전자책/book/artifacts/mypage-library-mobile.png`, `/Users/hanwha/Documents/전자책/book/artifacts/mypage-hub-desktop.png`
+- Combined comparison: `/Users/hanwha/Documents/전자책/book/artifacts/mypage-hub-comparison-final.png`
+- Viewport and normalization: source 618×1600px at approximately 2× mobile density, normalized to 294×761px; implementation captured at 309 CSS px and rendered as 294×986px after the in-app browser scrollbar. Desktop checked at 1440×1000 CSS px.
+- State: Google 로그인 완료, 박철완 계정, 전자책 3권 구매 권한.
+
+**Full-view comparison evidence**
+
+- 마이페이지 기본 화면은 참고 이미지와 동일하게 프로필, 구매·후기 수치, 내 서재 바로가기, 네 개 메뉴까지만 표시한다.
+- 이전의 데스크톱 2열 콘텐츠와 모바일 하단 상세 콘텐츠를 기본 화면에서 제거했다.
+- 모바일 정규화 비교에서 헤더, 프로필 행, 요약 카드, 바로가기 카드, 메뉴 순서와 구분선이 같은 계층으로 정렬된다.
+
+**Focused region comparison evidence**
+
+- `내 서재` 상세는 실제 세 권의 표지·저자·PDF 읽기·책 정보 동작을 제공한다.
+- `주문 내역` 상세는 주문번호, 결제수단, 금액, 열람 여부와 환불 흐름을 유지한다.
+- `프로필 관리` 상세는 표시 이름, 이메일, 수신 설정, 로그인 연결, 로그아웃, 회원 탈퇴를 유지한다.
+- 세 상세 화면 모두 상단에 `마이페이지로 돌아가기` 버튼이 있으며 기본 허브로 복귀한다.
+
+**Required fidelity surfaces**
+
+- Fonts and typography: 기존 Pretendard Regular/Bold 체계와 모바일 최소 15px 본문 규칙을 유지했다.
+- Spacing and layout rhythm: 참고 이미지의 14px 모바일 바깥 여백, 카드 간격, 8px 반경, 64px 메뉴 행을 보존했다. 데스크톱 허브는 560px로 중앙 정렬했다.
+- Colors and visual tokens: 흰 배경, 중립 회색 카드·구분선, 검정 핵심 텍스트와 녹색 구매 완료 상태만 사용했다.
+- Image quality and asset fidelity: 내 서재에는 실제 전자책 표지 파일을 비율 유지·그림자 처리로 표시하며 placeholder나 코드 드로잉을 사용하지 않았다.
+- Copy and content: 참고 이미지의 프로필·활동 요약·메뉴 문구를 유지하고, 상세 화면에서만 주문·계정 정보를 노출한다.
+
+**Findings**
+
+- No actionable P0, P1, or P2 issues remain.
+- P3: 참고 캡처는 `주문 내역` 행이 선택된 회색 상태지만, 새 기본 허브에서는 아직 상세 메뉴를 선택하지 않았으므로 선택 배경을 의도적으로 표시하지 않는다.
+
+**Comparison history**
+
+- 1차: 로컬 이미지 최적화가 Vinext 개발 서버 오버레이를 발생시켰다.
+- 수정: 전자책 표지용 `next/image`를 `unoptimized`로 전환해 실제 정적 자산을 직접 사용했다.
+- 2차: 모바일 허브와 내 서재 상세를 다시 캡처하고 브라우저 콘솔 오류 0건을 확인했다.
+
+**Primary interactions tested**
+
+- `내 서재` 진입 → 세 권 표시 → 뒤로가기.
+- `주문 내역` 진입 → 주문번호와 결제수단 표시 → 뒤로가기.
+- `프로필 관리` 진입 → 계정 양식과 로그아웃 표시.
+- 데스크톱 허브 단일 열 배치와 모바일 가로 넘침 없음 확인.
+- ESLint, 프로덕션 빌드, 자동 테스트 28개 통과.
+
+final result: passed

@@ -5,7 +5,7 @@ const phone = process.env.NEXT_PUBLIC_BUSINESS_PHONE?.trim();
 export default function BusinessFooter() {
   return (
     <footer className="class-footer business-footer">
-      <Link className="class-logo" href="/"><span className="class-logo-mark" aria-hidden="true">D</span><strong>DANIEL&apos;S NOTE</strong></Link>
+      <Link className="class-logo" href="/"><span className="class-logo-mark" aria-hidden="true">D</span><strong>다니엘의 노트</strong></Link>
       <p>실제 경험을 실행 가능한 지식으로 만듭니다.</p>
       <div className="business-footer-links"><Link href="/payment">결제·이용 안내</Link><Link href="/account-guide">회원·구매내역 안내</Link><Link href="/terms">이용약관</Link><Link href="/privacy">개인정보처리방침</Link><Link href="/refund">교환·환불정책</Link></div>
       <address>

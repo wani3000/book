@@ -2,6 +2,8 @@ import { and, desc, eq } from "drizzle-orm";
 import { getDb } from "../../../db";
 import { reviews } from "../../../db/schema";
 import { getAuthenticatedMember } from "@/app/auth/member";
+import { isEbookProduct, isTestPurchaser } from "@/app/library/catalog";
+import { hasPaidOrder } from "@/app/payments/eligibility";
 
 const products = new Set(["codex", "career", "jane"]);
 
@@ -39,7 +41,10 @@ export async function POST(request: Request) {
     const purchaseReference = String(body.purchaseReference ?? "").trim();
     const rating = Number(body.rating);
 
-    if (!products.has(product)) return Response.json({ error: "지원하지 않는 책입니다." }, { status: 400 });
+    if (!products.has(product) || !isEbookProduct(product)) return Response.json({ error: "지원하지 않는 책입니다." }, { status: 400 });
+    if (!isTestPurchaser(member.email) && !await hasPaidOrder(member.id, product)) {
+      return Response.json({ error: "구매한 전자책에만 후기를 작성할 수 있습니다." }, { status: 403 });
+    }
     if (displayName.length < 2 || displayName.length > 30) return Response.json({ error: "표시 이름은 2~30자로 입력해 주세요." }, { status: 400 });
     if (content.length < 20 || content.length > 700) return Response.json({ error: "후기는 20~700자로 입력해 주세요." }, { status: 400 });
     if (purchaseReference.length < 4 || purchaseReference.length > 100) return Response.json({ error: "구매 번호를 확인해 주세요." }, { status: 400 });
