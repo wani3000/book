@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { readFile } from "node:fs/promises";
+import { access, readFile } from "node:fs/promises";
 import test from "node:test";
 
 const root = new URL("../", import.meta.url);
@@ -336,6 +336,9 @@ test("test purchaser receives all three protected PDF entitlements", async () =>
   assert.match(libraryApi, /"Cache-Control": "private, no-store, max-age=0"/);
   assert.doesNotMatch(libraryApi, /NextResponse\.redirect/);
   assert.match(dashboard, /PDF 읽기/);
+  for (const filename of ["codex-7461d974.pdf", "career-4e8b1d67.pdf", "jane-fc5efcfd.pdf"]) {
+    await assert.rejects(access(new URL(`public/library-assets/${filename}`, root)));
+  }
 });
 
 test("admin member management is protected server-side", async () => {
