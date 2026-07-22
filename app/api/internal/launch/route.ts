@@ -26,10 +26,9 @@ export async function GET(request: Request) {
     return NextResponse.json({ objects, tables: schema.results.map((row) => row.name) });
   }
   if (action === "backup") {
-    const tableRows = await env.DB.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' ORDER BY name").all<{ name: string }>();
+    const applicationTables = ["members", "auth_identities", "orders", "payment_attempts", "refund_requests", "reviews", "audit_logs", "request_limits", "notification_outbox"];
     const backup: Record<string, unknown[]> = {};
-    for (const { name } of tableRows.results) {
-      if (!/^[a-zA-Z0-9_]+$/.test(name)) continue;
+    for (const name of applicationTables) {
       const rows = await env.DB.prepare(`SELECT * FROM \`${name}\``).all<Record<string, unknown>>();
       backup[name] = rows.results;
     }
