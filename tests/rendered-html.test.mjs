@@ -29,6 +29,23 @@ test("production metadata never falls back to localhost", async () => {
   assert.doesNotMatch(layout, /const siteUrl = .*localhost/);
 });
 
+test("web typography keeps readable minimums without changing the business footer", async () => {
+  const layout = await readFile(new URL("app/layout.tsx", root), "utf8");
+  const designSystem = await readFile(new URL("app/design-system.css", root), "utf8");
+  const typography = await readFile(new URL("app/typography-system.css", root), "utf8");
+  assert.match(layout, /import "\.\/typography-system\.css"/);
+  assert.match(typography, /--web-type-min: 14px/);
+  assert.match(typography, /--web-type-min-mobile: 15px/);
+  assert.match(typography, /--web-type-body: 16px/);
+  assert.match(designSystem, /--type-button: 13px/);
+  assert.match(designSystem, /--type-button-weight: 400/);
+  assert.match(typography, /font-size: var\(--type-button\) !important/);
+  assert.match(typography, /font-weight: var\(--type-button-weight\) !important/);
+  assert.match(typography, /font-weight: 700/);
+  assert.match(typography, /\.refund-request-form \.refund-confirm[\s\S]*font-weight: 400/);
+  assert.doesNotMatch(typography, /\.business-footer/);
+});
+
 test("storefront reset clears the stale search query from the URL", async () => {
   const source = await readFile(new URL("app/page.tsx", root), "utf8");
   assert.match(source, /url\.searchParams\.delete\("q"\)/);

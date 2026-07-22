@@ -1,0 +1,278 @@
+/*
+ * Daniel's Note web typography policy.
+ * - PDF typography is intentionally out of scope.
+ * - BusinessFooter is intentionally out of scope and keeps its current scale.
+ * - Pretendard Regular 400 / Bold 700 only.
+ * - Desktop and tablet UI text: 14px minimum, body copy: 16px.
+ * - Mobile UI text: 15px minimum, form controls: 16px minimum.
+ * - Buttons are the deliberate exception: 13px Regular at every breakpoint.
+ */
+
+:root {
+  --web-type-min: 14px;
+  --web-type-min-mobile: 15px;
+  --web-type-body: 16px;
+  --web-type-body-line: 1.7;
+}
+
+/* Storefront and shared header — footer selectors are deliberately absent. */
+.class-header :where(.class-search input, .class-account, .google-account-loading, .google-account-user > span:first-child, .google-account-user b, .google-account-user small, .google-account-user button, .google-account-login-link),
+.class-discovery :where(.class-promo-pause, .class-promo small, .class-promo-chip, .class-promo p, .class-promo-copy > span:not(.class-promo-chip)),
+.class-content-section :where(.class-section-title > div, .class-section-title > a, .class-category-grid button, .class-cover-wrap > span, .class-product-copy p, .class-product-copy small, .class-empty p, .class-empty button),
+.class-all-books-section :where(.class-all-books-heading small, .class-all-books-heading p, .class-category-grid button, .class-all-book-tags b, .class-all-book-tags em, .class-all-book-copy > span:not(.class-all-book-tags), .class-all-book-copy > small, .class-all-books-empty),
+.class-start-banner :where(p, a),
+.mobile-book-overlay :where(a, button, small, em) {
+  font-size: var(--web-type-min) !important;
+  line-height: 1.5;
+}
+
+/* Product detail pages: labels stay compact, readable prose stays at Body 1. */
+.class-detail :where(
+  .detail-global-header nav,
+  .detail-search input,
+  .detail-account,
+  .detail-breadcrumb,
+  .detail-card-copy span,
+  .detail-card-copy small,
+  .detail-card-stats span,
+  .detail-category,
+  .detail-creator-link,
+  .detail-creator-link span,
+  .detail-rating,
+  .detail-facts span,
+  .detail-facts strong,
+  .detail-offer-label,
+  .detail-discount,
+  .detail-price > span,
+  .detail-price small,
+  .detail-buy-card li,
+  .detail-buy-note,
+  .detail-tabs a,
+  .detail-section-label,
+  .detail-targets span,
+  .detail-outcome-grid span,
+  .detail-curriculum article span,
+  .detail-creator article small,
+  .detail-creator article li,
+  .detail-final span,
+  .detail-final p,
+  .detail-final strong small,
+  .detail-included li,
+  .detail-buy-button,
+  .purchase-error,
+  .purchase-unavailable > span,
+  .purchase-consent,
+  .review-form label,
+  .review-form select,
+  .privacy-note,
+  .sample-review-notice,
+  .sample-badge,
+  .review-card header span,
+  .review-card footer,
+  .reviews-summary span,
+  .reviews-heading .eyebrow,
+  .review-card > p,
+  .review-card > p b
+) {
+  font-size: var(--web-type-min) !important;
+  line-height: 1.5;
+}
+
+.class-detail :where(
+  .detail-subtitle,
+  .detail-lead,
+  .detail-section-copy,
+  .detail-targets p,
+  .detail-outcome-grid p,
+  .detail-curriculum article p,
+  .detail-creator article p,
+  .detail-faq article p,
+  .review-card blockquote,
+  .review-form textarea
+) {
+  font-size: var(--web-type-body) !important;
+  line-height: var(--web-type-body-line);
+}
+
+/* Login and customer account areas. */
+.account-login-shell :where(p, b, small, a, label, input, [role="alert"]),
+.account-consent-dialog :where(p, small, a, label, input, button, [role="alert"]),
+.account-delete-dialog :where(p, small, a, label, input, button, li, [role="alert"]),
+.mypage-grid :where(p, small, a, label, input, select, textarea, button, dt, dd, em),
+.mypage-page-header button,
+.account-header nav,
+.account-header .class-logo-mark,
+.account-loading {
+  font-size: var(--web-type-min) !important;
+  line-height: 1.6;
+}
+
+.account-login-copy,
+.mypage-welcome span,
+.mypage-clean-heading p,
+.mypage-library-copy p,
+.order-list p,
+.identity-connections-copy,
+.refund-policy-box,
+.refund-request-form textarea {
+  font-size: var(--web-type-body) !important;
+  line-height: var(--web-type-body-line);
+}
+
+.account-login-providers :where(button, a),
+.mypage-grid :where(.mypage-sidebar nav a, .mypage-sidebar nav button, .mypage-admin-link, .mypage-library-actions a, .profile-form button),
+.refund-request-entry button,
+.refund-form-actions button {
+  font-size: 15px !important;
+  font-weight: 700;
+}
+
+.account-site :where(
+  .refund-test-note,
+  .refund-request-entry small,
+  .refund-policy-box b,
+  .refund-policy-box a,
+  .refund-request-form > label,
+  .refund-form-error,
+  .refund-status-card b,
+  .refund-status-card span,
+  .refund-status-card small,
+  .identity-provider > span:nth-child(2) b,
+  .identity-provider > span:nth-child(2) small,
+  .identity-provider > a,
+  .identity-provider > button,
+  .identity-provider > em,
+  .identity-provider > p,
+  .profile-form label,
+  .profile-form label small,
+  .profile-form > p,
+  .mypage-danger p,
+  .mypage-danger button
+) {
+  font-size: var(--web-type-min) !important;
+  line-height: 1.6;
+}
+
+/* Admin tools use the same minimum without changing their large figures or titles. */
+.admin-members :where(p, span, small, a, button, input, select, textarea, th, td, code, blockquote, em, i),
+.admin-state :where(p, a),
+.admin-page-shell :where(p, span, small, a, button, input, select, textarea, th, td, code, blockquote, em, i) {
+  font-size: var(--web-type-min) !important;
+  line-height: 1.55;
+}
+
+/* Checkout, QA access, and policy pages. */
+.checkout-success :where(span, p, a, button),
+.checkout-fail :where(span, p, a, button),
+.qa-login-form :where(p, span, label, input, button, a, [role="alert"]),
+.policy-site :where(.policy-header nav, .policy-eyebrow, .policy-date) {
+  font-size: var(--web-type-min) !important;
+  line-height: 1.6;
+}
+
+.policy-document :where(section p, li) {
+  font-size: var(--web-type-body) !important;
+  line-height: 1.9;
+}
+
+/* The project loads only these two faces; do not request synthetic weights. */
+.qa-login-form > p,
+.qa-login-form button,
+.account-consent-dialog > p,
+.account-consent-actions button,
+.account-delete-dialog > p,
+.account-delete-dialog > div:last-child button,
+.identity-provider-icon {
+  font-weight: 700;
+}
+
+.refund-request-form .refund-confirm {
+  font-weight: 400;
+}
+
+@media (max-width: 680px) {
+  .class-header :where(.class-search input, .class-account, .google-account-loading, .google-account-user b, .google-account-user small, .google-account-user button, .google-account-login-link),
+  .class-discovery :where(.class-promo-pause, .class-promo small, .class-promo-chip, .class-promo p, .class-promo-copy > span:not(.class-promo-chip)),
+  .class-content-section :where(.class-section-title > div, .class-section-title > a, .class-category-grid button, .class-cover-wrap > span, .class-product-copy p, .class-product-copy small, .class-empty p, .class-empty button),
+  .class-all-books-section :where(.class-all-books-heading small, .class-all-books-heading p, .class-category-grid button, .class-all-book-tags b, .class-all-book-tags em, .class-all-book-copy > span:not(.class-all-book-tags), .class-all-book-copy > small, .class-all-books-empty),
+  .class-start-banner :where(p, a),
+  .mobile-book-overlay :where(a, button, small, em),
+  .class-detail :where(
+    .detail-global-header nav, .detail-search input, .detail-account, .detail-breadcrumb,
+    .detail-card-copy span, .detail-card-copy small, .detail-card-stats span, .detail-category,
+    .detail-creator-link, .detail-creator-link span, .detail-rating, .detail-facts span,
+    .detail-facts strong, .detail-offer-label, .detail-discount, .detail-price > span,
+    .detail-price small, .detail-buy-card li, .detail-buy-note, .detail-tabs a,
+    .detail-section-label, .detail-targets span, .detail-outcome-grid span,
+    .detail-curriculum article span, .detail-creator article small, .detail-creator article li,
+    .detail-final span, .detail-final p, .detail-final strong small, .detail-included li,
+    .detail-buy-button, .purchase-error, .purchase-unavailable > span, .purchase-consent,
+    .review-form label, .review-form select, .privacy-note, .sample-review-notice,
+    .sample-badge, .review-card header span, .review-card footer, .reviews-summary span,
+    .reviews-heading .eyebrow, .review-card > p, .review-card > p b
+  ),
+  .account-login-shell :where(p, b, small, a, label, [role="alert"]),
+  .account-consent-dialog :where(p, small, a, label, button, [role="alert"]),
+  .account-delete-dialog :where(p, small, a, label, button, li, [role="alert"]),
+  .mypage-grid :where(p, small, a, label, select, textarea, button, dt, dd, em),
+  .mypage-page-header button,
+  .account-header nav,
+  .account-header .class-logo-mark,
+  .account-loading,
+  .account-site :where(
+    .refund-test-note, .refund-request-entry small, .refund-policy-box b,
+    .refund-policy-box a, .refund-request-form > label, .refund-form-error,
+    .refund-status-card b, .refund-status-card span, .refund-status-card small,
+    .identity-provider > span:nth-child(2) b, .identity-provider > span:nth-child(2) small,
+    .identity-provider > a, .identity-provider > button, .identity-provider > em,
+    .identity-provider > p, .profile-form label, .profile-form label small,
+    .profile-form > p, .mypage-danger p, .mypage-danger button
+  ),
+  .admin-members :where(p, span, small, a, button, input, select, textarea, th, td, code, blockquote, em, i),
+  .admin-state :where(p, a),
+  .admin-page-shell :where(p, span, small, a, button, input, select, textarea, th, td, code, blockquote, em, i),
+  .checkout-success :where(span, p, a, button),
+  .checkout-fail :where(span, p, a, button),
+  .qa-login-form :where(p, span, label, button, a, [role="alert"]),
+  .policy-site :where(.policy-header nav, .policy-eyebrow, .policy-date) {
+    font-size: var(--web-type-min-mobile) !important;
+  }
+
+  .account-login-shell input,
+  .account-consent-dialog input,
+  .account-delete-dialog input,
+  .mypage-grid :where(input, select, textarea),
+  .admin-members :where(input, select, textarea),
+  .admin-page-shell :where(input, select, textarea),
+  .qa-login-form input,
+  .class-detail :where(input, select, textarea) {
+    font-size: var(--web-type-body) !important;
+  }
+}
+
+/*
+ * Unified button label. Keep existing dimensions and hit areas; only the label
+ * typography is normalized. Google Identity Services owns its iframe styling.
+ */
+:where(.class-market, .class-detail, .account-site, .admin-site, .admin-page-shell, .qa-login-page, .checkout-success, .checkout-fail, .policy-site) button,
+:where(
+  .button,
+  .nav-cta,
+  .store-button,
+  .store-nav-cta,
+  .kakao-login-button,
+  .detail-buy-button,
+  .class-start-banner > a,
+  .mypage-welcome > a,
+  .mypage-library-actions > a,
+  .mypage-manage-link,
+  .identity-provider > a,
+  .admin-links > a,
+  .admin-state > a,
+  .checkout-success a,
+  .checkout-fail a
+) {
+  font-size: var(--type-button) !important;
+  font-weight: var(--type-button-weight) !important;
+  line-height: var(--type-button-line) !important;
+}

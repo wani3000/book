@@ -3,6 +3,7 @@ import "pretendard/dist/web/static/Pretendard-Regular.css";
 import "pretendard/dist/web/static/Pretendard-Bold.css";
 import "./globals.css";
 import "./design-system.css";
+import "./typography-system.css";
 
 const productionSiteUrl = "https://codex-solo-builder-book.wani3000.chatgpt.site";
 const configuredSiteUrl = process.env.NEXT_PUBLIC_SITE_URL?.trim();

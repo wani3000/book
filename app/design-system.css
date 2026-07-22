@@ -10,6 +10,11 @@
   --font-regular: 400;
   --font-bold: 700;
 
+  /* Controls are a deliberate exception to the 14px content minimum. */
+  --type-button: 13px;
+  --type-button-line: 1.5;
+  --type-button-weight: 400;
+
   --type-display-1: 56px;
   --type-display-1-line: 1.286;
   --type-display-1-track: -0.0319em;
@@ -47,14 +52,14 @@
   --type-label-1: 14px;
   --type-label-1-line: 1.429;
   --type-label-1-track: 0.0145em;
-  --type-label-2: 13px;
-  --type-label-2-line: 1.385;
+  --type-label-2: 14px;
+  --type-label-2-line: 1.5;
   --type-label-2-track: 0.0194em;
-  --type-caption-1: 12px;
-  --type-caption-1-line: 1.334;
+  --type-caption-1: 14px;
+  --type-caption-1-line: 1.5;
   --type-caption-1-track: 0.0252em;
-  --type-caption-2: 11px;
-  --type-caption-2-line: 1.273;
+  --type-caption-2: 14px;
+  --type-caption-2-line: 1.5;
   --type-caption-2-track: 0.0311em;
 
   /* Semantic color */
