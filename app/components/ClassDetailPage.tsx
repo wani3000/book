@@ -55,12 +55,13 @@ function BuyCard({ book, compact = false }: { book: DetailBook; compact?: boolea
 }
 
 export default function ClassDetailPage({ book }: { book: DetailBook }) {
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") || "https://danielsnote.com";
   const structuredData = {
     "@context": "https://schema.org",
     "@graph": [
       { "@type": "Book", name: book.title, author: { "@type": "Person", name: book.creator }, bookFormat: "https://schema.org/EBook", inLanguage: "ko-KR", numberOfPages: Number.parseInt(book.pages), image: book.cover },
-      { "@type": "Product", name: book.title, category: book.category, image: book.cover, description: book.subtitle, brand: { "@type": "Brand", name: "다니엘의 노트" }, offers: { "@type": "Offer", priceCurrency: "KRW", price: "19000", availability: "https://schema.org/PreOrder", url: `https://codex-solo-builder-book.wani3000.chatgpt.site/${book.product}` } },
-      { "@type": "BreadcrumbList", itemListElement: [{ "@type": "ListItem", position: 1, name: "홈", item: "https://codex-solo-builder-book.wani3000.chatgpt.site/" }, { "@type": "ListItem", position: 2, name: book.category }, { "@type": "ListItem", position: 3, name: book.title }] },
+      { "@type": "Product", name: book.title, category: book.category, image: book.cover, description: book.subtitle, brand: { "@type": "Brand", name: "다니엘의 노트" }, offers: { "@type": "Offer", priceCurrency: "KRW", price: "19000", availability: "https://schema.org/PreOrder", url: `${siteUrl}/${book.product}` } },
+      { "@type": "BreadcrumbList", itemListElement: [{ "@type": "ListItem", position: 1, name: "홈", item: `${siteUrl}/` }, { "@type": "ListItem", position: 2, name: book.category }, { "@type": "ListItem", position: 3, name: book.title, item: `${siteUrl}/${book.product}` }] },
     ],
   };
   return (

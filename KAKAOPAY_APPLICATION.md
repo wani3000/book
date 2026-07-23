@@ -15,7 +15,7 @@
 - 통신판매업신고번호: 제 2020-서울구로-0138호
 - 사업장 소재지: 서울특별시 구로구 고척로 49
 - 전자우편: florencelab@naver.com
-- 판매 사이트: https://codex-solo-builder-book.wani3000.chatgpt.site
+- 판매 사이트: https://danielsnote.com
 - 판매 상품: PDF 전자책 3종, 각 19,000원
 - 사업자등록증 원본: Google Drive `사업자등록증_플로렌스랩.pdf`
 
@@ -59,7 +59,7 @@ Sites 런타임 환경변수에만 다음 값을 저장한다.
 
 ## 등록할 도메인과 리다이렉트 경로
 
-- 서비스 도메인: `https://codex-solo-builder-book.wani3000.chatgpt.site`
+- 서비스 도메인: `https://danielsnote.com`
 - 승인: `/api/kakaopay/approve`
 - 사용자 취소: `/api/kakaopay/cancel`
 - 결제 실패: `/api/kakaopay/fail`

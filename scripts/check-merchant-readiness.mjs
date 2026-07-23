@@ -32,7 +32,7 @@ const payment = readFileSync(resolve(root, "app/payment/page.tsx"), "utf8");
 const naver = readFileSync(resolve(root, "app/naverpay/server.ts"), "utf8");
 
 const phone = process.env.NEXT_PUBLIC_BUSINESS_PHONE?.trim() ?? "";
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL?.trim() || "https://codex-solo-builder-book.wani3000.chatgpt.site";
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL?.trim() || "https://danielsnote.com";
 
 check("공개 HTTPS 판매 주소", /^https:\/\//.test(siteUrl), "NEXT_PUBLIC_SITE_URL에 실제 심사 도메인을 입력하세요.");
 check("고객센터 전화번호", /^0\d{1,2}-\d{3,4}-\d{4}$/.test(phone), "NEXT_PUBLIC_BUSINESS_PHONE에 하이픈을 포함한 공개 전화번호를 입력하세요.");

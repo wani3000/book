@@ -5,7 +5,7 @@ import "./globals.css";
 import "./design-system.css";
 import "./typography-system.css";
 
-const productionSiteUrl = "https://codex-solo-builder-book.wani3000.chatgpt.site";
+const productionSiteUrl = "https://danielsnote.com";
 const configuredSiteUrl = process.env.NEXT_PUBLIC_SITE_URL?.trim();
 const siteUrl = configuredSiteUrl?.startsWith("https://") ? configuredSiteUrl : productionSiteUrl;
 
@@ -19,7 +19,7 @@ export const metadata: Metadata = {
   keywords: ["Codex 사용법", "비개발자 코딩", "UI UX 디자이너", "승무원 이직", "서비스 운영", "커리어 전환", "전자책"],
   authors: [{ name: "필립" }],
   creator: "필립",
-  publisher: "필립",
+  publisher: "다니엘의 노트",
   robots: { index: true, follow: true },
   alternates: { canonical: "/" },
   openGraph: {

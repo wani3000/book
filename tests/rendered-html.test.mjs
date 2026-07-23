@@ -25,7 +25,7 @@ test("mobile menu uses the three storefront categories", async () => {
 
 test("production metadata never falls back to localhost", async () => {
   const layout = await readFile(new URL("app/layout.tsx", root), "utf8");
-  assert.match(layout, /https:\/\/codex-solo-builder-book\.wani3000\.chatgpt\.site/);
+  assert.match(layout, /https:\/\/danielsnote\.com/);
   assert.doesNotMatch(layout, /const siteUrl = .*localhost/);
 });
 

@@ -2,7 +2,7 @@
 
 경험 기반 전자책 3권을 판매하는 공개 웹사이트다. 클래스101의 마켓과 상품 상세 정보 구조를 참고했으며, 공통 서비스명은 `다니엘의 노트`를 사용한다.
 
-공개 사이트: <https://codex-solo-builder-book.wani3000.chatgpt.site>
+공개 사이트: <https://danielsnote.com>
 
 전체 프로젝트 상태, 배포 이력, 미완료 작업과 콘텐츠 주의사항은 [`HANDOFF.md`](HANDOFF.md)를 먼저 읽는다.
 

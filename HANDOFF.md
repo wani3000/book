@@ -64,7 +64,7 @@
 
 ### 현재 중요한 운영 메모
 
-- 공개 사이트: <https://codex-solo-builder-book.wani3000.chatgpt.site>
+- 공개 사이트: <https://danielsnote.com>
 - Google OAuth 운영 클라이언트에는 공개 주소와 로컬 개발 주소 `http://localhost:3001`이 승인된 자바스크립트 출처로 등록돼 있어야 한다.
 - 로그아웃 상태의 `/mypage`는 감성 문구와 큰 Google 버튼을 사용한 전용 로그인 화면으로 개편했다. 로컬 인앱 브라우저 연결 실패로 390×844 시각 비교는 아직 남아 있으며 `design-qa.md`의 최신 로그인 QA를 따른다.
 - 카카오 로그인 도입 판단과 안전한 계정 연결 구조는 `KAKAO_LOGIN_REVIEW.md`에 정리했다. 기존 회원의 구매 권한이 갈라질 수 있으므로 `auth_identities` 마이그레이션 없이 카카오 버튼부터 공개하지 않는다.
@@ -96,7 +96,7 @@
 - GitHub: `wani3000/book`, `agent/publish-final-ebooks` 브랜치, Draft PR #3
 - Sites 공개 버전: 35
 - 배포 상태: `succeeded`
-- 공개 URL: <https://codex-solo-builder-book.wani3000.chatgpt.site>
+- 공개 URL: <https://danielsnote.com>
 - 결제 상태: 코드 준비 완료, 카카오페이·네이버페이 가맹 승인과 운영 키가 없어 실제 결제는 비활성
 
 ## 2. 현재 완료 상태
@@ -144,10 +144,10 @@
 
 공개 사이트:
 
-- 메인: <https://codex-solo-builder-book.wani3000.chatgpt.site>
-- 1권: <https://codex-solo-builder-book.wani3000.chatgpt.site/codex>
-- 2권: <https://codex-solo-builder-book.wani3000.chatgpt.site/career>
-- 3권: <https://codex-solo-builder-book.wani3000.chatgpt.site/jane>
+- 메인: <https://danielsnote.com>
+- 1권: <https://danielsnote.com/codex>
+- 2권: <https://danielsnote.com/career>
+- 3권: <https://danielsnote.com/jane>
 
 최종 출시 기준 커밋은 `main`의 최신 커밋이다. 이후 작업은 반드시 `git pull --ff-only origin main`으로 최신 커밋을 받은 뒤 시작한다.
 
@@ -419,5 +419,5 @@ Sites 프로젝트 ID는 `website/.openai/hosting.json`에 저장돼 있다. 현
 - 최초 관리자로 사용할 이메일을 `ADMIN_EMAILS`에 쉼표로 구분해 설정한다. 관리자 API는 세션과 서버 환경변수를 함께 확인한다.
 - 테스트 구매 계정은 `TEST_PURCHASER_EMAILS`에 쉼표로 구분해 설정한다. 현재 기본값은 `oxaz1234@gmail.com`이며 이 계정에는 세 권 전체가 표시된다.
 - Google Cloud OAuth 웹 클라이언트의 클라이언트 ID와 클라이언트 보안 비밀번호가 모두 필요하다.
-- Google Cloud OAuth 클라이언트의 승인된 리디렉션 URI에 `https://codex-solo-builder-book.wani3000.chatgpt.site/api/auth/google/callback`을 정확히 등록해야 한다.
+- Google Cloud OAuth 클라이언트의 승인된 리디렉션 URI에 `https://danielsnote.com/api/auth/google/callback`을 정확히 등록해야 한다.
 - 운영 환경 변수를 설정한 뒤 새 버전을 배포하고 신규 가입 동의, 기존 회원 로그인, 재가입, 계정 연결, 새로고침 후 세션 유지, 로그아웃을 검증한다.
