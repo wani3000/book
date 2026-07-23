@@ -16,11 +16,12 @@
 - Resend 전송은 동일 idempotency key로 최대 3회 자동 재시도하며, 실패·대기 메일은 관리자 화면에서 최대 9회까지 다시 처리할 수 있다.
 - 마이페이지에서 별도 알림 이메일을 등록할 수 있고 30분 유효 확인 링크를 통과한 주소만 사용한다. 로그인 이메일은 소셜 로그인 식별을 위해 직접 변경하지 않는다.
 - `CUSTOMER_SUPPORT_EMAIL`은 자동 메일의 Reply-To 주소다. 미설정 시 `florencelab@naver.com`을 사용한다.
-- 이 이메일 변경은 아직 공개 사이트에 배포하지 않았다. 배포 전에 운영 D1 백업 후 migration `0009`를 적용하고 `/api/health`의 schema `0009`를 확인해야 한다.
+- 이메일 변경은 Sites 버전 44로 공개 배포했다. 운영 `/api/health`의 database `ok`, schema `0009`, notifications `configured`와 관리자 미리보기 메일 `sent`를 확인했다.
 
 ### 출시 전 P1 정리
 
 - 통신판매업 신고번호는 `제2026-서울구로-1222호`로 확정했으며 공통 푸터, 이용약관, PG 심사 문서와 자동 점검에 동일하게 반영했다.
+- Google Search Console에 `danielsnote.com` 도메인 속성을 DNS로 인증하고 `/sitemap.xml`을 제출했다. 네이버 서치어드바이저 소유확인용 메타 태그도 루트 메타데이터에 반영했다.
 - 공개 UI의 서비스명은 정책·관리자·마이페이지까지 `다니엘의 노트`로 통일하고 `DANIEL'S NOTE` 표기를 제거했다.
 - 이메일 권한이 없는 카카오 전용 회원은 내부 식별용 `@daniels-note.kakao.local` 주소가 화면에 노출되지 않는다. 프로필에는 `카카오 계정으로 로그인`으로 표시하며 이메일 마케팅 동의도 저장하지 않는다.
 - 모바일 마이페이지 주문·환불·계정 연결과 정책 본문은 푸터를 제외하고 15px 이상이 되도록 보정했다.
@@ -31,9 +32,9 @@
 - Worker에 HSTS, CSP, Origin 검증, 민감 API 분당 속도 제한을 추가했다. 본문 바로가기, 모바일 메뉴 포커스 트랩·배경 inert·포커스 복귀, 5초 배너 일시정지와 reduced-motion 중단도 반영했다.
 - `/api/health`, 통합 운영 현황 `/admin/operations`, 주문·결제·환불·후기·감사 로그 CSV, 운영 변경 감사 로그, 거래 알림 outbox와 운영 런북을 추가했다.
 - 상품 상세에 Book·Product·Offer·Breadcrumb 구조화 데이터를 추가했다.
-- migration `0008_prelaunch_p1.sql`은 후기-주문 연결, 감사 로그, 요청 제한, 알림 outbox를 생성한다. 다음 배포 아카이브에 반드시 포함한다.
+- migration `0008_prelaunch_p1.sql`은 후기-주문 연결, 감사 로그, 요청 제한, 알림 outbox를 생성하며 운영에 적용됐다.
 - 메일 발송은 `RESEND_API_KEY`, `TRANSACTIONAL_EMAIL_FROM`이 설정돼야 실제 전송된다. 없으면 outbox에 `pending`으로 보관된다.
-- P1 변경과 `danielsnote.com` 전환은 공개 사이트에 배포되었다. 이메일 migration `0009`는 아직 배포하지 않았으므로 다음 배포 직후 `/api/health`, Google·카카오 로그인, 마이페이지와 메일 발송을 다시 확인해야 한다.
+- P1 변경, `danielsnote.com` 전환, 이메일 migration `0009`는 공개 사이트에 배포되었다. 운영 `/api/health`에서 schema `0009`와 알림 설정을 확인했고 실제 관리자 미리보기 메일 전송도 성공했다.
 
 ### QA 전용 관리자 로그인
 
@@ -183,7 +184,7 @@
 
 ### P0 — 네이버페이 결제형 가맹 신청 제출과 인증값 발급이 필요함
 
-네이버페이센터의 가맹점 가입하기에서 회원가입 10% 단계까지 진입했다. 현재 네이버 아이디 로그인 화면에서 대기 중이다. 사용자가 네이버 로그인과 본인 인증을 완료하면 결제형·자체 개발 독립몰·단건결제 유형으로 신청서를 이어서 작성한다.
+네이버 로그인과 약관 동의, 결제형 가맹점 선택, 사업자 정보·대표자 정보·공개 사업장 주소 입력까지 완료해 신청서 47.5% 단계에 도달했다. 매출 요건은 사실대로 선택했고, 조건 확인 없이 신청을 이어가는 공식 경로를 사용했다. 현재 담당자 이름·휴대전화 번호·SMS 인증과 대표자 권한 동의가 필요하다. 공개 고객센터로 사용할 실제 전화번호를 사용자에게 확인한 뒤 인증을 이어간다.
 
 상세 체크리스트는 `NAVERPAY_APPLICATION.md`에 정리했다. 승인 후 Sites 런타임에 `NEXT_PUBLIC_NAVERPAY_ENABLED`, `NAVERPAY_MODE`, `NAVERPAY_PARTNER_ID`, `NAVERPAY_CLIENT_ID`, `NAVERPAY_CLIENT_SECRET`과 필요한 경우 `NAVERPAY_CHAIN_ID`를 연결한다.
 
@@ -330,7 +331,7 @@ git status --short
 
 Sites 프로젝트 ID는 `website/.openai/hosting.json`에 저장돼 있다. 현재 사이트 접근 모드는 `public`이다.
 
-현재 프로젝트 ID는 `appgprj_6a5c35c6dcf881919ab2bf0ecbb09e52`다. 2026-07-22 공개 버전은 35이며 환경변수 revision은 3이다. 배포 기능 커밋은 `56714943b0e4ea7998f368c41c6306fa758619bc`다. 현재 Sites 환경에는 Google 로그인·관리자·테스트 구매자·실제 사이트 URL만 설정돼 있고, 결제 운영 키와 `NEXT_PUBLIC_BUSINESS_PHONE`은 아직 없다. QA 로그인 운영 플래그는 켜지 않았다. 코드에서는 잘못된 localhost 환경값이 있어도 운영 HTTPS 주소로 메타데이터를 생성한다.
+현재 프로젝트 ID는 `appgprj_6a5c35c6dcf881919ab2bf0ecbb09e52`다. 2026-07-23 공개 버전은 44이며 환경변수 revision은 11이다. 배포 기능 커밋은 `332e3fd33f3f2d7ae0f66b4d1516d71a2728c4fd`다. 현재 Sites 환경에는 Google 로그인·관리자·테스트 구매자·실제 사이트 URL·Resend 발송 설정과 고객지원 이메일이 설정돼 있다. 결제 운영 키와 `NEXT_PUBLIC_BUSINESS_PHONE`은 아직 없다. QA 로그인 운영 플래그는 켜지 않았다. 코드에서는 잘못된 localhost 환경값이 있어도 운영 HTTPS 주소로 메타데이터를 생성한다.
 
 사이트 변경 후 표준 순서:
 

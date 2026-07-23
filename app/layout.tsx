@@ -38,6 +38,11 @@ export const metadata: Metadata = {
     images: ["/og-collection.png"],
   },
   icons: { icon: "/favicon.svg", shortcut: "/favicon.svg" },
+  verification: {
+    other: {
+      "naver-site-verification": "10986c83c4876b995ad8e090fb27231a711efabe",
+    },
+  },
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
