@@ -17,10 +17,15 @@ test("collection home connects all three ebook pages", async () => {
 
 test("mobile menu uses the three storefront categories", async () => {
   const menu = await readFile(new URL("app/components/MobileBookMenu.tsx", root), "utf8");
+  const header = await readFile(new URL("app/components/StorefrontHeader.tsx", root), "utf8");
+  const styles = await readFile(new URL("app/globals.css", root), "utf8");
   assert.match(menu, /label: "전체"/);
   assert.match(menu, /label: "커리어"/);
   assert.match(menu, /label: "개발 · 생산성"/);
   assert.doesNotMatch(menu, /menuBooks|전체 전자책 보기/);
+  assert.match(header, /<MobileBookMenu \/>/);
+  assert.doesNotMatch(header, />전체 전자책</);
+  assert.match(styles, /\.mobile-book-menu \{ display:block/);
 });
 
 test("production metadata never falls back to localhost", async () => {
@@ -82,6 +87,14 @@ test("storefront reset clears the stale search query from the URL", async () => 
 test("sitemap does not claim every page changed on every request", async () => {
   const source = await readFile(new URL("app/sitemap.xml/route.ts", root), "utf8");
   assert.doesNotMatch(source, /new Date|<lastmod>/);
+});
+
+test("every public sitemap page declares its own canonical URL", async () => {
+  const routes = ["payment", "account-guide", "terms", "privacy", "refund"];
+  for (const route of routes) {
+    const source = await readFile(new URL(`app/${route}/page.tsx`, root), "utf8");
+    assert.match(source, new RegExp(`alternates: \\{ canonical: "/${route}" \\}`));
+  }
 });
 
 test("shared detail page includes commerce and verified buyer reviews", async () => {

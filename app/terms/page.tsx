@@ -1,7 +1,11 @@
 import type { Metadata } from "next";
 import PolicyPage from "@/app/components/PolicyPage";
 
-export const metadata: Metadata = { title: "이용약관", description: "다니엘의 노트 전자책 서비스 이용약관" };
+export const metadata: Metadata = {
+  title: "이용약관",
+  description: "다니엘의 노트 전자책 서비스 이용약관",
+  alternates: { canonical: "/terms" },
+};
 
 const phone = process.env.NEXT_PUBLIC_BUSINESS_PHONE?.trim();
 

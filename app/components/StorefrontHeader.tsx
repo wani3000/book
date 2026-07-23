@@ -33,7 +33,6 @@ export default function StorefrontHeader({ query, onQueryChange }: StorefrontHea
           <button type="submit" aria-label="검색"><MagnifyingGlass size={22} weight="bold" aria-hidden="true" /></button>
         </form>
         <div className="class-account">
-          <Link href="/#books">전체 전자책</Link>
           <GoogleAccount mode="icon" />
         </div>
       </div>

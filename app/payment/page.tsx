@@ -5,6 +5,7 @@ import PolicyPage from "@/app/components/PolicyPage";
 export const metadata: Metadata = {
   title: "결제·이용 안내",
   description: "다니엘의 노트 전자책의 결제수단, 제공 시점, 구매 확인 및 고객지원 안내",
+  alternates: { canonical: "/payment" },
 };
 
 const phone = process.env.NEXT_PUBLIC_BUSINESS_PHONE?.trim();

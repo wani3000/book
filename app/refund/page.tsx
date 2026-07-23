@@ -1,7 +1,11 @@
 import type { Metadata } from "next";
 import PolicyPage from "@/app/components/PolicyPage";
 
-export const metadata: Metadata = { title: "교환·환불정책", description: "다니엘의 노트 디지털 전자책의 청약철회 및 환불 기준" };
+export const metadata: Metadata = {
+  title: "교환·환불정책",
+  description: "다니엘의 노트 디지털 전자책의 청약철회 및 환불 기준",
+  alternates: { canonical: "/refund" },
+};
 
 export default function RefundPage() {
   return <PolicyPage eyebrow="REFUND POLICY" title="교환·환불정책">

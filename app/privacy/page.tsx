@@ -1,7 +1,11 @@
 import type { Metadata } from "next";
 import PolicyPage from "@/app/components/PolicyPage";
 
-export const metadata: Metadata = { title: "개인정보처리방침", description: "다니엘의 노트 개인정보 수집·이용 및 보호 안내" };
+export const metadata: Metadata = {
+  title: "개인정보처리방침",
+  description: "다니엘의 노트 개인정보 수집·이용 및 보호 안내",
+  alternates: { canonical: "/privacy" },
+};
 
 export default function PrivacyPage() {
   return <PolicyPage eyebrow="PRIVACY POLICY" title="개인정보처리방침">

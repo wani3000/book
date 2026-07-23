@@ -2,7 +2,11 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import PolicyPage from "@/app/components/PolicyPage";
 
-export const metadata: Metadata = { title: "회원·구매내역 안내", description: "다니엘의 노트 회원가입, 구매내역, 전자책 열람, 탈퇴와 재가입 안내" };
+export const metadata: Metadata = {
+  title: "회원·구매내역 안내",
+  description: "다니엘의 노트 회원가입, 구매내역, 전자책 열람, 탈퇴와 재가입 안내",
+  alternates: { canonical: "/account-guide" },
+};
 
 export default function AccountGuidePage() {
   return <PolicyPage eyebrow="ACCOUNT GUIDE" title="회원·구매내역 안내">

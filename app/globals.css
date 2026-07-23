@@ -279,8 +279,19 @@ footer { padding-block: 36px; background: #0b1429; color: #8894a8; }
 .class-market button,.class-market input { font:inherit; }.class-market button { color:inherit; }.class-market a:focus-visible,.class-market button:focus-visible,.class-market input:focus-visible { outline:3px solid rgba(255,92,53,.3); outline-offset:2px; }
 .class-header { position:sticky; top:0; z-index:50; border-bottom:1px solid var(--cm-line,#e7e7e9); background:rgba(255,255,255,.96); backdrop-filter:blur(12px); }
 .class-header-main { width:min(var(--site-content-width),calc(100% - 48px)); height:72px; display:grid; grid-template-columns:auto minmax(280px,560px) 1fr; align-items:center; gap:35px; margin:auto; }
-.class-brand-cluster { display:contents; }
-.mobile-book-menu { display:none; }
+.class-brand-cluster { min-width:0; display:flex; align-items:center; gap:7px; }
+.mobile-book-menu { display:block; flex:0 0 auto; }
+.mobile-menu-trigger { width:38px; height:38px; display:grid !important; place-items:center; padding:0 !important; border:0 !important; border-radius:7px; color:#171719; background:#f3f3f4 !important; cursor:pointer; }
+.mobile-book-overlay { position:fixed; inset:0; z-index:1000; width:100vw; height:100dvh; overflow-x:hidden; overflow-y:auto; color:#171719; background:rgba(15,15,17,.48); isolation:isolate; }
+.mobile-book-drawer { width:min(420px,100%); min-height:100dvh; display:flex; flex-direction:column; padding:0 24px 32px; color:#171719; background:#fff; box-shadow:24px 0 70px rgba(0,0,0,.18); }
+.mobile-drawer-head { min-height:72px; display:flex; align-items:center; background:#fff; }
+.mobile-drawer-head>button { width:38px; height:38px; display:grid !important; place-items:center; padding:0 !important; border:0 !important; border-radius:7px; color:#171719 !important; background:#f3f3f4 !important; cursor:pointer; }
+.mobile-category-menu { display:grid; margin-top:12px; background:#fff; }
+.mobile-category-menu>a { min-height:78px; display:grid; grid-template-columns:44px 1fr 20px; align-items:center; gap:14px; border-bottom:1px solid #ededf0; }
+.mobile-category-menu>a:first-child { border-top:1px solid #ededf0; }
+.mobile-category-icon { width:40px; height:40px; display:grid; place-items:center; border-radius:9px; color:#171719; background:#f3f3f4; }
+.mobile-category-menu strong { font-size:17px; letter-spacing:-.025em; }
+.mobile-category-menu>a>svg { color:#9999a0; }
 .class-logo { display:flex; align-items:center; gap:9px; white-space:nowrap; }.class-logo strong { font-size:17px; letter-spacing:-.04em; }.class-logo svg { color:var(--cm-ink,#171719); }
 .class-search { height:44px; display:flex; align-items:center; gap:12px; padding:0 15px; border-radius:8px; background:#f4f4f5; }.class-search input { min-width:0; flex:1; border:0; outline:0; color:#29292c; background:transparent; font-size:13px; }.class-search input::placeholder { color:#9999a0; }.class-search button { flex:0 0 auto; display:grid; place-items:center; padding:3px; border:0; color:inherit; background:transparent; cursor:pointer; }.class-search svg { flex:0 0 auto; }
 .class-account { justify-self:end; display:flex; align-items:center; gap:20px; white-space:nowrap; font-size:13px; font-weight:700; }
@@ -715,9 +726,6 @@ button:disabled { cursor: not-allowed; opacity: .58; transform: none !important;
   .class-account .google-account-user.compact>a>span:nth-child(2) { display:block; max-width:108px; }
   .class-account .google-account-user.compact b { display:block; overflow:hidden; font-size:15px; text-overflow:ellipsis; }
   .detail-global-header > div { gap: 10px; }
-  .class-brand-cluster { min-width:0; display:flex; align-items:center; gap:7px; }
-  .mobile-book-menu { display:block; flex:0 0 auto; }
-  .mobile-menu-trigger { width:38px; height:38px; display:grid !important; place-items:center; padding:0 !important; border:0 !important; border-radius:7px; color:#171719; background:#f3f3f4 !important; cursor:pointer; }
   .mobile-book-overlay { position:fixed; inset:0; z-index:1000; width:100vw; height:100dvh; overflow-x:hidden; overflow-y:auto; color:#171719; background:#fff; isolation:isolate; }
   .mobile-book-drawer { width:100%; min-height:100dvh; display:flex; flex-direction:column; padding:0 max(14px,env(safe-area-inset-right)) max(24px,env(safe-area-inset-bottom)) max(14px,env(safe-area-inset-left)); color:#171719; background:#fff; }
   .mobile-drawer-head { min-height:calc(64px + env(safe-area-inset-top)); display:flex; align-items:center; padding-top:env(safe-area-inset-top); background:#fff; }
