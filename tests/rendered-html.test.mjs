@@ -405,6 +405,9 @@ test("merchant review pages disclose seller, privacy, and refund rules", async (
   assert.match(footer, /서울특별시 구로구 고척로 49/);
   assert.doesNotMatch(footer, /고척로 49,/);
   assert.doesNotMatch(terms, /고척로 49,/);
+  const publicSellerCopy = [footer, terms, privacy, refund, payment].join("\n");
+  assert.doesNotMatch(publicSellerCopy, /\d+\s*동\s*\d+\s*호/);
+  assert.doesNotMatch(publicSellerCopy, /\b\d{3}\s*-\s*\d{3}\b/);
   assert.match(terms, /이용약관/);
   assert.match(privacy, /개인정보처리방침/);
   assert.match(privacy, /개인정보의 국외 이전/);
