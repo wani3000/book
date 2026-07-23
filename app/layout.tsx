@@ -4,6 +4,7 @@ import "pretendard/dist/web/static/Pretendard-Bold.css";
 import "./globals.css";
 import "./design-system.css";
 import "./typography-system.css";
+import GoogleAnalytics from "./components/GoogleAnalytics";
 
 const productionSiteUrl = "https://danielsnote.com";
 const configuredSiteUrl = process.env.NEXT_PUBLIC_SITE_URL?.trim();
@@ -46,7 +47,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
       <head>
         <meta name="naver-site-verification" content="10986c83c4876b995ad8e090fb27231a711efabe" />
       </head>
-      <body><a className="skip-link" href="#main-content">본문 바로가기</a><div id="main-content" tabIndex={-1}>{children}</div></body>
+      <body><a className="skip-link" href="#main-content">본문 바로가기</a><div id="main-content" tabIndex={-1}>{children}</div><GoogleAnalytics /></body>
     </html>
   );
 }
