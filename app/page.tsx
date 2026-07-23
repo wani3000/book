@@ -132,7 +132,6 @@ export default function BookstoreHome() {
         <div className="class-promo-wrap"><Link className={`class-promo class-promo-${promoBook.accent}`} href={promoBook.href} aria-label={`${promoBook.title} 자세히 보기`}>
           <div key={`copy-${promoBook.id}`} className="class-promo-copy">
             <small>이번 주 추천</small>
-            <span className="class-promo-chip">실무에 바로 쓰는</span>
             <h1>{promoBook.title}</h1>
             <p>{promoBook.subtitle}</p>
             <span>자세히 보기 <ArrowRight size={15} weight="bold" /></span>

@@ -18,7 +18,7 @@
 
 /* Storefront and shared header — footer selectors are deliberately absent. */
 .class-header :where(.class-search input, .class-account, .google-account-loading, .google-account-user > span:first-child, .google-account-user b, .google-account-user small, .google-account-user button, .google-account-login-link),
-.class-discovery :where(.class-promo-pause, .class-promo small, .class-promo-chip, .class-promo p, .class-promo-copy > span:not(.class-promo-chip)),
+.class-discovery :where(.class-promo-pause, .class-promo small, .class-promo p, .class-promo-copy > span),
 .class-content-section :where(.class-section-title > div, .class-section-title > a, .class-category-grid button, .class-cover-wrap > span, .class-product-copy p, .class-product-copy small, .class-empty p, .class-empty button),
 .class-all-books-section :where(.class-all-books-heading small, .class-all-books-heading p, .class-category-grid button, .class-all-book-tags b, .class-all-book-tags em, .class-all-book-copy > span:not(.class-all-book-tags), .class-all-book-copy > small, .class-all-books-empty),
 .class-start-banner :where(p, a),
@@ -61,7 +61,6 @@
   .detail-included li,
   .detail-buy-button,
   .purchase-error,
-  .purchase-unavailable > span,
   .purchase-consent,
   .review-form label,
   .review-form select,
@@ -108,7 +107,6 @@
   line-height: 1.6;
 }
 
-.account-login-copy,
 .mypage-welcome span,
 .mypage-clean-heading p,
 .mypage-library-copy p,
@@ -193,7 +191,7 @@
 
 @media (max-width: 680px) {
   .class-header :where(.class-search input, .class-account, .google-account-loading, .google-account-user b, .google-account-user small, .google-account-user button, .google-account-login-link),
-  .class-discovery :where(.class-promo-pause, .class-promo small, .class-promo-chip, .class-promo p, .class-promo-copy > span:not(.class-promo-chip)),
+  .class-discovery :where(.class-promo-pause, .class-promo small, .class-promo p, .class-promo-copy > span),
   .class-content-section :where(.class-section-title > div, .class-section-title > a, .class-category-grid button, .class-cover-wrap > span, .class-product-copy p, .class-product-copy small, .class-empty p, .class-empty button),
   .class-all-books-section :where(.class-all-books-heading small, .class-all-books-heading p, .class-category-grid button, .class-all-book-tags b, .class-all-book-tags em, .class-all-book-copy > span:not(.class-all-book-tags), .class-all-book-copy > small, .class-all-books-empty),
   .class-start-banner :where(p, a),
@@ -207,7 +205,7 @@
     .detail-section-label, .detail-targets span, .detail-outcome-grid span,
     .detail-curriculum article span, .detail-creator article small, .detail-creator article li,
     .detail-final span, .detail-final p, .detail-final strong small, .detail-included li,
-    .detail-buy-button, .purchase-error, .purchase-unavailable > span, .purchase-consent,
+    .detail-buy-button, .purchase-error, .purchase-consent,
     .review-form label, .review-form select, .privacy-note, .sample-review-notice,
     .sample-badge, .review-card header span, .review-card footer, .reviews-summary span,
     .reviews-heading .eyebrow, .review-card > p, .review-card > p b

@@ -12,6 +12,7 @@ test("collection home connects all three ebook pages", async () => {
   assert.match(source, /href: "\/jane"/);
   assert.match(header, /다니엘의 노트/);
   assert.match(source, /return books\.filter/);
+  assert.doesNotMatch(source, /class-promo-chip|실무에 바로 쓰는/);
   assert.doesNotMatch(source, /const curated|id="stories"|id="popular"/);
 });
 
@@ -279,6 +280,7 @@ test("my page provides profile, order, logout, and account deletion flows", asyn
   const profileApi = await readFile(new URL("app/api/account/profile/route.ts", root), "utf8");
   assert.match(page, /구매 내역/);
   assert.match(page, /누군가의 경험이/);
+  assert.doesNotMatch(page, /당신의 다음 장을 위한 기록|카카오 또는 Google 계정으로 계속하면/);
   assert.match(page, /account-login-header/);
   assert.match(page, /회원 탈퇴/);
   assert.match(page, /주문번호/);
@@ -406,7 +408,13 @@ test("purchase flow requires a signed-in member", async () => {
   assert.match(source, /window\.location\.href = `\/mypage/);
   assert.match(source, /customData: \{ entitlement: context\.entitlement \}/);
   assert.match(source, /간편결제 준비 중/);
-  assert.match(source, /가맹 심사가 끝나면 구매가 열립니다/);
+  assert.doesNotMatch(source, /가맹 심사|구매가 열립니다/);
+  assert.doesNotMatch(source, /purchase-unavailable/);
+});
+
+test("desktop sticky purchase card clears the header and detail tabs", async () => {
+  const styles = await readFile(new URL("app/globals.css", root), "utf8");
+  assert.match(styles, /\.detail-side-sticky \{[^}]*position:sticky;[^}]*top:147px;/);
 });
 
 test("Paddle webhook creates paid orders and revokes access after full refunds", async () => {

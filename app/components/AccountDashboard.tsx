@@ -209,9 +209,7 @@ export default function AccountDashboard({ section = "overview" }: { section?: M
         <span aria-hidden="true" />
       </header>
       <div className="account-login-card">
-        <p>당신의 다음 장을 위한 기록</p>
         <h1>누군가의 경험이<br />당신의 다음 시작이 되도록.</h1>
-        <div className="account-login-copy">카카오 또는 Google 계정으로 계속하면 구매한 전자책과<br />나의 기록을 한곳에서 안전하게 관리할 수 있습니다.</div>
         <div className="account-login-providers"><KakaoAccount mode="login" /><GoogleAccount mode="login" /></div>
         <small className="account-login-note">처음 방문하셨나요? 로그인하면 회원가입이 함께 진행됩니다.</small>
         <Link href="/#books">로그인 없이 전자책 둘러보기</Link>

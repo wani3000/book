@@ -226,12 +226,9 @@ export default function PurchaseButton({ product, label, className = "button pri
   }
 
   if (!ready) {
-    return <div className="purchase-unavailable" role="status">
-      <button type="button" className={className} disabled aria-label="간편결제 준비 중">
-        간편결제 준비 중<span aria-hidden="true">→</span>
-      </button>
-      <span>카카오페이·네이버페이 가맹 심사가 끝나면 구매가 열립니다.</span>
-    </div>;
+    return <button type="button" className={className} disabled aria-label="간편결제 준비 중">
+      간편결제 준비 중<span aria-hidden="true">→</span>
+    </button>;
   }
 
   return (
