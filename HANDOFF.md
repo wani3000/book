@@ -21,8 +21,9 @@
 ### 출시 전 P1 정리
 
 - 통신판매업 신고번호는 `제2026-서울구로-1222호`로 확정했으며 공통 푸터, 이용약관, PG 심사 문서와 자동 점검에 동일하게 반영했다.
-- Google Search Console에 `danielsnote.com` 도메인 속성을 DNS로 인증하고 `/sitemap.xml`을 제출했다. 네이버 서치어드바이저 소유확인용 메타 태그도 루트 메타데이터에 반영했다.
-- Google Analytics에 `다니엘의 노트` GA4 속성과 웹 데이터 스트림을 만들었다. 사이트는 `NEXT_PUBLIC_GA_MEASUREMENT_ID`가 있고 방문자가 익명 분석에 동의한 경우에만 태그를 불러오며, 거절해도 모든 기능을 이용할 수 있다.
+- Google Search Console에 `danielsnote.com` 도메인 속성을 DNS로 인증하고 `/sitemap.xml`을 제출했다. Google 처리 완료와 발견 페이지 9개를 확인했다.
+- 네이버 서치어드바이저 소유확인용 메타 태그는 실제 운영 HTML `<head>`에 배포했다. 소유확인 클릭 후 자동등록 방지 보안문자가 표시되어 사용자 승인·입력 대기 중이다.
+- Google Analytics에 `다니엘의 노트` GA4 속성과 웹 데이터 스트림을 만들고 Sites 환경변수 revision 12에 측정값을 연결했다. 사이트는 방문자가 익명 분석에 동의한 경우에만 태그를 불러오며, 거절해도 모든 기능을 이용할 수 있다. 공개 사이트에서 동의 전 태그 0개, 동의 후 태그 1개와 안내 패널 종료를 확인했다.
 - 공개 UI의 서비스명은 정책·관리자·마이페이지까지 `다니엘의 노트`로 통일하고 `DANIEL'S NOTE` 표기를 제거했다.
 - 이메일 권한이 없는 카카오 전용 회원은 내부 식별용 `@daniels-note.kakao.local` 주소가 화면에 노출되지 않는다. 프로필에는 `카카오 계정으로 로그인`으로 표시하며 이메일 마케팅 동의도 저장하지 않는다.
 - 모바일 마이페이지 주문·환불·계정 연결과 정책 본문은 푸터를 제외하고 15px 이상이 되도록 보정했다.
@@ -332,7 +333,7 @@ git status --short
 
 Sites 프로젝트 ID는 `website/.openai/hosting.json`에 저장돼 있다. 현재 사이트 접근 모드는 `public`이다.
 
-현재 프로젝트 ID는 `appgprj_6a5c35c6dcf881919ab2bf0ecbb09e52`다. 2026-07-23 공개 버전은 44이며 환경변수 revision은 11이다. 배포 기능 커밋은 `332e3fd33f3f2d7ae0f66b4d1516d71a2728c4fd`다. 현재 Sites 환경에는 Google 로그인·관리자·테스트 구매자·실제 사이트 URL·Resend 발송 설정과 고객지원 이메일이 설정돼 있다. 결제 운영 키와 `NEXT_PUBLIC_BUSINESS_PHONE`은 아직 없다. QA 로그인 운영 플래그는 켜지 않았다. 코드에서는 잘못된 localhost 환경값이 있어도 운영 HTTPS 주소로 메타데이터를 생성한다.
+현재 프로젝트 ID는 `appgprj_6a5c35c6dcf881919ab2bf0ecbb09e52`다. 2026-07-23 공개 버전은 48이며 환경변수 revision은 12이다. 배포 기능 커밋은 `ebcea11a033b7b6e82a3eef2ab7c54150370207c`다. 현재 Sites 환경에는 Google 로그인·관리자·테스트 구매자·실제 사이트 URL·Resend 발송 설정·고객지원 이메일·Google Analytics 측정 설정이 있다. 결제 운영 키와 `NEXT_PUBLIC_BUSINESS_PHONE`은 아직 없다. QA 로그인 운영 플래그는 켜지 않았다. 코드에서는 잘못된 localhost 환경값이 있어도 운영 HTTPS 주소로 메타데이터를 생성한다.
 
 사이트 변경 후 표준 순서:
 
