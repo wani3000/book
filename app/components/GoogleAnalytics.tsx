@@ -24,6 +24,7 @@ function startAnalytics(measurementId: string) {
     analyticsWindow.gtag("js", new Date());
     analyticsWindow.gtag("config", measurementId, { anonymize_ip: true, send_page_view: false });
   }
+  window.dispatchEvent(new Event("danielsnote:analytics-ready"));
 }
 
 export default function GoogleAnalytics({ measurementId }: { measurementId?: string }) {
@@ -42,13 +43,27 @@ export default function GoogleAnalytics({ measurementId }: { measurementId?: str
   useEffect(() => {
     if (!measurementId || consent !== "granted") return;
     startAnalytics(measurementId);
+    const analyticsWindow = window as AnalyticsWindow;
     const query = searchParams.toString();
     const pagePath = query ? `${pathname}?${query}` : pathname;
-    (window as AnalyticsWindow).gtag?.("event", "page_view", {
+    analyticsWindow.gtag?.("event", "page_view", {
       page_path: pagePath,
       page_location: window.location.href,
       page_title: document.title,
     });
+    const products: Record<string, string> = {
+      "/codex": "아이디어를 서비스로 바꾸는 Codex 사용법",
+      "/career": "커리어도 디자인할 수 있습니다",
+      "/jane": "승무원 다음은 IT였습니다",
+    };
+    const itemName = products[pathname];
+    if (itemName) {
+      analyticsWindow.gtag?.("event", "view_item", {
+        currency: "KRW",
+        value: 19000,
+        items: [{ item_id: pathname.slice(1), item_name: itemName, price: 19000, quantity: 1 }],
+      });
+    }
   }, [consent, measurementId, pathname, searchParams]);
 
   if (!measurementId || consent !== null) return null;

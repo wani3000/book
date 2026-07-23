@@ -35,22 +35,22 @@ node --test tests/rendered-html.test.mjs
 - `app/page.tsx`: 전자책 마켓 메인
 - `app/components/ClassDetailPage.tsx`: 세 권이 공유하는 상품 상세 UI
 - `app/{codex,career,jane}/page.tsx`: 상품별 콘텐츠와 메타데이터
-- `app/components/PurchaseButton.tsx`: Paddle 또는 외부 판매 링크 연결
+- `app/components/PurchaseButton.tsx`: 카카오페이·네이버페이 결제 시작과 비활성 상태 안내
 - `app/components/ReviewSection.tsx`: 후기 목록과 접수 폼
 - `app/api/reviews/route.ts`: 검증 후기 조회와 후기 접수
 - `db/schema.ts`: D1 후기 테이블
-- `app/auth/`: Google 세션과 회원 권한 확인
+- `app/auth/`: Google·카카오 로그인, 보안 세션과 회원 권한 확인
 - `app/mypage/`, `app/components/AccountDashboard.tsx`: 마이페이지
 - `app/admin/members/`, `app/components/MemberAdmin.tsx`: 회원 관리
 - `.openai/hosting.json`: Sites 프로젝트와 D1 바인딩
 
 ## 결제 상태
 
-코드는 Paddle Checkout과 외부 판매 URL을 모두 지원하지만 프로덕션 결제 값은 아직 설정되지 않았다. 현재 공개 사이트의 구매 버튼은 비활성 상태다. 필요한 키 이름은 `.env.example`을 참고하고 실제 값은 Sites 런타임 환경변수에만 저장한다.
+국내 판매용 카카오페이·네이버페이 승인·취소·환불 연동이 구현돼 있다. 가맹 승인과 운영 인증값 연결 전에는 공개 사이트의 구매 버튼이 안전하게 비활성화된다. 보조 Paddle 코드는 남아 있지만 국내 운영 결제로 활성화하지 않는다. 실제 인증값은 Sites 런타임 환경변수에만 저장한다.
 
 ## 회원 기능 상태
 
-Google Authorization Code + PKCE 로그인, ID 토큰 서버 검증, D1 회원 등록, 보안 세션, 마이페이지와 관리자 회원관리가 구현돼 있다. 실제 활성화에는 `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `GOOGLE_REDIRECT_URI`, `GOOGLE_SESSION_SECRET`, `ADMIN_EMAILS` 설정과 새 배포가 필요하다. 구매 내역 테이블은 준비됐지만 실제 주문 저장은 결제 웹훅 구현 후 동작한다.
+Google·카카오 Authorization Code + PKCE 로그인, 서버 토큰 검증, D1 회원 등록, 보안 세션, 계정 연결·해제, 마이페이지와 관리자 회원관리가 구현돼 있다. 운영 로그인과 테스트 구매자 3권 열람을 검증했다. 국내 결제 승인 후 운영 인증값을 연결하면 결제 결과가 주문과 PDF 권한에 자동 반영된다.
 
 ## 배포 주의사항
 

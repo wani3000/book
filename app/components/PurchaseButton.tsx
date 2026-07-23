@@ -4,6 +4,7 @@ import { initializePaddle, type Paddle } from "@paddle/paddle-js";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { DIGITAL_CONTENT_CONSENT_TEXT } from "@/app/payments/policy";
+import { trackAnalyticsEvent } from "@/app/analytics/client";
 
 type ProductSlug = "codex" | "career" | "jane";
 
@@ -15,14 +16,17 @@ type Props = {
 
 const productConfig = {
   codex: {
+    title: "아이디어를 서비스로 바꾸는 Codex 사용법",
     priceId: process.env.NEXT_PUBLIC_CODEX_PRICE_ID,
     purchaseUrl: process.env.NEXT_PUBLIC_CODEX_PURCHASE_URL,
   },
   career: {
+    title: "커리어도 디자인할 수 있습니다",
     priceId: process.env.NEXT_PUBLIC_CAREER_PRICE_ID,
     purchaseUrl: process.env.NEXT_PUBLIC_CAREER_PURCHASE_URL,
   },
   jane: {
+    title: "승무원 다음은 IT였습니다",
     priceId: process.env.NEXT_PUBLIC_JANE_PRICE_ID,
     purchaseUrl: process.env.NEXT_PUBLIC_JANE_PURCHASE_URL,
   },
@@ -118,6 +122,12 @@ export default function PurchaseButton({ product, label, className = "button pri
     if (!ready) return;
     setError("");
     setLoading(true);
+    trackAnalyticsEvent("begin_checkout", {
+      currency: "KRW",
+      value: 19000,
+      payment_type: provider || (externalUrl ? "external" : "paddle"),
+      items: [{ item_id: product, item_name: config.title, price: 19000, quantity: 1 }],
+    });
     if (provider) {
       if (!consented) { setError("디지털 콘텐츠 즉시 제공과 청약철회 제한에 동의해 주세요."); setLoading(false); return; }
       const response = await fetch(`/api/${provider}/ready`, {

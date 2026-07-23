@@ -43,6 +43,18 @@ test("Google Analytics only starts after an explicit visitor choice", async () =
   assert.match(worker, /https:\/\/\*\.google-analytics\.com/);
 });
 
+test("consented analytics covers product views, checkout starts, and verified purchases", async () => {
+  const analytics = await readFile(new URL("app/components/GoogleAnalytics.tsx", root), "utf8");
+  const purchaseButton = await readFile(new URL("app/components/PurchaseButton.tsx", root), "utf8");
+  const successTracker = await readFile(new URL("app/components/CheckoutSuccessTracker.tsx", root), "utf8");
+  assert.match(analytics, /"view_item"/);
+  assert.match(purchaseButton, /"begin_checkout"/);
+  assert.match(successTracker, /item\.id === orderId && item\.status === "paid"/);
+  assert.match(successTracker, /"purchase"/);
+  assert.match(successTracker, /sessionStorage/);
+  assert.doesNotMatch(successTracker, /email|displayName|member\.name/);
+});
+
 test("web typography keeps readable minimums without changing the business footer", async () => {
   const layout = await readFile(new URL("app/layout.tsx", root), "utf8");
   const designSystem = await readFile(new URL("app/design-system.css", root), "utf8");
