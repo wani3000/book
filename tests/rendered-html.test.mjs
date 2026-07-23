@@ -40,13 +40,13 @@ test("Google Analytics only starts after an explicit visitor choice", async () =
   const analytics = await readFile(new URL("app/components/GoogleAnalytics.tsx", root), "utf8");
   const privacy = await readFile(new URL("app/privacy/page.tsx", root), "utf8");
   const layout = await readFile(new URL("app/layout.tsx", root), "utf8");
-  const worker = await readFile(new URL("worker/index.ts", root), "utf8");
+  const config = await readFile(new URL("next.config.ts", root), "utf8");
   assert.match(layout, /measurementId=\{process\.env\.NEXT_PUBLIC_GA_MEASUREMENT_ID/);
   assert.match(analytics, /consent !== "granted"/);
   assert.match(analytics, /동의하지 않아도 모든 기능을 그대로 이용할 수 있어요/);
   assert.match(privacy, /동의하지 않아도 회원가입·구매·전자책 열람/);
-  assert.match(worker, /https:\/\/www\.googletagmanager\.com/);
-  assert.match(worker, /https:\/\/\*\.google-analytics\.com/);
+  assert.match(config, /https:\/\/www\.googletagmanager\.com/);
+  assert.match(config, /https:\/\/\*\.google-analytics\.com/);
 });
 
 test("consented analytics covers product views, checkout starts, and verified purchases", async () => {
@@ -135,9 +135,8 @@ test("Jane book page includes career transition, commerce, and reviews", async (
   assert.match(source, /승무원 다음은 IT였습니다/);
   assert.match(source, /프로젝트 운영 매니저/);
   assert.match(source, /Codex로 만든 HTML 대시보드/);
-  assert.match(source, /pages: "48쪽"/);
+  assert.match(source, /pages: "78쪽"/);
   assert.match(source, /22개 장 \+ 통합 실습팩/);
-  assert.doesNotMatch(source, /78쪽/);
   assert.match(source, /product: "jane"/);
 });
 
@@ -149,7 +148,7 @@ test("all three sales pages match the current PDF editions", async () => {
   assert.match(codex, /50단계 실전 \+ 경험편 24장/);
   assert.match(career, /pages: "90쪽"/);
   assert.match(career, /20개 장 \+ 통합 별첨/);
-  assert.match(jane, /pages: "48쪽"/);
+  assert.match(jane, /pages: "78쪽"/);
   assert.match(jane, /22개 장 \+ 통합 실습팩/);
 });
 
@@ -171,20 +170,15 @@ test("review moderation is protected and only approves purchase-verified reviews
   assert.match(page, /구매 확인 후 공개/);
 });
 
-test("storefront separates verified reviews from clearly disclosed reference reviews", async () => {
+test("storefront only renders verified reviews and never fabricates sample reviews", async () => {
   const detail = await readFile(new URL("app/components/ClassDetailPage.tsx", root), "utf8");
   const reviews = await readFile(new URL("app/components/ReviewSection.tsx", root), "utf8");
   assert.doesNotMatch(detail, /후기 3개|4\.8/);
   assert.match(reviews, /아직 공개된 구매 후기가 없습니다/);
-  assert.match(reviews, /실제 구매자의 후기가 아닙니다/);
-  assert.doesNotMatch(reviews, /예시 후기/);
-  assert.match(reviews, /className="sample-badge">참고용/);
+  assert.doesNotMatch(reviews, /참고용|예시 후기|exampleReviews|sample-badge/);
   assert.match(reviews, /const \[canSubmitReview, setCanSubmitReview\] = useState\(false\)/);
   assert.match(reviews, /fetch\("\/api\/account\/orders"/);
   assert.match(reviews, /\{canSubmitReview && <section className="review-form-shell"/);
-  assert.match(reviews, /codex: \[/);
-  assert.match(reviews, /career: \[/);
-  assert.match(reviews, /jane: \[/);
 });
 
 test("Google login persists a verified member and creates a secure session", async () => {
@@ -339,9 +333,9 @@ test("the Korean service name and production security headers are applied consis
   for (const source of files) {
     assert.doesNotMatch(source, /DANIEL(?:&apos;|')?S NOTE/);
   }
-  const worker = await readFile(new URL("worker/index.ts", root), "utf8");
+  const config = await readFile(new URL("next.config.ts", root), "utf8");
   for (const header of ["Content-Security-Policy", "X-Content-Type-Options", "X-Frame-Options", "Referrer-Policy", "Permissions-Policy"]) {
-    assert.match(worker, new RegExp(header));
+    assert.match(config, new RegExp(header));
   }
 });
 
@@ -386,7 +380,8 @@ test("test purchaser receives all three protected PDF entitlements", async () =>
   assert.match(libraryApi, /firstAccessedAt: new Date\(\)\.toISOString\(\)/);
   assert.match(catalog, /objectKey: "ebooks\//);
   assert.doesNotMatch(catalog, /assetPath|library-assets/);
-  assert.match(libraryApi, /env\.BOOKS\.get\(book\.objectKey\)/);
+  assert.match(libraryApi, /get\(book\.objectKey, \{ access: "private" \}\)/);
+  assert.match(libraryApi, /process\.env\.BLOB_READ_WRITE_TOKEN/);
   assert.match(libraryApi, /"Cache-Control": "private, no-store, max-age=0"/);
   assert.doesNotMatch(libraryApi, /NextResponse\.redirect/);
   assert.match(dashboard, /PDF 읽기/);
@@ -585,7 +580,8 @@ test("reviews are automatically tied to a paid order and limited to one per prod
 });
 
 test("P1 security, accessibility, health, audit, and notification controls exist", async () => {
-  const worker = await readFile(new URL("worker/index.ts", root), "utf8");
+  const config = await readFile(new URL("next.config.ts", root), "utf8");
+  const requestSecurity = await readFile(new URL("app/security/request.ts", root), "utf8");
   const layout = await readFile(new URL("app/layout.tsx", root), "utf8");
   const menu = await readFile(new URL("app/components/MobileBookMenu.tsx", root), "utf8");
   const home = await readFile(new URL("app/page.tsx", root), "utf8");
@@ -597,10 +593,10 @@ test("P1 security, accessibility, health, audit, and notification controls exist
   const naverApproval = await readFile(new URL("app/api/naverpay/return/route.ts", root), "utf8");
   const refunds = await readFile(new URL("app/api/admin/refunds/route.ts", root), "utf8");
   await readFile(new URL("OPERATIONS_RUNBOOK.md", root), "utf8");
-  assert.match(worker, /Strict-Transport-Security/);
-  assert.match(worker, /Content-Security-Policy/);
-  assert.match(worker, /request_limits/);
-  assert.match(worker, /허용되지 않은 요청 출처/);
+  assert.match(config, /Strict-Transport-Security/);
+  assert.match(config, /Content-Security-Policy/);
+  assert.match(requestSecurity, /requestLimits/);
+  assert.match(requestSecurity, /허용되지 않은 요청 출처/);
   assert.match(layout, /본문 바로가기/);
   assert.match(menu, /setAttribute\("inert"/);
   assert.match(menu, /event\.key !== "Tab"/);

@@ -59,7 +59,7 @@
 
 ## 가입 승인 후 연결할 값
 
-Sites 런타임 환경변수에만 저장한다.
+Vercel 프로젝트 환경변수에만 저장한다.
 
 - `NEXT_PUBLIC_NAVERPAY_ENABLED=true`
 - `NAVERPAY_MODE=development` 또는 `production`

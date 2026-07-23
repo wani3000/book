@@ -48,7 +48,7 @@
 
 ## 카카오페이 승인 후 연결할 값
 
-Sites 런타임 환경변수에만 다음 값을 저장한다.
+Vercel 프로젝트 환경변수에만 다음 값을 저장한다.
 
 - `NEXT_PUBLIC_KAKAOPAY_ENABLED=true`
 - `KAKAOPAY_CID=발급된 CID`

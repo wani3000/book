@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import "pretendard/dist/web/static/Pretendard-Regular.css";
 import "pretendard/dist/web/static/Pretendard-Bold.css";
 import "./globals.css";
@@ -48,7 +49,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         <meta name="naver-site-verification" content="10986c83c4876b995ad8e090fb27231a711efabe" />
         <meta name="format-detection" content="telephone=no, date=no, email=no, address=no" />
       </head>
-      <body suppressHydrationWarning><a className="skip-link" href="#main-content">본문 바로가기</a><div id="main-content" tabIndex={-1}>{children}</div><GoogleAnalytics measurementId={process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID?.trim()} /></body>
+      <body suppressHydrationWarning><a className="skip-link" href="#main-content">본문 바로가기</a><div id="main-content" tabIndex={-1}>{children}</div><Suspense fallback={null}><GoogleAnalytics measurementId={process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID?.trim()} /></Suspense></body>
     </html>
   );
 }

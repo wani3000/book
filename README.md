@@ -1,57 +1,51 @@
 # 다니엘의 노트
 
-경험 기반 전자책 3권을 판매하는 공개 웹사이트다. 클래스101의 마켓과 상품 상세 정보 구조를 참고했으며, 공통 서비스명은 `다니엘의 노트`를 사용한다.
+경험 기반 PDF 전자책 3권을 판매하는 Next.js 웹사이트다. 운영 도메인은 `https://danielsnote.com`, 배포 대상은 Vercel 프로젝트 `danielsnote`다.
 
-공개 사이트: <https://danielsnote.com>
+최신 상태와 남은 외부 작업은 [`HANDOFF.md`](HANDOFF.md), 운영 절차는 [`OPERATIONS_RUNBOOK.md`](OPERATIONS_RUNBOOK.md), Vercel 이전 절차는 [`VERCEL_MIGRATION.md`](VERCEL_MIGRATION.md)를 먼저 확인한다.
 
-전체 프로젝트 상태, 배포 이력, 미완료 작업과 콘텐츠 주의사항은 [`HANDOFF.md`](HANDOFF.md)를 먼저 읽는다.
+## 상품
 
-## 상품 경로
+| 경로 | 상품 | 분량 | 가격 |
+| --- | --- | ---: | ---: |
+| `/codex` | 아이디어를 서비스로 바꾸는 Codex 사용법 | 230쪽 | 19,000원 |
+| `/career` | 커리어도 디자인할 수 있습니다 | 90쪽 | 19,000원 |
+| `/jane` | 승무원 다음은 IT였습니다 | 78쪽 | 19,000원 |
 
-- `/codex` — 아이디어를 서비스로 바꾸는 Codex 사용법
-- `/career` — 커리어도 디자인할 수 있습니다
-- `/jane` — 승무원 다음은 IT였습니다
-- `/mypage` — 로그인, 프로필, 구매 내역과 회원 탈퇴
-- `/admin/members` — 관리자용 회원 검색과 상태 관리
+## 기술 구성
 
-## 로컬 실행
+- Next.js 16, React 19, TypeScript
+- Vercel 배포와 보안 응답 헤더
+- Turso/libSQL 데이터베이스와 Drizzle ORM
+- Private Vercel Blob PDF 저장소
+- Google·카카오 OAuth, 보안 세션, 계정 연결·탈퇴
+- 카카오페이·Npay 단건결제, 환불, 주문·PDF 권한 연동
+- Resend 거래·회원 이메일, 동의 기반 GA4
+
+## 로컬 실행과 검증
 
 Node.js 22.13 이상이 필요하다.
 
 ```bash
 npm install
 npm run dev
+npm run lint
+npm test
+NEXT_PUBLIC_BUSINESS_PHONE=070-4715-6450 npm run check:merchant
 ```
 
-## 검증
+환경변수 이름은 [`.env.example`](.env.example)을 따른다. 비밀값은 `.env.local`과 Vercel 환경변수에만 저장하며 Git과 문서에 기록하지 않는다.
 
-```bash
-npm run build
-node --test tests/rendered-html.test.mjs
-```
+## 데이터와 PDF
 
-## 주요 파일
+- `db/schema.ts`: 회원, 로그인 수단, 주문, 결제, 환불, 후기, 감사 로그, 알림 큐
+- `npm run db:migrate`: Turso에 `drizzle/0000`~`0009` 순차 적용
+- `npm run db:import -- /absolute/backup.json`: `ALLOW_DB_IMPORT=true`일 때 빈 Turso DB로 D1 백업 가져오기
+- `app/library/catalog.ts`: 비공개 Blob 경로와 판매 파일명
+- `app/api/library/[product]/route.ts`: 로그인·구매 권한 확인 후 PDF 스트리밍
 
-- `app/page.tsx`: 전자책 마켓 메인
-- `app/components/ClassDetailPage.tsx`: 세 권이 공유하는 상품 상세 UI
-- `app/{codex,career,jane}/page.tsx`: 상품별 콘텐츠와 메타데이터
-- `app/components/PurchaseButton.tsx`: 카카오페이·네이버페이 결제 시작과 비활성 상태 안내
-- `app/components/ReviewSection.tsx`: 후기 목록과 접수 폼
-- `app/api/reviews/route.ts`: 검증 후기 조회와 후기 접수
-- `db/schema.ts`: D1 후기 테이블
-- `app/auth/`: Google·카카오 로그인, 보안 세션과 회원 권한 확인
-- `app/mypage/`, `app/components/AccountDashboard.tsx`: 마이페이지
-- `app/admin/members/`, `app/components/MemberAdmin.tsx`: 회원 관리
-- `.openai/hosting.json`: Sites 프로젝트와 D1 바인딩
+PDF는 `public/`에 두지 않는다. 현재 Vercel Blob에는 세 권이 `ebooks/` 아래 비공개 객체로 업로드되어 있다.
 
 ## 결제 상태
 
-국내 판매용 카카오페이·네이버페이 승인·취소·환불 연동이 구현돼 있다. 가맹 승인과 운영 인증값 연결 전에는 공개 사이트의 구매 버튼이 안전하게 비활성화된다. 보조 Paddle 코드는 남아 있지만 국내 운영 결제로 활성화하지 않는다. 실제 인증값은 Sites 런타임 환경변수에만 저장한다.
-
-## 회원 기능 상태
-
-Google·카카오 Authorization Code + PKCE 로그인, 서버 토큰 검증, D1 회원 등록, 보안 세션, 계정 연결·해제, 마이페이지와 관리자 회원관리가 구현돼 있다. 운영 로그인과 테스트 구매자 3권 열람을 검증했다. 국내 결제 승인 후 운영 인증값을 연결하면 결제 결과가 주문과 PDF 권한에 자동 반영된다.
-
-## 배포 주의사항
-
-이 프로젝트는 기존 Sites 프로젝트를 사용한다. 새 프로젝트를 만들지 말고 `.openai/hosting.json`의 `project_id`를 재사용한다. 사이트는 공개 상태이므로 새 버전 공개 배포 전에 사용자 승인을 받는다.
+카카오페이·Npay 코드는 준비되어 있지만 가맹 승인과 운영 키가 들어오기 전까지 각 활성화 플래그를 `false`로 유지한다. Paddle은 국내 판매 운영 경로로 사용하지 않는다.
