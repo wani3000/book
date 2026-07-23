@@ -335,6 +335,9 @@ test("root layout tolerates unavoidable CDN and mobile auto-link mutations", asy
   assert.match(layout, /<html lang="ko" suppressHydrationWarning>/);
   assert.match(layout, /<body suppressHydrationWarning>/);
   assert.match(layout, /telephone=no, date=no, email=no, address=no/);
+  assert.match(layout, /cdn-hydration-guard/);
+  assert.match(layout, /__CF\$cv\$params/);
+  assert.match(layout, /\/cdn-cgi\/challenge-platform\//);
 });
 
 test("mobile account and policy body copy keeps a 15px minimum outside the footer", async () => {

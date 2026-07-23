@@ -47,6 +47,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
       <head>
         <meta name="naver-site-verification" content="10986c83c4876b995ad8e090fb27231a711efabe" />
         <meta name="format-detection" content="telephone=no, date=no, email=no, address=no" />
+        <script id="cdn-hydration-guard" dangerouslySetInnerHTML={{ __html: `(function(){var o=new MutationObserver(function(m){m.forEach(function(x){x.addedNodes.forEach(function(n){if(n.nodeType===1&&n.tagName==='SCRIPT'&&!n.id&&n.textContent&&n.textContent.indexOf('__CF$cv$params')!==-1&&n.textContent.indexOf('/cdn-cgi/challenge-platform/')!==-1){n.remove();}});});});o.observe(document.documentElement,{childList:true,subtree:true});window.addEventListener('load',function(){window.setTimeout(function(){o.disconnect();},0);},{once:true});})();` }} />
       </head>
       <body suppressHydrationWarning><a className="skip-link" href="#main-content">본문 바로가기</a><div id="main-content" tabIndex={-1}>{children}</div><GoogleAnalytics measurementId={process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID?.trim()} /></body>
     </html>
