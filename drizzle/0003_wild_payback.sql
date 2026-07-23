@@ -1,0 +1,1 @@
+ALTER TABLE `payment_attempts` ADD `content_provision_consent_at` text NOT NULL;

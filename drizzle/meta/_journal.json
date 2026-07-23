@@ -1,0 +1,76 @@
+{
+  "version": "7",
+  "dialect": "sqlite",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "6",
+      "when": 1784434855622,
+      "tag": "0000_brief_speedball",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1784543727487,
+      "tag": "0001_yummy_stick",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1784552590398,
+      "tag": "0002_optimal_cargill",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1784552676932,
+      "tag": "0003_wild_payback",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "6",
+      "when": 1784627782021,
+      "tag": "0004_wonderful_tenebrous",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "6",
+      "when": 1784630302990,
+      "tag": "0005_goofy_trish_tilby",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "6",
+      "when": 1784632994696,
+      "tag": "0006_typical_metal_master",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "6",
+      "when": 1784641480421,
+      "tag": "0007_icy_silver_surfer",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "6",
+      "when": 1784704800000,
+      "tag": "0008_prelaunch_p1",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "6",
+      "when": 1784775000000,
+      "tag": "0009_friendly_email_journey",
+      "breakpoints": true
+    }
+  ]
+}
