@@ -543,6 +543,15 @@ test("mypage uses independent routes instead of hash navigation", async () => {
   assert.doesNotMatch(dashboard, /hashchange|window\.location\.hash|href="#orders"/);
 });
 
+test("logged-out mypage checks the public session before protected account APIs", async () => {
+  const dashboard = await readFile(new URL("app/components/AccountDashboard.tsx", root), "utf8");
+  const sessionIndex = dashboard.indexOf('fetch("/api/auth/session"');
+  const profileIndex = dashboard.indexOf('fetch("/api/account/profile"');
+  const ordersIndex = dashboard.indexOf('fetch("/api/account/orders"');
+  assert.ok(sessionIndex >= 0 && sessionIndex < profileIndex && sessionIndex < ordersIndex);
+  assert.match(dashboard, /if \(!session\.user\)/);
+});
+
 test("reviews are automatically tied to a paid order and limited to one per product", async () => {
   const api = await readFile(new URL("app/api/reviews/route.ts", root), "utf8");
   const form = await readFile(new URL("app/components/ReviewSection.tsx", root), "utf8");

@@ -68,11 +68,18 @@ export default function AccountDashboard({ section = "overview" }: { section?: M
   const load = useCallback(async (showPageLoader = false) => {
     if (showPageLoader) setLoading(true);
     setOrdersLoading(true);
-    const orderRequest = fetch("/api/account/orders", { cache: "no-store" })
-      .then(async (response) => ({ response, data: await response.json().catch(() => ({})) as { orders?: Order[] } }))
-      .catch(() => null);
 
     try {
+      const sessionResponse = await fetch("/api/auth/session", { cache: "no-store" });
+      const session = await sessionResponse.json().catch(() => ({})) as { user?: unknown };
+      if (!session.user) {
+        setMember(null);
+        setOrders([]);
+        return;
+      }
+      const orderRequest = fetch("/api/account/orders", { cache: "no-store" })
+        .then(async (response) => ({ response, data: await response.json().catch(() => ({})) as { orders?: Order[] } }))
+        .catch(() => null);
       const profileResponse = await fetch("/api/account/profile", { cache: "no-store" });
       const profile = await profileResponse.json().catch(() => ({})) as { member?: Member; stats?: { orders: number; reviews: number }; error?: string };
       if (profileResponse.status === 401) {
