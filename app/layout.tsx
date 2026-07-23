@@ -38,16 +38,14 @@ export const metadata: Metadata = {
     images: ["/og-collection.png"],
   },
   icons: { icon: "/favicon.svg", shortcut: "/favicon.svg" },
-  verification: {
-    other: {
-      "naver-site-verification": "10986c83c4876b995ad8e090fb27231a711efabe",
-    },
-  },
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="ko">
+      <head>
+        <meta name="naver-site-verification" content="10986c83c4876b995ad8e090fb27231a711efabe" />
+      </head>
       <body><a className="skip-link" href="#main-content">본문 바로가기</a><div id="main-content" tabIndex={-1}>{children}</div></body>
     </html>
   );

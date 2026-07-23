@@ -27,7 +27,7 @@ test("production metadata never falls back to localhost", async () => {
   const layout = await readFile(new URL("app/layout.tsx", root), "utf8");
   assert.match(layout, /https:\/\/danielsnote\.com/);
   assert.doesNotMatch(layout, /const siteUrl = .*localhost/);
-  assert.match(layout, /naver-site-verification/);
+  assert.match(layout, /<meta name="naver-site-verification" content="[^"]+" \/>/);
 });
 
 test("web typography keeps readable minimums without changing the business footer", async () => {
