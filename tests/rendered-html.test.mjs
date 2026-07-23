@@ -95,6 +95,12 @@ test("shared detail page includes commerce and verified buyer reviews", async ()
   assert.doesNotMatch(reviewSource, /<details|<summary/);
 });
 
+test("logged-out product pages do not request a protected order list", async () => {
+  const reviews = await readFile(new URL("app/components/ReviewSection.tsx", root), "utf8");
+  assert.match(reviews, /fetch\("\/api\/auth\/session"/);
+  assert.match(reviews, /session\.user\s*\?\s*fetch\("\/api\/account\/orders"/);
+});
+
 test("Codex book page supplies its detail sales content", async () => {
   const source = await readFile(new URL("app/codex/page.tsx", root), "utf8");
   assert.match(source, /product: "codex"/);
@@ -322,6 +328,13 @@ test("the Korean service name and production security headers are applied consis
   for (const header of ["Content-Security-Policy", "X-Content-Type-Options", "X-Frame-Options", "Referrer-Policy", "Permissions-Policy"]) {
     assert.match(worker, new RegExp(header));
   }
+});
+
+test("root layout tolerates unavoidable CDN and mobile auto-link mutations", async () => {
+  const layout = await readFile(new URL("app/layout.tsx", root), "utf8");
+  assert.match(layout, /<html lang="ko" suppressHydrationWarning>/);
+  assert.match(layout, /<body suppressHydrationWarning>/);
+  assert.match(layout, /telephone=no, date=no, email=no, address=no/);
 });
 
 test("mobile account and policy body copy keeps a 15px minimum outside the footer", async () => {

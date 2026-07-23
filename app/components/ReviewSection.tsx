@@ -54,8 +54,11 @@ export default function ReviewSection({ product, tone = "light" }: { product: Pr
   }, [product]);
 
   useEffect(() => {
-    fetch("/api/account/orders", { cache: "no-store" })
-      .then((response) => response.ok ? response.json() : { orders: [] })
+    fetch("/api/auth/session", { cache: "no-store" })
+      .then((response) => response.ok ? response.json() : { user: null })
+      .then((session: { user?: unknown }) => session.user
+        ? fetch("/api/account/orders", { cache: "no-store" }).then((response) => response.ok ? response.json() : { orders: [] })
+        : { orders: [] })
       .then((data: { orders?: AccountOrder[] }) => {
         const ownsProduct = (data.orders ?? []).some((order) =>
           order.product === product && (order.status === "paid" || order.testEntitlement)

@@ -108,11 +108,10 @@
 
 ### 인계 시점 핵심 상태
 
-- 최종 배포 기능 커밋: `56714943b0e4ea7998f368c41c6306fa758619bc`
-- GitHub: `wani3000/book`, `agent/publish-final-ebooks` 브랜치, Draft PR #3
-- Sites 공개 버전: 35
+- GitHub: `wani3000/book`, `agent/publish-final-ebooks` 브랜치
 - 배포 상태: `succeeded`
 - 공개 URL: <https://danielsnote.com>
+- 정확한 최종 커밋과 Sites 버전은 인계 시 `git rev-parse HEAD`와 Sites 배포 이력에서 확인한다. 숫자를 문서에 고정해 오래된 버전을 최신으로 오인하지 않는다.
 - 결제 상태: 코드 준비 완료, 카카오페이·네이버페이 가맹 승인과 운영 키가 없어 실제 결제는 비활성
 
 ## 2. 현재 완료 상태
@@ -333,7 +332,7 @@ git status --short
 
 Sites 프로젝트 ID는 `website/.openai/hosting.json`에 저장돼 있다. 현재 사이트 접근 모드는 `public`이다.
 
-현재 프로젝트 ID는 `appgprj_6a5c35c6dcf881919ab2bf0ecbb09e52`다. 2026-07-23 공개 버전은 48이며 환경변수 revision은 13이다. 배포 기능 커밋은 `ebcea11a033b7b6e82a3eef2ab7c54150370207c`다. 현재 Sites 환경에는 Google 로그인·관리자·테스트 구매자·실제 사이트 URL·Resend 발송 설정·고객지원 이메일·Google Analytics 측정 설정·공개 고객센터 번호가 있다. 결제 운영 키는 아직 없다. QA 로그인 운영 플래그는 켜지 않았다. 코드에서는 잘못된 localhost 환경값이 있어도 운영 HTTPS 주소로 메타데이터를 생성한다.
+현재 프로젝트 ID는 `appgprj_6a5c35c6dcf881919ab2bf0ecbb09e52`다. Sites 환경에는 Google·카카오 로그인, 관리자, 테스트 구매자, 실제 사이트 URL, Resend 발송, 고객지원 이메일, Google Analytics 측정 설정과 공개 고객센터 번호가 있다. 결제 운영 키는 아직 없으며 결제 활성화 플래그는 꺼져 있다. QA 로그인 운영 플래그도 켜지 않았다. 코드에서는 잘못된 localhost 환경값이 있어도 운영 HTTPS 주소로 메타데이터를 생성한다.
 
 사이트 변경 후 표준 순서:
 
@@ -396,6 +395,8 @@ Sites 프로젝트 ID는 `website/.openai/hosting.json`에 저장돼 있다. 현
 - 환불 신청·검토·거절과 최초 열람 기록은 로컬 D1 통합 검증을 마쳤다. 운영 결제 취소 성공 응답까지의 최종 E2E는 가맹 승인 후 수행한다.
 - 환불 정책 전문과 판매자 법적 고지는 별도 정책 페이지와 공통 푸터에 공개돼 있다.
 - 공개 고객센터 전화번호는 `NEXT_PUBLIC_BUSINESS_PHONE`에 설정되어 공통 푸터·약관·결제 안내에 표시된다. 이메일과 카카오톡 상담 채널도 함께 공개돼 있다.
+- 로그아웃 상품 상세는 회원 세션을 먼저 확인한 뒤에만 보호된 주문 API를 호출해 불필요한 401 콘솔 오류를 만들지 않는다.
+- Cloudflare의 JavaScript Detection처럼 CDN이 React 실행 전에 HTML을 보강하는 운영 환경과 모바일 자동 링크 변환을 고려해 루트 hydration 예외 처리와 자동 링크 방지 메타 태그를 적용했다.
 - 실제 Chrome에서 Google 로그인, 관리자 회원 목록, 테스트 구매내역 3권과 보호 PDF 3권 열람을 확인했다.
 - 2026-07-21 상세 QA와 수정 결과는 `audit/google-user-full-qa-2026-07-21/REPORT.md`에 있다.
 - 후기는 서버가 로그인 회원의 결제 완료 주문과 자동 연결하며, 관리자가 내용을 승인한 구매 인증 후기만 공개한다.
