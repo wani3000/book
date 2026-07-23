@@ -5,7 +5,7 @@ import { ebookCatalog, isEbookProduct } from "@/app/library/catalog";
 import { approveNaverPay, naverPayErrorCode } from "@/app/naverpay/server";
 import { getDb } from "@/db";
 import { orders, paymentAttempts } from "@/db/schema";
-import { deliverNotice } from "@/app/notifications/outbox";
+import { notifyPaymentCancelled, notifyPaymentCompleted, notifyPaymentFailed } from "@/app/notifications/events";
 
 export async function GET(request: Request) {
   const url = new URL(request.url);
@@ -27,6 +27,8 @@ export async function GET(request: Request) {
   if (resultCode !== "Success" || !paymentId || paymentId.length > 80) {
     const cancelled = resultCode.toLowerCase() === "usercancel";
     await getDb().update(paymentAttempts).set({ status: cancelled ? "cancelled" : "failed", errorCode: resultCode.slice(0, 80) || "INVALID_RESULT", updatedAt: new Date().toISOString() }).where(eq(paymentAttempts.id, orderId));
+    if (cancelled) await notifyPaymentCancelled(member, { orderId, title: ebookCatalog[attempt.product].title });
+    else await notifyPaymentFailed(member, { orderId, title: ebookCatalog[attempt.product].title });
     const params = new URLSearchParams({ reason: cancelled ? "cancel" : "provider" });
     if (resultMessage) params.set("message", resultMessage);
     return NextResponse.redirect(`${origin}/checkout/fail?${params.toString()}`);
@@ -55,13 +57,14 @@ export async function GET(request: Request) {
       }),
       getDb().update(paymentAttempts).set({ status: "paid", updatedAt: now }).where(eq(paymentAttempts.id, orderId)),
     ]);
-    await deliverNotice({ memberId: member.id, recipient: member.email, event: "payment.completed", subject: "[다니엘의 노트] 결제가 완료되었습니다.", text: `${book.title} 결제가 완료되었습니다. 주문번호: ${orderId}\n마이페이지 내 서재에서 전자책을 읽을 수 있습니다.` });
+    await notifyPaymentCompleted(member, { orderId, title: book.title, amount: book.amount, provider: "Npay", purchasedAt: now });
     return NextResponse.redirect(`${origin}/checkout/success?orderId=${encodeURIComponent(orderId)}`);
   } catch (error) {
     const code = naverPayErrorCode(error);
     console.error("NaverPay approval failed", { code, orderId });
     const status = code === "TIMEOUT_RECONCILE_REQUIRED" ? "reconcile" : "failed";
     await getDb().update(paymentAttempts).set({ status, errorCode: code, updatedAt: new Date().toISOString() }).where(eq(paymentAttempts.id, orderId));
+    await notifyPaymentFailed(member, { orderId, title: ebookCatalog[attempt.product].title });
     return NextResponse.redirect(`${origin}/checkout/fail?reason=approve`);
   }
 }

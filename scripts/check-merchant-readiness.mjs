@@ -36,7 +36,7 @@ const siteUrl = process.env.NEXT_PUBLIC_SITE_URL?.trim() || "https://danielsnote
 
 check("공개 HTTPS 판매 주소", /^https:\/\//.test(siteUrl), "NEXT_PUBLIC_SITE_URL에 실제 심사 도메인을 입력하세요.");
 check("고객센터 전화번호", /^0\d{1,2}-\d{3,4}-\d{4}$/.test(phone), "NEXT_PUBLIC_BUSINESS_PHONE에 하이픈을 포함한 공개 전화번호를 입력하세요.");
-check("사업자 정보 표시", ["플로렌스랩", "217-26-12405", "2020-서울구로-0138"].every((value) => footer.includes(value)), "공통 푸터의 사업자 정보를 복구하세요.");
+check("사업자 정보 표시", ["플로렌스랩", "217-26-12405", "2026-서울구로-1222"].every((value) => footer.includes(value)), "공통 푸터의 사업자 정보를 복구하세요.");
 check("전자책 3종·가격·제공 안내", payment.includes("PDF 전자책 3종") && payment.includes("19,000원") && payment.includes("별도의 배송은 없습니다"), "결제·이용 안내를 확인하세요.");
 check("이용약관", terms.includes("카카오페이") && terms.includes("Npay") && terms.includes("청약철회"), "결제수단과 디지털 콘텐츠 제공 조건을 약관에 표시하세요.");
 check("환불정책", refund.includes("구매일로부터 7일") && refund.includes("열람 또는 다운로드"), "환불 가능 기간과 제한 조건을 확인하세요.");

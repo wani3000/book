@@ -23,7 +23,7 @@ export async function getAuthenticatedMember(request: Request) {
   if (!session) return null;
   const member = await getDb().query.members.findFirst({ where: eq(members.id, session.id) });
   if (!member || member.status !== "active") return null;
-  return { ...member, isAdmin: member.role === "admin" || isConfiguredAdmin(member.email) };
+  return { ...member, authenticatedAt: session.authenticatedAt, isAdmin: member.role === "admin" || isConfiguredAdmin(member.email) };
 }
 
 export function hasRecentAuthentication(
@@ -45,6 +45,9 @@ export function publicMember(member: NonNullable<Awaited<ReturnType<typeof getAu
     role: member.isAdmin ? "admin" : "member",
     status: member.status,
     marketingConsent: member.marketingConsent === 1,
+    notificationEmail: member.notificationEmail,
+    pendingNotificationEmail: member.pendingNotificationEmail,
+    notificationEmailVerifiedAt: member.notificationEmailVerifiedAt,
     createdAt: member.createdAt,
     lastLoginAt: member.lastLoginAt,
   };

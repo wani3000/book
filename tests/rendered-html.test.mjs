@@ -273,8 +273,8 @@ test("Kakao-only accounts never expose the internal fallback email in the interf
   const kakaoUi = await readFile(new URL("app/components/KakaoAccount.tsx", root), "utf8");
   assert.match(dashboard, /@daniels-note\.kakao\.local/);
   assert.match(dashboard, /카카오 계정으로 로그인/);
-  assert.match(dashboard, /카카오가 이메일을 제공하지 않아 계정 종류만 표시합니다/);
-  assert.match(dashboard, /disabled=\{!hasCustomerEmail\}/);
+  assert.match(dashboard, /카카오가 이메일을 제공하지 않아 계정 종류만 표시해요/);
+  assert.match(dashboard, /disabled=\{!hasCustomerEmail && !member\.notificationEmail\}/);
   assert.match(pendingApi, /emailAvailable: !pending\.email\.endsWith/);
   assert.match(pendingApi, /const marketingConsent = !pending\.email\.endsWith/);
   assert.match(kakaoUi, /카카오에서 이메일을 제공하지 않아 이메일 소식 수신 항목은 표시하지 않습니다/);
@@ -387,7 +387,7 @@ test("merchant review pages disclose seller, privacy, and refund rules", async (
   const refund = await readFile(new URL("app/refund/page.tsx", root), "utf8");
   const payment = await readFile(new URL("app/payment/page.tsx", root), "utf8");
   assert.match(footer, /217-26-12405/);
-  assert.match(footer, /제 2020-서울구로-0138호/);
+  assert.match(footer, /제2026-서울구로-1222호/);
   assert.match(footer, /서울특별시 구로구 고척로 49/);
   assert.doesNotMatch(footer, /고척로 49,/);
   assert.doesNotMatch(terms, /고척로 49,/);
@@ -520,6 +520,7 @@ test("P1 security, accessibility, health, audit, and notification controls exist
   const schema = await readFile(new URL("db/schema.ts", root), "utf8");
   const health = await readFile(new URL("app/api/health/route.ts", root), "utf8");
   const notices = await readFile(new URL("app/notifications/outbox.ts", root), "utf8");
+  const noticeEvents = await readFile(new URL("app/notifications/events.ts", root), "utf8");
   const kakaoApproval = await readFile(new URL("app/api/kakaopay/approve/route.ts", root), "utf8");
   const naverApproval = await readFile(new URL("app/api/naverpay/return/route.ts", root), "utf8");
   const refunds = await readFile(new URL("app/api/admin/refunds/route.ts", root), "utf8");
@@ -535,14 +536,47 @@ test("P1 security, accessibility, health, audit, and notification controls exist
   assert.match(home, /자동 전환 일시정지/);
   assert.match(schema, /auditLogs/);
   assert.match(schema, /notificationOutbox/);
-  assert.match(health, /schema: "0008"/);
+  assert.match(health, /schema: "0009"/);
   assert.match(health, /authIdentities/);
   assert.match(health, /notificationOutbox/);
   assert.match(notices, /Transactional notice could not be recorded/);
-  assert.match(kakaoApproval, /event: "payment\.completed"/);
-  assert.match(naverApproval, /event: "payment\.completed"/);
-  assert.match(refunds, /"refund\.completed"/);
-  assert.match(refunds, /"refund\.rejected"/);
+  assert.match(kakaoApproval, /notifyPaymentCompleted/);
+  assert.match(naverApproval, /notifyPaymentCompleted/);
+  assert.match(refunds, /notifyRefundCompleted/);
+  assert.match(refunds, /notifyRefundRejected/);
+  assert.match(noticeEvents, /"payment\.completed"/);
+  assert.match(noticeEvents, /"refund\.reviewing"/);
+});
+
+test("friendly email journey covers member, payment, refund, marketing, verification, and retries", async () => {
+  const templates = await readFile(new URL("app/notifications/templates.ts", root), "utf8");
+  const events = await readFile(new URL("app/notifications/events.ts", root), "utf8");
+  const outbox = await readFile(new URL("app/notifications/outbox.ts", root), "utf8");
+  const emailApi = await readFile(new URL("app/api/account/email/route.ts", root), "utf8");
+  const adminApi = await readFile(new URL("app/api/admin/notifications/route.ts", root), "utf8");
+  const migration = await readFile(new URL("drizzle/0009_friendly_email_journey.sql", root), "utf8");
+  assert.match(templates, /friendlyEmail/);
+  assert.match(templates, /도움이 필요하면/);
+  assert.match(events, /환영해요/);
+  assert.match(events, /완료되었어요/);
+  assert.match(events, /notifyWelcome/);
+  assert.match(events, /notifyPaymentCancelled/);
+  assert.match(events, /notifyPaymentFailed/);
+  assert.match(events, /notifyRefundReviewing/);
+  assert.match(events, /notifyRefundRejected/);
+  assert.match(events, /notifyMarketingPreference/);
+  assert.match(events, /notifyAccountDeleted/);
+  assert.match(events, /notifyEmailChanged/);
+  assert.match(events, /receiptAttachment/);
+  assert.match(outbox, /sendWithRetry/);
+  assert.match(outbox, /retryPendingNotices/);
+  assert.match(outbox, /reply_to/);
+  assert.match(emailApi, /notificationEmailTokenHash/);
+  assert.match(emailApi, /30 \* 60 \* 1000/);
+  assert.match(adminApi, /marketingConsent/);
+  assert.match(adminApi, /retryPendingNotices/);
+  assert.match(migration, /notification_email/);
+  assert.match(migration, /attempt_count/);
 });
 
 test("sensitive admin mutations require a recent login", async () => {

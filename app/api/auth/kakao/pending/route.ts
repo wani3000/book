@@ -6,6 +6,7 @@ import { KAKAO_PENDING_COOKIE, readKakaoPendingToken } from "@/app/auth/kakao";
 import { cookieValue, createSessionToken, SESSION_COOKIE, SESSION_MAX_AGE } from "@/app/auth/session";
 import { getDb } from "@/db";
 import { authIdentities, members } from "@/db/schema";
+import { notifyWelcome } from "@/app/notifications/events";
 
 export const dynamic = "force-dynamic";
 
@@ -30,6 +31,7 @@ export async function POST(request: Request) {
     const marketingConsent = !pending.email.endsWith("@daniels-note.kakao.local") && body.marketingConsent === true ? 1 : 0;
     let memberId = pending.memberId;
     let existing = memberId ? await getDb().query.members.findFirst({ where: eq(members.id, memberId) }) : null;
+    const reactivated = Boolean(existing);
     if (pending.flow === "reactivate" && (!existing || existing.status !== "deleted")) {
       return NextResponse.json({ error: "재가입할 계정 상태를 확인할 수 없습니다." }, { status: 409 });
     }
@@ -84,6 +86,8 @@ export async function POST(request: Request) {
       target: [authIdentities.provider, authIdentities.providerSubject],
       set: { memberId, providerEmail: pending.email, lastLoginAt: now },
     });
+
+    await notifyWelcome({ id: memberId, email: pending.email, displayName: pending.name, name: pending.name }, reactivated);
 
     const sessionUser = { id: memberId, email: pending.email, name: pending.name, picture: pending.picture };
     const token = await createSessionToken(sessionUser);

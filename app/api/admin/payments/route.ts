@@ -7,7 +7,7 @@ import { getNaverPayHistory } from "@/app/naverpay/server";
 import { getDb } from "@/db";
 import { auditLogs, members, orders, paymentAttempts } from "@/db/schema";
 import { requireSameOrigin } from "@/app/security/request";
-import { deliverNotice } from "@/app/notifications/outbox";
+import { notifyPaymentCompleted, notifyRefundCompleted } from "@/app/notifications/events";
 
 export const dynamic = "force-dynamic";
 
@@ -76,7 +76,7 @@ export async function POST(request: Request) {
         getDb().insert(auditLogs).values({ id: crypto.randomUUID(), actorMemberId: admin.id, action: "payment.reconcile.refunded", entityType: "payment_attempt", entityId: attempt.id, createdAt: now }),
       ]);
       const customer = await getDb().query.members.findFirst({ where: eq(members.id, attempt.memberId) });
-      if (customer) await deliverNotice({ memberId: customer.id, recipient: customer.email, event: "refund.completed", subject: "[다니엘의 노트] 환불이 완료되었습니다.", text: `${ebookCatalog[attempt.product].title} 환불이 완료되었습니다. 주문번호: ${attempt.id}\n환불 완료와 함께 전자책 열람 권한이 종료되었습니다.` });
+      if (customer) await notifyRefundCompleted(customer, { orderId: attempt.id, title: ebookCatalog[attempt.product].title });
       return NextResponse.json({ ok: true, status: "refunded" });
     }
     if (!paid) {
@@ -102,7 +102,7 @@ export async function POST(request: Request) {
       getDb().insert(auditLogs).values({ id: crypto.randomUUID(), actorMemberId: admin.id, action: "payment.reconcile.paid", entityType: "payment_attempt", entityId: attempt.id, createdAt: now }),
     ]);
     const customer = await getDb().query.members.findFirst({ where: eq(members.id, attempt.memberId) });
-    if (customer) await deliverNotice({ memberId: customer.id, recipient: customer.email, event: "payment.completed", subject: "[다니엘의 노트] 결제가 확인되었습니다.", text: `${book.title} 결제가 확인되어 열람 권한이 복구되었습니다. 주문번호: ${attempt.id}\n마이페이지 내 서재에서 전자책을 읽을 수 있습니다.` });
+    if (customer) await notifyPaymentCompleted(customer, { orderId: attempt.id, title: book.title, amount: attempt.amount, provider: attempt.provider === "naverpay" ? "Npay" : "카카오페이" }, true);
     return NextResponse.json({ ok: true, status: "paid" });
   } catch {
     await getDb().update(paymentAttempts).set({ status: "reconcile", errorCode: "RECONCILE_LOOKUP_FAILED", updatedAt: new Date().toISOString() }).where(eq(paymentAttempts.id, attempt.id));

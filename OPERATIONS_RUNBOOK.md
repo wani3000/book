@@ -28,7 +28,7 @@
 - 월 1회 별도 스테이징 DB에 최근 백업을 복원해 회원·주문·권한·환불 건수를 대조한다.
 - migration은 순방향 적용을 원칙으로 하며, 파괴적 변경은 새 테이블 생성 → 복사 → 검증 → 전환 순서로 한다.
 - 2026-07-22 로컬 D1에서 migration `0008_prelaunch_p1.sql` 적용 전 SQLite 백업을 만들고, 백업 복제본 복원 → migration 재적용 → `PRAGMA integrity_check`와 신규 테이블·열 검사를 통과했다. 이 결과는 운영 D1 백업을 대신하지 않는다.
-- 운영 배포 후 `/api/health` 응답의 `schema`가 `0008`인지 확인한다. `migration-required`이면 판매를 열지 말고 운영 D1에 `0006`~`0008`을 순서대로 적용한다.
+- 운영 배포 후 `/api/health` 응답의 `schema`가 `0009`인지 확인한다. `migration-required`이면 판매를 열지 말고 운영 D1에 누락된 migration을 순서대로 적용한다.
 - 2026-07-23 운영 D1의 애플리케이션 테이블 9개를 JSON으로 내보내고, 별도 SQLite 복제본에 복원해 테이블별 행 수 일치와 `PRAGMA integrity_check=ok`를 확인했다. 백업 파일은 Git에서 제외된 운영 임시 디렉터리에 보관한다.
 
 ## 전자책 원본 보관
@@ -48,9 +48,11 @@
 ## 알림 메일
 
 - `RESEND_API_KEY`, `TRANSACTIONAL_EMAIL_FROM`이 있으면 거래 알림을 전송한다.
-- 키가 없거나 전송 실패한 알림은 `notification_outbox`에 남는다. 운영자는 `pending`·`failed`를 확인해 재처리한다.
+- `CUSTOMER_SUPPORT_EMAIL`은 모든 자동 메일의 Reply-To 주소다. 실제로 수신 가능한 고객센터 주소를 사용한다.
+- 키가 없거나 전송 실패한 알림은 `notification_outbox`에 남는다. 일시적인 전송 오류는 동일 idempotency key로 최대 3회 자동 재시도하며, 운영자는 `pending`·`failed`를 확인해 관리자 화면에서 다시 처리한다.
 - 카카오가 이메일을 제공하지 않은 계정에는 이메일을 보내지 않고 마이페이지 상태를 기준 정보로 사용한다.
-- 발신 도메인 인증 후 결제 완료, 환불 신청, 환불 거절, 환불 완료를 각각 1건 테스트하고 수신함과 `notification_outbox.status='sent'`를 함께 확인한다.
+- 마케팅 메일은 관리자 운영 현황에서 발송하며 `marketing_consent=1`인 활성 회원에게만 보낸다. 발송 전 제목·본문·버튼 주소를 한 번 더 확인한다.
+- 발신 도메인 인증 후 환영, 결제 완료·실패·취소, 환불 신청·검토·거절·완료, 이메일 변경을 각각 테스트하고 수신함과 `notification_outbox.status='sent'`를 함께 확인한다.
 
 ## 카카오 계정 연결 해제
 

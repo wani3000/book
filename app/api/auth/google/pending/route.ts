@@ -6,6 +6,7 @@ import { isConfiguredAdmin } from "@/app/auth/member";
 import { PRIVACY_VERSION, TERMS_VERSION } from "@/app/account/policy";
 import { getDb } from "@/db";
 import { authIdentities, members } from "@/db/schema";
+import { notifyWelcome } from "@/app/notifications/events";
 
 export const dynamic = "force-dynamic";
 
@@ -69,6 +70,7 @@ export async function POST(request: Request) {
     target: [authIdentities.provider, authIdentities.providerSubject],
     set: { memberId, providerEmail: pending.email, lastLoginAt: now },
   });
+  await notifyWelcome({ id: memberId, email: pending.email, displayName: pending.name, name: pending.name }, Boolean(existing));
   const token = await createSessionToken({ id: memberId, email: pending.email, name: pending.name, picture: pending.picture });
   const response = NextResponse.json({
     user: { id: memberId, email: pending.email, name: pending.name, displayName: pending.name, picture: pending.picture },

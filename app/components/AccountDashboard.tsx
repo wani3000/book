@@ -17,6 +17,9 @@ type Member = {
   picture?: string;
   role: "member" | "admin";
   marketingConsent: boolean;
+  notificationEmail?: string | null;
+  pendingNotificationEmail?: string | null;
+  notificationEmailVerifiedAt?: string | null;
   createdAt: string;
   linkedProviders: string[];
 };
@@ -109,6 +112,15 @@ export default function AccountDashboard({ section = "overview" }: { section?: M
 
   useEffect(() => {
     window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+    if (section === "profile") {
+      const url = new URL(window.location.href);
+      const emailStatus = url.searchParams.get("email");
+      const emailMessage = emailStatus === "verified" ? "새 알림 이메일이 확인되었어요. 앞으로 이 주소로 안내해 드릴게요."
+        : emailStatus === "expired" ? "확인 링크가 만료되었어요. 새 확인 메일을 다시 요청해 주세요."
+          : emailStatus === "invalid" ? "확인 링크가 올바르지 않아요. 새 확인 메일을 다시 요청해 주세요." : "";
+      if (emailMessage) window.setTimeout(() => setMessage(emailMessage), 0);
+      if (emailStatus) { url.searchParams.delete("email"); window.history.replaceState(null, "", `${url.pathname}${url.search}`); }
+    }
   }, [section]);
 
   async function saveProfile(event: FormEvent<HTMLFormElement>) {
@@ -122,6 +134,24 @@ export default function AccountDashboard({ section = "overview" }: { section?: M
     });
     const data = await response.json();
     setMessage(response.ok ? "회원 정보가 저장되었습니다." : data.error ?? "저장하지 못했습니다.");
+    if (response.ok) await load();
+  }
+
+  async function requestEmailChange(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const form = new FormData(event.currentTarget);
+    setMessage("확인 메일을 보내고 있어요…");
+    const response = await fetch("/api/account/email", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email: form.get("notificationEmail") }) });
+    const data = await response.json().catch(() => ({})) as { message?: string; error?: string };
+    setMessage(response.ok ? data.message ?? "확인 메일을 보냈어요." : data.error ?? "확인 메일을 보내지 못했어요.");
+    if (response.ok) await load();
+  }
+
+  async function resetNotificationEmail() {
+    setMessage("알림 이메일을 바꾸고 있어요…");
+    const response = await fetch("/api/account/email", { method: "DELETE" });
+    const data = await response.json().catch(() => ({})) as { message?: string; error?: string };
+    setMessage(response.ok ? data.message ?? "로그인 이메일로 바꿨어요." : data.error ?? "바꾸지 못했어요.");
     if (response.ok) await load();
   }
 
@@ -230,7 +260,8 @@ export default function AccountDashboard({ section = "overview" }: { section?: M
         </section>}
 
         {section === "profile" && <div className="mypage-profile-sections"><section id="profile" className="mypage-panel mypage-profile-panel">
-          <form className="profile-form" onSubmit={saveProfile}><label>표시 이름<input name="displayName" defaultValue={member.displayName} minLength={2} maxLength={30} required /></label><label>{hasCustomerEmail ? "이메일" : "로그인 계정"}<input className="profile-readonly-field" value={accountLabel} disabled aria-describedby="profile-email-note" /><small id="profile-email-note">{hasCustomerEmail ? "가입한 로그인 계정의 확인된 이메일입니다." : "카카오가 이메일을 제공하지 않아 계정 종류만 표시합니다."}</small></label><label className="profile-checkbox"><input type="checkbox" name="marketingConsent" defaultChecked={member.marketingConsent} disabled={!hasCustomerEmail} /><span><b>새 책과 할인 소식 받기</b><small>{hasCustomerEmail ? "언제든 이 설정을 끌 수 있습니다." : "이메일 계정을 연결하면 소식 수신을 설정할 수 있습니다."}</small></span></label><button type="submit">변경사항 저장</button><p role="status">{message}</p></form>
+          <form className="profile-form" onSubmit={saveProfile}><label>표시 이름<input name="displayName" defaultValue={member.displayName} minLength={2} maxLength={30} required /></label><label>{hasCustomerEmail ? "로그인 이메일" : "로그인 계정"}<input className="profile-readonly-field" value={accountLabel} disabled aria-describedby="profile-email-note" /><small id="profile-email-note">{hasCustomerEmail ? "로그인할 때 사용하는 확인된 이메일이에요." : "카카오가 이메일을 제공하지 않아 계정 종류만 표시해요."}</small></label><label className="profile-checkbox"><input type="checkbox" name="marketingConsent" defaultChecked={member.marketingConsent} disabled={!hasCustomerEmail && !member.notificationEmail} /><span><b>새 책과 할인 소식 받기</b><small>{hasCustomerEmail || member.notificationEmail ? "언제든 이 설정을 끌 수 있어요." : "알림 이메일을 등록하면 소식을 받을 수 있어요."}</small></span></label><button type="submit">변경사항 저장</button></form>
+          <form className="profile-form profile-email-form" onSubmit={requestEmailChange}><div className="mypage-clean-heading"><h2>알림 이메일</h2><p>결제·환불 안내와 새 소식을 받을 주소를 로그인 이메일과 다르게 설정할 수 있어요.</p></div><label>현재 알림 이메일<input className="profile-readonly-field" value={member.notificationEmail || (hasCustomerEmail ? member.email : "아직 등록되지 않았어요")} disabled /></label><label>새 알림 이메일<input name="notificationEmail" type="email" autoComplete="email" placeholder="name@example.com" required /></label>{member.pendingNotificationEmail && <small>{member.pendingNotificationEmail}로 확인 메일을 보냈어요. 확인이 끝나면 주소가 바뀌어요.</small>}<div className="profile-email-actions"><button type="submit">확인 메일 보내기</button>{member.notificationEmail && hasCustomerEmail && <button type="button" onClick={resetNotificationEmail}>로그인 이메일로 되돌리기</button>}</div></form><p role="status">{message}</p>
         </section>
 
         <section className="mypage-panel identity-connections"><div className="mypage-clean-heading"><h2>로그인 계정 연결</h2><p>로그인 수단을 추가해도 구매 내역과 PDF 권한은 하나의 회원 계정에 그대로 유지됩니다.</p></div><GoogleIdentity connected={member.linkedProviders.includes("google")} onChanged={load} /><KakaoAccount mode="connect" connected={member.linkedProviders.includes("kakao")} onChanged={load} /></section>

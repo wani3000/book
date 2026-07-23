@@ -5,7 +5,7 @@ import { processPaidOrderRefund, reconcileRefundOrder, RefundProcessError } from
 import { getDb } from "@/db";
 import { auditLogs, members, orders, refundRequests } from "@/db/schema";
 import { requireSameOrigin } from "@/app/security/request";
-import { deliverNotice } from "@/app/notifications/outbox";
+import { notifyRefundCompleted, notifyRefundRejected, notifyRefundReviewing } from "@/app/notifications/events";
 
 export const dynamic = "force-dynamic";
 
@@ -71,22 +71,18 @@ export async function PATCH(request: Request) {
     getDb().query.orders.findFirst({ where: eq(orders.id, refund.orderId) }),
     getDb().query.members.findFirst({ where: eq(members.id, refund.memberId) }),
   ]);
-  const notifyCustomer = async (event: string, subject: string, text: string) => {
-    if (!customer) return;
-    await deliverNotice({ memberId: customer.id, recipient: customer.email, event, subject, text });
-  };
-
   const now = new Date().toISOString();
   if (action === "review") {
     await getDb().update(refundRequests).set({ status: "reviewing", reviewedBy: admin.id, reviewedAt: now, updatedAt: now }).where(eq(refundRequests.id, refund.id));
     await auditRefund(admin.id, refund.id, action);
+    if (customer) await notifyRefundReviewing(customer, { orderId: refund.orderId, title: order?.productTitle ?? "전자책" });
     return NextResponse.json({ ok: true, status: "reviewing" });
   }
   if (action === "reject") {
     if (decisionNote.length < 5 || decisionNote.length > 500) return NextResponse.json({ error: "환불 불가 사유를 5자 이상 500자 이하로 입력해 주세요." }, { status: 400 });
     await getDb().update(refundRequests).set({ status: "rejected", decisionNote, reviewedBy: admin.id, reviewedAt: now, updatedAt: now }).where(eq(refundRequests.id, refund.id));
     await auditRefund(admin.id, refund.id, action, decisionNote);
-    await notifyCustomer("refund.rejected", "[다니엘의 노트] 환불 신청 검토가 완료되었습니다.", `${order?.productTitle ?? "전자책"} 환불 신청이 환불 불가로 처리되었습니다. 주문번호: ${refund.orderId}\n사유: ${decisionNote}\n마이페이지 주문 내역에서 처리 결과를 확인할 수 있습니다.`);
+    if (customer) await notifyRefundRejected(customer, { orderId: refund.orderId, title: order?.productTitle ?? "전자책" }, decisionNote);
     return NextResponse.json({ ok: true, status: "rejected" });
   }
   if (action === "reconcile") {
@@ -95,7 +91,7 @@ export async function PATCH(request: Request) {
       const nextStatus = result.status === "refunded" ? "refunded" : "reviewing";
       await getDb().update(refundRequests).set({ status: nextStatus, decisionNote: result.status === "refunded" ? "결제사업자 취소 완료 상태를 확인했습니다." : "결제사업자에서 아직 최종 취소 상태가 확인되지 않았습니다.", reviewedBy: admin.id, reviewedAt: now, updatedAt: now }).where(eq(refundRequests.id, refund.id));
       await auditRefund(admin.id, refund.id, action, nextStatus);
-      if (nextStatus === "refunded") await notifyCustomer("refund.completed", "[다니엘의 노트] 환불이 완료되었습니다.", `${order?.productTitle ?? "전자책"} 환불이 완료되었습니다. 주문번호: ${refund.orderId}\n환불 완료와 함께 전자책 열람 권한이 종료되었습니다.`);
+      if (nextStatus === "refunded" && customer) await notifyRefundCompleted(customer, { orderId: refund.orderId, title: order?.productTitle ?? "전자책" });
       return NextResponse.json({ ok: true, status: nextStatus, orderStatus: result.status });
     } catch (error) {
       const message = error instanceof RefundProcessError ? error.message : "결제사업자 상태를 확인하지 못했습니다.";
@@ -109,7 +105,7 @@ export async function PATCH(request: Request) {
     const nextStatus = result.status === "refunded" ? "refunded" : "reviewing";
     await getDb().update(refundRequests).set({ status: nextStatus, reviewedBy: admin.id, reviewedAt: new Date().toISOString(), updatedAt: new Date().toISOString() }).where(eq(refundRequests.id, refund.id));
     await auditRefund(admin.id, refund.id, action, nextStatus);
-    if (nextStatus === "refunded") await notifyCustomer("refund.completed", "[다니엘의 노트] 환불이 완료되었습니다.", `${order?.productTitle ?? "전자책"} 환불이 완료되었습니다. 주문번호: ${refund.orderId}\n환불 완료와 함께 전자책 열람 권한이 종료되었습니다.`);
+    if (nextStatus === "refunded" && customer) await notifyRefundCompleted(customer, { orderId: refund.orderId, title: order?.productTitle ?? "전자책" });
     return NextResponse.json({ ok: true, status: nextStatus, orderStatus: result.status });
   } catch (error) {
     const message = error instanceof RefundProcessError ? error.message : "환불 처리 결과를 확인하지 못했습니다.";

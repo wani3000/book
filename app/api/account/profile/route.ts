@@ -8,6 +8,7 @@ import { authIdentities, members, orders, refundRequests, reviews } from "@/db/s
 import { ACCOUNT_DELETE_CONFIRMATION } from "@/app/account/policy";
 import { unlinkKakaoUser } from "@/app/auth/kakao";
 import { requireSameOrigin } from "@/app/security/request";
+import { notifyAccountDeleted, notifyMarketingPreference } from "@/app/notifications/events";
 
 export const dynamic = "force-dynamic";
 
@@ -42,6 +43,7 @@ export async function PATCH(request: Request) {
     }
     const marketingConsent = body.marketingConsent === true ? 1 : 0;
     await getDb().update(members).set({ displayName, marketingConsent, updatedAt: new Date().toISOString() }).where(eq(members.id, member.id));
+    if (member.marketingConsent !== marketingConsent) await notifyMarketingPreference({ ...member, displayName }, marketingConsent === 1);
     return NextResponse.json({ ok: true, displayName, marketingConsent: marketingConsent === 1 });
   } catch {
     return NextResponse.json({ error: "회원 정보를 저장하지 못했습니다." }, { status: 500 });
@@ -75,11 +77,17 @@ export async function DELETE(request: Request) {
       }
     }
     const now = new Date().toISOString();
+    await notifyAccountDeleted(member);
     await getDb().update(members).set({
       email: `deleted-${member.id}@invalid.local`,
       name: "탈퇴 회원",
       displayName: "탈퇴 회원",
       picture: null,
+      notificationEmail: null,
+      pendingNotificationEmail: null,
+      notificationEmailTokenHash: null,
+      notificationEmailTokenExpiresAt: null,
+      notificationEmailVerifiedAt: null,
       status: "deleted",
       role: "member",
       deletedAt: now,

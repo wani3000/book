@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { getAuthenticatedMember, hasRecentAuthentication } from "@/app/auth/member";
 import { processPaidOrderRefund, RefundProcessError } from "@/app/refunds/process";
-import { deliverNotice } from "@/app/notifications/outbox";
+import { notifyRefundCompleted } from "@/app/notifications/events";
 import { requireSameOrigin } from "@/app/security/request";
 import { getDb } from "@/db";
 import { members, orders } from "@/db/schema";
@@ -23,7 +23,7 @@ export async function POST(request: Request) {
     if (result.status === "refunded") {
       const order = await getDb().query.orders.findFirst({ where: eq(orders.id, orderId) });
       const customer = order ? await getDb().query.members.findFirst({ where: eq(members.id, order.memberId) }) : null;
-      if (order && customer) await deliverNotice({ memberId: customer.id, recipient: customer.email, event: "refund.completed", subject: "[다니엘의 노트] 환불이 완료되었습니다.", text: `${order.productTitle} 환불이 완료되었습니다. 주문번호: ${order.id}\n환불 완료와 함께 전자책 열람 권한이 종료되었습니다.` });
+      if (order && customer) await notifyRefundCompleted(customer, { orderId: order.id, title: order.productTitle });
     }
     return NextResponse.json({ ok: true, status: result.status });
   } catch (error) {
