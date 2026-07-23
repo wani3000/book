@@ -26,8 +26,7 @@ function startAnalytics(measurementId: string) {
   }
 }
 
-export default function GoogleAnalytics() {
-  const measurementId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID?.trim();
+export default function GoogleAnalytics({ measurementId }: { measurementId?: string }) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const [consent, setConsent] = useState<"granted" | "denied" | null>(null);

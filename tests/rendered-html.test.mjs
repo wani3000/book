@@ -33,8 +33,9 @@ test("production metadata never falls back to localhost", async () => {
 test("Google Analytics only starts after an explicit visitor choice", async () => {
   const analytics = await readFile(new URL("app/components/GoogleAnalytics.tsx", root), "utf8");
   const privacy = await readFile(new URL("app/privacy/page.tsx", root), "utf8");
+  const layout = await readFile(new URL("app/layout.tsx", root), "utf8");
   const worker = await readFile(new URL("worker/index.ts", root), "utf8");
-  assert.match(analytics, /NEXT_PUBLIC_GA_MEASUREMENT_ID/);
+  assert.match(layout, /measurementId=\{process\.env\.NEXT_PUBLIC_GA_MEASUREMENT_ID/);
   assert.match(analytics, /consent !== "granted"/);
   assert.match(analytics, /동의하지 않아도 모든 기능을 그대로 이용할 수 있어요/);
   assert.match(privacy, /동의하지 않아도 회원가입·구매·전자책 열람/);

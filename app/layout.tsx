@@ -47,7 +47,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
       <head>
         <meta name="naver-site-verification" content="10986c83c4876b995ad8e090fb27231a711efabe" />
       </head>
-      <body><a className="skip-link" href="#main-content">본문 바로가기</a><div id="main-content" tabIndex={-1}>{children}</div><GoogleAnalytics /></body>
+      <body><a className="skip-link" href="#main-content">본문 바로가기</a><div id="main-content" tabIndex={-1}>{children}</div><GoogleAnalytics measurementId={process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID?.trim()} /></body>
     </html>
   );
 }
