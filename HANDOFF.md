@@ -54,6 +54,10 @@
 - `next build`, ESLint, 48개 구조·기능 테스트 통과
 - 상세 검수 기록: [`audit/sf-novel-launch-2026-07-24/REPORT.md`](audit/sf-novel-launch-2026-07-24/REPORT.md)
 - 결제사 운영 E2E는 카카오페이·Npay 승인 전까지 진행하지 않는다.
+- PR [#5](https://github.com/wani3000/book/pull/5)를 `main`에 병합했으며 앱 출시 커밋은 `b7d9eab46d85e99885a4704147f8d44f7d1bce54`다.
+- Vercel Production 배포가 Ready 상태이며 `https://danielsnote.com/consciousness` HTTP 200을 확인했다.
+- 운영 테스트 구매자 내 서재에 네 권이 표시되고, `/api/library/consciousness`에서 표지와 전체 299쪽 PDF가 열리는 것을 확인했다.
+- 비로그인 새 PDF API는 401, 추측 가능한 공개 PDF 경로 두 곳은 404를 확인했다.
 
 ## Vercel 이전 현황
 
@@ -78,7 +82,7 @@
 - GA4 측정 ID, 고객센터, 관리자·테스트 구매자 권한 환경변수 등록
 - 운영 도메인에서 `/api/auth/config` Google·카카오 모두 활성, 이메일 `configured` 확인
 - 테스트 구매자 Google 실제 로그인 성공
-- 운영 배포본에서 테스트 구매자 주문 내역 3건·내 서재 PDF 3권 권한 확인(새 SF소설은 로컬 카탈로그에 추가됐지만 아직 미배포)
+- 운영 배포본에서 테스트 구매자 주문 내역 4건·내 서재 PDF 4권 권한 확인
 - Resend 운영 키로 `noreply@danielsnote.com` 실제 테스트 메일 발송 성공
 - Google Search Console 사이트맵 `성공`, 발견된 페이지 9개 확인
 - GA4 `다니엘의 노트` 속성과 `G-L5MG51YXBJ` 태그 로드 확인
