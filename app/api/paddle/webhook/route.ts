@@ -13,6 +13,7 @@ function expectedPriceId(product: string) {
   if (product === "codex") return process.env.NEXT_PUBLIC_CODEX_PRICE_ID;
   if (product === "career") return process.env.NEXT_PUBLIC_CAREER_PRICE_ID;
   if (product === "jane") return process.env.NEXT_PUBLIC_JANE_PRICE_ID;
+  if (product === "consciousness") return process.env.NEXT_PUBLIC_CONSCIOUSNESS_PRICE_ID;
   return undefined;
 }
 

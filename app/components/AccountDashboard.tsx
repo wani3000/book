@@ -26,11 +26,12 @@ type Member = {
 
 type Order = { id: string; product: string; productTitle: string; amount: number; currency: string; status: string; provider?: string; providerReference?: string; createdAt: string; downloadUrl?: string; testEntitlement?: boolean; firstAccessedAt?: string | null; simpleChangeEligible?: boolean; refundId?: string | null; refundStatus?: string | null; refundDecisionNote?: string | null; refundRequestedAt?: string | null };
 
-const bookLinks: Record<string, string> = { codex: "/codex", career: "/career", jane: "/jane" };
+const bookLinks: Record<string, string> = { codex: "/codex", career: "/career", jane: "/jane", consciousness: "/consciousness" };
 const libraryBooks: Record<string, { cover: string; creator: string }> = {
   codex: { cover: "/ebook-cover.png", creator: "필립" },
   career: { cover: "/career-cover.png", creator: "필립" },
   jane: { cover: "/jane-cover.png", creator: "제인" },
+  consciousness: { cover: "/consciousness-cover.png", creator: "제임스 한" },
 };
 type MyPageSection = "overview" | "library" | "orders" | "profile";
 

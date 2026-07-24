@@ -23,6 +23,11 @@ export function GET(request: Request) {
     <priority>0.9</priority>
   </url>
   <url>
+    <loc>${origin}/consciousness</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
     <loc>${origin}/payment</loc>
     <changefreq>yearly</changefreq>
     <priority>0.4</priority>

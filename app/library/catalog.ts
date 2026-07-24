@@ -20,6 +20,13 @@ export const ebookCatalog = {
     objectKey: "ebooks/jane-fc5efcfd.pdf",
     filename: "flight-attendant-to-it-jane.pdf",
   },
+  consciousness: {
+    product: "consciousness",
+    title: "의식의 국경",
+    amount: 19000,
+    objectKey: "ebooks/consciousness-31aa02d7.pdf",
+    filename: "의식의 국경.pdf",
+  },
 } as const;
 
 export type EbookProduct = keyof typeof ebookCatalog;

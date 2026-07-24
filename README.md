@@ -1,6 +1,6 @@
 # 다니엘의 노트
 
-경험 기반 PDF 전자책 3권을 판매하는 Next.js 웹사이트다. 운영 도메인은 `https://danielsnote.com`, 배포 대상은 Vercel 프로젝트 `danielsnote`다.
+실전 경험 기반 전자책 3권과 장편 SF소설 1권을 판매하는 Next.js 웹사이트다. 운영 도메인은 `https://danielsnote.com`, 배포 대상은 Vercel 프로젝트 `danielsnote`다.
 
 최신 상태와 남은 외부 작업은 [`HANDOFF.md`](HANDOFF.md), 운영 절차는 [`OPERATIONS_RUNBOOK.md`](OPERATIONS_RUNBOOK.md), Vercel 이전 절차는 [`VERCEL_MIGRATION.md`](VERCEL_MIGRATION.md)를 먼저 확인한다.
 
@@ -11,6 +11,7 @@
 | `/codex` | 아이디어를 서비스로 바꾸는 Codex 사용법 | 230쪽 | 19,000원 |
 | `/career` | 커리어도 디자인할 수 있습니다 | 90쪽 | 19,000원 |
 | `/jane` | 승무원 다음은 IT였습니다 | 78쪽 | 19,000원 |
+| `/consciousness` | 의식의 국경 | 299쪽 | 19,000원 |
 
 ## 기술 구성
 
@@ -44,7 +45,7 @@ NEXT_PUBLIC_BUSINESS_PHONE=070-4715-6450 npm run check:merchant
 - `app/library/catalog.ts`: 비공개 Blob 경로와 판매 파일명
 - `app/api/library/[product]/route.ts`: 로그인·구매 권한 확인 후 PDF 스트리밍
 
-PDF는 `public/`에 두지 않는다. 현재 Vercel Blob에는 세 권이 `ebooks/` 아래 비공개 객체로 업로드되어 있다.
+PDF는 `public/`에 두지 않는다. 네 권 모두 Vercel Blob의 `ebooks/` 아래 비공개 객체로 업로드되어 있으며 `의식의 국경`은 `ebooks/consciousness-31aa02d7.pdf`를 사용한다.
 
 ## 결제 상태
 

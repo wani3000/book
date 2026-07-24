@@ -1,6 +1,6 @@
 # 다니엘의 노트 인계 문서
 
-최종 갱신: 2026-07-23 KST
+최종 갱신: 2026-07-24 KST
 
 ## 가장 먼저 확인할 것
 
@@ -18,7 +18,7 @@
 
 ## 구현 완료 상태
 
-- 전자책 마켓 홈과 상품 상세 3종
+- 전자책 마켓 홈과 상품 상세 4종
 - Google·카카오 로그인, 가입 동의, 계정 연결·해제, 로그아웃·탈퇴
 - `/mypage`, `/mypage/library`, `/mypage/orders`, `/mypage/profile`의 독립 URL 이동
 - 구매 내역, PDF 권한, 최초 열람 시각, 환불 신청·상태
@@ -38,8 +38,22 @@
 | 아이디어를 서비스로 바꾸는 Codex 사용법 | `/codex` | 230 | `ebooks/codex-7461d974.pdf` |
 | 커리어도 디자인할 수 있습니다 | `/career` | 90 | `ebooks/career-4e8b1d67.pdf` |
 | 승무원 다음은 IT였습니다 | `/jane` | 78 | `ebooks/jane-fc5efcfd.pdf` |
+| 의식의 국경 | `/consciousness` | 299 | `ebooks/consciousness-31aa02d7.pdf` |
 
-2026-07-23 확인 결과 Blob에는 세 파일이 최신 파일 크기와 동일하게 업로드됐다. 제인 상세페이지 분량도 실제 최신 PDF에 맞춰 `78쪽`으로 수정했다. PDF는 `public/`에 두지 않는다.
+2026-07-23 확인 결과 기존 세 파일은 Blob에 최신 파일 크기와 동일하게 업로드됐다. `의식의 국경`도 2026-07-24 비공개 Blob의 `ebooks/consciousness-31aa02d7.pdf`에 업로드하고, 다시 내려받아 원본과 크기 8,707,697바이트 및 SHA-256 `31aa02d78511cf54818123607ea3c1b4eccce87a2024cceaecc3a2999c2a357f`가 일치하는지 확인했다. PDF는 `public/`에 두지 않는다.
+
+## 2026-07-24 SF소설 상품 추가
+
+- 홈에 `SF소설` 카테고리와 네 번째 상품 카드 추가
+- `/consciousness`에 기존 교육 상품과 분리된 레트로 미래주의 SF 상세페이지 추가
+- 제목 `의식의 국경`, 저자 `제임스 한`, A5 299쪽, PDF, 판매가 19,000원 반영
+- 코발트블루·딥네이비·올리브그린·노란색과 최종 표지를 사용
+- 상품 카탈로그, 카카오페이·Npay·Paddle 보조 경로, 후기, 관리자, GA4, sitemap, 마이페이지와 테스트 구매자 권한에 `consciousness` 연결
+- PDF 사용자 표시 파일명은 `의식의 국경.pdf`
+- 데스크톱·모바일 화면, 스크롤 고정 구매 카드, 홈 4열, 기존 상품 3종을 로컬 검수
+- `next build`, ESLint, 48개 구조·기능 테스트 통과
+- 상세 검수 기록: [`audit/sf-novel-launch-2026-07-24/REPORT.md`](audit/sf-novel-launch-2026-07-24/REPORT.md)
+- 결제사 운영 E2E는 카카오페이·Npay 승인 전까지 진행하지 않는다.
 
 ## Vercel 이전 현황
 
@@ -64,7 +78,7 @@
 - GA4 측정 ID, 고객센터, 관리자·테스트 구매자 권한 환경변수 등록
 - 운영 도메인에서 `/api/auth/config` Google·카카오 모두 활성, 이메일 `configured` 확인
 - 테스트 구매자 Google 실제 로그인 성공
-- 테스트 구매자 주문 내역 3건·내 서재 PDF 3권 권한 확인
+- 운영 배포본에서 테스트 구매자 주문 내역 3건·내 서재 PDF 3권 권한 확인(새 SF소설은 로컬 카탈로그에 추가됐지만 아직 미배포)
 - Resend 운영 키로 `noreply@danielsnote.com` 실제 테스트 메일 발송 성공
 - Google Search Console 사이트맵 `성공`, 발견된 페이지 9개 확인
 - GA4 `다니엘의 노트` 속성과 `G-L5MG51YXBJ` 태그 로드 확인
@@ -112,7 +126,7 @@ NEXT_PUBLIC_BUSINESS_PHONE=070-4715-6450 npm run check:merchant
 node scripts/check-merchant-readiness.mjs
 ```
 
-배포 후에는 `/api/health`, 홈·상세 3종, 로그인 2종, 마이페이지 하위 URL, 테스트 구매자 PDF 3권, 비로그인 401, 미구매 403, 직접 PDF URL 404를 확인한다.
+배포 후에는 `/api/health`, 홈·상세 4종, 로그인 2종, 마이페이지 하위 URL, 테스트 구매자 PDF 4권, 비로그인 401, 미구매 403, 직접 PDF URL 404를 확인한다.
 
 ## 절대 금지
 

@@ -4,25 +4,27 @@ import test from "node:test";
 
 const root = new URL("../", import.meta.url);
 
-test("collection home connects all three ebook pages", async () => {
+test("collection home connects all four ebook pages", async () => {
   const source = await readFile(new URL("app/page.tsx", root), "utf8");
   const header = await readFile(new URL("app/components/StorefrontHeader.tsx", root), "utf8");
   assert.match(source, /href: "\/codex"/);
   assert.match(source, /href: "\/career"/);
   assert.match(source, /href: "\/jane"/);
+  assert.match(source, /href: "\/consciousness"/);
   assert.match(header, /다니엘의 노트/);
   assert.match(source, /return books\.filter/);
   assert.doesNotMatch(source, /class-promo-chip|실무에 바로 쓰는/);
   assert.doesNotMatch(source, /const curated|id="stories"|id="popular"/);
 });
 
-test("mobile menu uses the three storefront categories", async () => {
+test("mobile menu uses all storefront categories", async () => {
   const menu = await readFile(new URL("app/components/MobileBookMenu.tsx", root), "utf8");
   const header = await readFile(new URL("app/components/StorefrontHeader.tsx", root), "utf8");
   const styles = await readFile(new URL("app/globals.css", root), "utf8");
   assert.match(menu, /label: "전체"/);
   assert.match(menu, /label: "커리어"/);
   assert.match(menu, /label: "개발 · 생산성"/);
+  assert.match(menu, /label: "SF소설"/);
   assert.doesNotMatch(menu, /menuBooks|전체 전자책 보기/);
   assert.match(header, /<MobileBookMenu \/>/);
   assert.doesNotMatch(header, />전체 전자책</);
@@ -140,16 +142,31 @@ test("Jane book page includes career transition, commerce, and reviews", async (
   assert.match(source, /product: "jane"/);
 });
 
-test("all three sales pages match the current PDF editions", async () => {
+test("consciousness book page uses the approved SF publication facts and sales flow", async () => {
+  const page = await readFile(new URL("app/consciousness/page.tsx", root), "utf8");
+  const detail = await readFile(new URL("app/components/NovelDetailPage.tsx", root), "utf8");
+  assert.match(page, /의식의 국경/);
+  assert.match(page, /제임스 한/);
+  assert.match(detail, /내 몸인데/);
+  assert.match(detail, /A5 · 299쪽/);
+  assert.match(detail, /product="consciousness"/);
+  assert.match(detail, /ReviewSection product="consciousness"/);
+  assert.match(detail, /환불정책 보기/);
+  assert.doesNotMatch(`${page}\n${detail}`, /TODO|placeholder|AI|에이전트|올해 최고의 작품|베스트셀러/);
+});
+
+test("all four sales pages match the current PDF editions", async () => {
   const codex = await readFile(new URL("app/codex/page.tsx", root), "utf8");
   const career = await readFile(new URL("app/career/page.tsx", root), "utf8");
   const jane = await readFile(new URL("app/jane/page.tsx", root), "utf8");
+  const consciousness = await readFile(new URL("app/components/NovelDetailPage.tsx", root), "utf8");
   assert.match(codex, /pages: "230쪽"/);
   assert.match(codex, /50단계 실전 \+ 경험편 24장/);
   assert.match(career, /pages: "90쪽"/);
   assert.match(career, /20개 장 \+ 통합 별첨/);
   assert.match(jane, /pages: "78쪽"/);
   assert.match(jane, /22개 장 \+ 통합 실습팩/);
+  assert.match(consciousness, /A5 · 299쪽 · 7개 장/);
 });
 
 test("review API only exposes approved verified reviews", async () => {
@@ -367,7 +384,7 @@ test("account guide and schema document consent, deletion, and explicit reactiva
   assert.match(migration, /reactivated_at/);
 });
 
-test("test purchaser receives all three protected PDF entitlements", async () => {
+test("test purchaser receives all four protected PDF entitlements", async () => {
   const catalog = await readFile(new URL("app/library/catalog.ts", root), "utf8");
   const libraryApi = await readFile(new URL("app/api/library/[product]/route.ts", root), "utf8");
   const dashboard = await readFile(new URL("app/components/AccountDashboard.tsx", root), "utf8");
@@ -385,7 +402,9 @@ test("test purchaser receives all three protected PDF entitlements", async () =>
   assert.match(libraryApi, /"Cache-Control": "private, no-store, max-age=0"/);
   assert.doesNotMatch(libraryApi, /NextResponse\.redirect/);
   assert.match(dashboard, /PDF 읽기/);
-  for (const filename of ["codex-7461d974.pdf", "career-4e8b1d67.pdf", "jane-fc5efcfd.pdf"]) {
+  assert.match(catalog, /consciousness-31aa02d7\.pdf/);
+  assert.match(catalog, /filename: "의식의 국경\.pdf"/);
+  for (const filename of ["codex-7461d974.pdf", "career-4e8b1d67.pdf", "jane-fc5efcfd.pdf", "consciousness-31aa02d7.pdf"]) {
     await assert.rejects(access(new URL(`public/library-assets/${filename}`, root)));
   }
 });
@@ -456,7 +475,7 @@ test("merchant review pages disclose seller, privacy, and refund rules", async (
   assert.match(refund, /구매일로부터 7일/);
   assert.match(footer, /카카오톡 상담/);
   assert.match(footer, /결제·이용 안내/);
-  assert.match(payment, /PDF 전자책 3종/);
+  assert.match(payment, /PDF 전자책 4종/);
   assert.match(payment, /별도의 배송은 없습니다/);
 });
 

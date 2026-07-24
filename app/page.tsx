@@ -7,6 +7,7 @@ import {
   ArrowRight,
   Briefcase,
   Code,
+  Atom,
   MagnifyingGlass,
   RocketLaunch,
   SquaresFour,
@@ -57,12 +58,27 @@ const books = [
     badge: "커리어 전환",
     subtitle: "승무원 경험을 IT 역량으로",
   },
+  {
+    id: "consciousness",
+    href: "/consciousness",
+    image: "/consciousness-cover.png",
+    width: 1600,
+    height: 2263,
+    title: "의식의 국경",
+    creator: "제임스 한",
+    category: "SF소설",
+    tags: ["SF", "의식 이전", "정체성", "디지털 불멸"],
+    accent: "cobalt",
+    badge: "장편 SF",
+    subtitle: "다른 몸에서 눈을 떠도 나는 여전히 나일까",
+  },
 ];
 
 const categories = [
   { label: "전체", icon: SquaresFour },
   { label: "커리어", icon: Briefcase },
   { label: "개발 · 생산성", icon: Code },
+  { label: "SF소설", icon: Atom },
 ];
 
 export default function BookstoreHome() {
@@ -118,7 +134,8 @@ export default function BookstoreHome() {
     return books.filter((book) => {
       const categoryMatch = category === "전체" ||
         (category === "커리어" && (book.id === "career" || book.id === "jane")) ||
-        (category === "개발 · 생산성" && book.id === "codex");
+        (category === "개발 · 생산성" && book.id === "codex") ||
+        (category === "SF소설" && book.id === "consciousness");
       const queryMatch = !normalized || [book.title, book.creator, book.category, book.subtitle, ...book.tags].join(" ").toLowerCase().includes(normalized);
       return categoryMatch && queryMatch;
     });
@@ -143,7 +160,7 @@ export default function BookstoreHome() {
       </section>
 
       <section className="class-content-section" id="books">
-        <div className="class-section-title"><h2>{query || category !== "전체" ? "검색한 전자책" : "세 권의 실전 전자책"}</h2></div>
+        <div className="class-section-title"><h2>{query || category !== "전체" ? "검색한 전자책" : "새로운 생각을 여는 네 권의 전자책"}</h2></div>
         {visible.length ? (
           <div className="class-product-grid">
             {visible.map((book) => (
@@ -162,7 +179,7 @@ export default function BookstoreHome() {
         <div className="class-all-books-heading">
           <small>ALL EBOOKS</small>
           <h2 id="all-books-title">전체 전자책</h2>
-          <p>실제 경험을 다음 기회로 연결하는 세 권의 실전 가이드</p>
+          <p>실전 경험을 담은 가이드부터 질문을 남기는 장편소설까지</p>
         </div>
         <div className="class-category-grid" aria-label="전자책 카테고리">
           {categories.map(({ label, icon: Icon }) => (
