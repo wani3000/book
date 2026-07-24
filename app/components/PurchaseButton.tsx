@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import { DIGITAL_CONTENT_CONSENT_TEXT } from "@/app/payments/policy";
 import { trackAnalyticsEvent } from "@/app/analytics/client";
 
-type ProductSlug = "codex" | "career" | "jane";
+type ProductSlug = "codex" | "career" | "jane" | "consciousness";
 
 type Props = {
   product: ProductSlug;
@@ -29,6 +29,11 @@ const productConfig = {
     title: "승무원 다음은 IT였습니다",
     priceId: process.env.NEXT_PUBLIC_JANE_PRICE_ID,
     purchaseUrl: process.env.NEXT_PUBLIC_JANE_PURCHASE_URL,
+  },
+  consciousness: {
+    title: "의식의 국경",
+    priceId: process.env.NEXT_PUBLIC_CONSCIOUSNESS_PRICE_ID,
+    purchaseUrl: process.env.NEXT_PUBLIC_CONSCIOUSNESS_PURCHASE_URL,
   },
 };
 

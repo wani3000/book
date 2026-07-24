@@ -2,7 +2,7 @@
 
 import { FormEvent, useEffect, useState } from "react";
 
-type ProductSlug = "codex" | "career" | "jane";
+type ProductSlug = "codex" | "career" | "jane" | "consciousness";
 
 type Review = {
   id: number;

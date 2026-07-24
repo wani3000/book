@@ -55,6 +55,7 @@ export default function GoogleAnalytics({ measurementId }: { measurementId?: str
       "/codex": "아이디어를 서비스로 바꾸는 Codex 사용법",
       "/career": "커리어도 디자인할 수 있습니다",
       "/jane": "승무원 다음은 IT였습니다",
+      "/consciousness": "의식의 국경",
     };
     const itemName = products[pathname];
     if (itemName) {

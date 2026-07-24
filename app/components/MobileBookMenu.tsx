@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { ArrowRight, Briefcase, Code, List, SquaresFour, X } from "@phosphor-icons/react";
+import { ArrowRight, Atom, Briefcase, Code, List, SquaresFour, X } from "@phosphor-icons/react";
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 
@@ -8,6 +8,7 @@ const menuCategories = [
   { href: "/#all-books-title", label: "전체", icon: SquaresFour },
   { href: "/?category=커리어#all-books-title", label: "커리어", icon: Briefcase },
   { href: "/?category=개발%20%C2%B7%20생산성#all-books-title", label: "개발 · 생산성", icon: Code },
+  { href: "/?category=SF소설#all-books-title", label: "SF소설", icon: Atom },
 ];
 
 export default function MobileBookMenu() {

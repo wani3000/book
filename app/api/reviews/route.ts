@@ -5,7 +5,7 @@ import { getAuthenticatedMember } from "@/app/auth/member";
 import { isEbookProduct, isTestPurchaser } from "@/app/library/catalog";
 import { enforceRateLimit, requireSameOrigin } from "@/app/security/request";
 
-const products = new Set(["codex", "career", "jane"]);
+const products = new Set(["codex", "career", "jane", "consciousness"]);
 
 export async function GET(request: Request) {
   const product = new URL(request.url).searchParams.get("product") ?? "";
